@@ -1,4 +1,4 @@
-name: Lint feature files
+name: Check
 
 on:
   pull_request:
