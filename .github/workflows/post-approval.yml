@@ -1,0 +1,21 @@
+name: Post Approval
+
+on:
+    pull_request:
+        types: [closed]
+
+jobs:
+    post-approval:
+        name: Chores after merging a PR
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Check out code
+                if: github.event.pull_request.merged && startsWith(github.head_ref, 'gherkin-acceptance/MANUSCRIPT-')
+                uses: actions/checkout@v1
+
+            -   name:
+                if: success() && steps.findPr.outputs.number && github.event.pull_request.merged && startsWith(github.head_ref, 'gherkin-acceptance/MANUSCRIPT-')
+                env:
+                    HEAD_REF: ${{ github.head_ref }}
+                run: |
+                    echo 'Merged ${HEAD_REF}'
