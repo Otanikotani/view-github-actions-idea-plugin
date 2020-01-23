@@ -7,7 +7,7 @@ import lombok.Value;
 
 @Value
 @NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
-public class GetCheckSuiteResponse {
+public class CheckSuitesResponse {
   int total_count;
-  List<CheckSuiteGetResult> check_suites;
+  List<CheckSuiteResponse> check_suites;
 }

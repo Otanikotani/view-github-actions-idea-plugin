@@ -7,6 +7,6 @@ import lombok.Value;
 
 @Value
 @NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
-public class GetCheckRunsResponse {
+public class CheckRunsResponse {
   List<CheckRunResponse> check_runs;
 }

@@ -6,7 +6,7 @@ import lombok.Value;
 
 @Value
 @NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
-public class CheckSuiteGetResult {
+public class CheckSuiteResponse {
 
   Long id;
   String url;

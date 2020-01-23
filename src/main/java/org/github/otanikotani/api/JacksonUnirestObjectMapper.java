@@ -2,8 +2,8 @@ package org.github.otanikotani.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.mashape.unirest.http.ObjectMapper;
 import java.io.UncheckedIOException;
+import kong.unirest.ObjectMapper;
 
 public class JacksonUnirestObjectMapper implements ObjectMapper {
 
