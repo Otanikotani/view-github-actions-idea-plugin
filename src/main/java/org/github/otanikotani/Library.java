@@ -19,15 +19,10 @@ public class Library {
     Unirest.setObjectMapper(new JacksonUnirestObjectMapper());
   }
 
-  public boolean someLibraryMethod() {
-    return true;
-  }
-
-
   public static void main(String[] args) throws Exception {
-    String owner = "trilogy-group";
-    String repo = "5k-fogbugz-test-automation";
-    String branch = "gherkin-acceptance/MANUSCRIPT-31433--MANUSCRIPT-31435";
+    String owner = "otanikotani";
+    String repo = "view-github-actions-idea-plugin";
+    String branch = "c902cf524675ebb69a2758364b3e2d786daf5287";
 
     List<CheckSuiteGetResult> suites =
       getCheckSuites(owner, repo, branch)
