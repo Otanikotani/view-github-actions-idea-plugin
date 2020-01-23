@@ -8,3 +8,7 @@
  */
 
 rootProject.name = 'view-github-actions-idea-plugin'
+
+include 'checks-core'
+include 'checks-cli'
+include 'checks-plugin'

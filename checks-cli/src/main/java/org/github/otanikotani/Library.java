@@ -1,28 +1,12 @@
 package org.github.otanikotani;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import kong.unirest.Unirest;
-import kong.unirest.UnirestException;
-import org.github.otanikotani.api.CheckRunResponse;
-import org.github.otanikotani.api.CheckSuiteResponse;
-import org.github.otanikotani.api.CheckRunsResponse;
-import org.github.otanikotani.api.CheckSuitesResponse;
-import org.github.otanikotani.api.JacksonUnirestObjectMapper;
 import org.github.otanikotani.repository.CheckSuiteRepository;
 import org.github.otanikotani.repository.CheckSuites;
 
 public class Library {
 
-  public static final String GITHUB_TOKEN = "";
-
-  static {
-    Unirest.config()
-      .automaticRetries(true)
-      .setDefaultHeader("Accept", "application/vnd.github.antiope-preview+json")
-      .setDefaultHeader("authorization", "Bearer " + GITHUB_TOKEN)
-      .setObjectMapper(new JacksonUnirestObjectMapper());
-  }
+  public static final String GITHUB_TOKEN = "Your token";
 
   public static void main(String[] args) throws Exception {
     String owner = "otanikotani";
