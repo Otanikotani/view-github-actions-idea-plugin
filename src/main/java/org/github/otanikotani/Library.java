@@ -1,17 +1,58 @@
 package org.github.otanikotani;
 
-import org.kohsuke.github.GHOrganization;
-import org.kohsuke.github.GHRepository;
-import org.kohsuke.github.GitHub;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import java.util.List;
+import org.github.otanikotani.api.CheckRunResponse;
+import org.github.otanikotani.api.CheckSuiteGetResult;
+import org.github.otanikotani.api.GetCheckRunsResponse;
+import org.github.otanikotani.api.GetCheckSuiteResponse;
+import org.github.otanikotani.api.JacksonUnirestObjectMapper;
 
 public class Library {
-    public boolean someLibraryMethod() {
-        return true;
-    }
 
-    public static void main(String[] args) throws Exception {
-        GitHub github = GitHub.connect();
-        GHOrganization org = github.getOrganization("trilogy-group");
-        GHRepository repo = org.getRepository("zAAAA");
+  public static final String GITHUB_TOKEN = "Your token";
+
+  static {
+    Unirest.setDefaultHeader("Accept", "application/vnd.github.antiope-preview+json");
+    Unirest.setDefaultHeader("authorization", "Bearer " + GITHUB_TOKEN);
+    Unirest.setObjectMapper(new JacksonUnirestObjectMapper());
+  }
+
+  public boolean someLibraryMethod() {
+    return true;
+  }
+
+
+  public static void main(String[] args) throws Exception {
+    String owner = "trilogy-group";
+    String repo = "5k-fogbugz-test-automation";
+    String branch = "gherkin-acceptance/MANUSCRIPT-31433--MANUSCRIPT-31435";
+
+    List<CheckSuiteGetResult> suites =
+      getCheckSuites(owner, repo, branch)
+        .getCheck_suites();
+    for (CheckSuiteGetResult suite : suites) {
+      GetCheckRunsResponse checkRunsResponse = getCheckRuns(suite);
+      for (CheckRunResponse checkRun : checkRunsResponse.getCheck_runs()) {
+        System.out.println(checkRun);
+      }
     }
+  }
+
+  private static GetCheckRunsResponse getCheckRuns(CheckSuiteGetResult suite) throws UnirestException {
+    return Unirest
+      .get(suite.getCheck_runs_url())
+      .asObject(GetCheckRunsResponse.class)
+      .getBody();
+  }
+
+
+  public static GetCheckSuiteResponse getCheckSuites(String owner, String repository, String branchName)
+    throws UnirestException {
+    return Unirest
+      .get(String.format("https://api.github.com/repos/%s/%s/commits/%s/check-suites", owner, repository, branchName))
+      .asObject(GetCheckSuiteResponse.class)
+      .getBody();
+  }
 }

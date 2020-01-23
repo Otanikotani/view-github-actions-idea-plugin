@@ -9,10 +9,17 @@ repositories {
 }
 
 dependencies {
-    api 'org.apache.commons:commons-math3:3.6.1'
-    implementation group: 'org.kohsuke', name: 'github-api', version: '1.95'
+    compileOnly 'org.projectlombok:lombok:1.18.10'
+    testCompileOnly 'org.projectlombok:lombok:1.18.10'
+    annotationProcessor 'org.projectlombok:lombok:1.18.10'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.10'
     
+    api 'org.apache.commons:commons-math3:3.6.1'
+
     implementation 'com.google.guava:guava:28.0-jre'
+    implementation group: 'com.mashape.unirest', name: 'unirest-java', version: '1.4.9'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.0'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.10.0'
 
     testImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
 
