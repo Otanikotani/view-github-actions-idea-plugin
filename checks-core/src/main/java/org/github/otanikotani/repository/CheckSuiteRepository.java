@@ -63,16 +63,13 @@ public class CheckSuiteRepository {
       .get(checkSuiteResponse.getCheck_runs_url())
       .asObject(CheckRunsResponse.class)
       .getBody();
-    return StreamEx.of(checkRunsResponse.getCheck_runs()).map(checkRunResponse -> {
-      System.out.println(checkRunResponse);
-      return new CheckRun(
-        checkRunResponse.getId(),
-        checkRunResponse.getName(),
-        checkRunResponse.getConclusion(),
-        checkRunResponse.getCompleted_at(),
-        checkRunResponse.getStarted_at(),
-        checkRunResponse.getHead_sha(),
-        checkRunResponse.getStatus());
-    }).toList();
+    return StreamEx.of(checkRunsResponse.getCheck_runs()).map(checkRunResponse -> new CheckRun(
+      checkRunResponse.getId(),
+      checkRunResponse.getName(),
+      checkRunResponse.getConclusion(),
+      checkRunResponse.getCompleted_at(),
+      checkRunResponse.getStarted_at(),
+      checkRunResponse.getHead_sha(),
+      checkRunResponse.getStatus())).toList();
   }
 }
