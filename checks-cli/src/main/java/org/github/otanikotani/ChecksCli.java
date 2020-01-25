@@ -20,9 +20,6 @@ public class ChecksCli {
   @Parameter(names = {"--branch", "-b"})
   String branch;
 
-  @Parameter(names = {"--single-run", "-s"})
-  boolean singleRun;
-
   public static void main(String[] args) {
     ChecksCli cli = new ChecksCli();
     JCommander.newBuilder()
