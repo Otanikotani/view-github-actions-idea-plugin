@@ -1,0 +1,25 @@
+<idea-plugin>
+    <id>org.github.otanikotani.checks-plugin</id>
+    <name>GitHub Actions</name>
+    <vendor url="https://github.com/Otanikotani/view-github-actions-idea-plugin">
+        Otanikotani
+    </vendor>
+
+    <description><![CDATA[This plugin provides GitHub Actions support]]></description>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+        <action id="ChecksPluginOpenMainPanel" class="org.github.otanikotani.ui.action.OpenMainPanel"
+                text="GitHub Actions">
+            <add-to-group group-id="MainToolBar" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>
