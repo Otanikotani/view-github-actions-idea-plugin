@@ -1,3 +1,7 @@
+plugins {
+  id 'com.github.johnrengelman.shadow' version '5.2.0'
+}
+
 dependencies {
   compile group: 'com.beust', name: 'jcommander', version: '1.78'
 
@@ -6,4 +10,12 @@ dependencies {
   implementation group: 'org.ocpsoft.prettytime', name: 'prettytime', version: '4.0.2.Final'
 
   implementation project(":checks-core")
+}
+
+jar {
+  manifest {
+    attributes(
+      'Main-Class': 'org.github.otanikotani.ChecksCli'
+    )
+  }
 }
