@@ -15,7 +15,7 @@ subprojects {
 
     group = 'org.github.otanikotani'
 
-    sourceCompatibility = JavaVersion.VERSION_12
+    sourceCompatibility = JavaVersion.VERSION_1_8
 
     repositories {
         jcenter()
