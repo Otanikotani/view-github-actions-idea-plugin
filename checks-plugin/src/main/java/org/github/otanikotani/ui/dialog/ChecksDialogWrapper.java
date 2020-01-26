@@ -6,15 +6,13 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import java.awt.GridLayout;
-import java.awt.LayoutManager;
 
 public class ChecksDialogWrapper extends DialogWrapper {
     private static final String DIALOG_TITLE = "Checks";
 
-    private JLabel name;
-    private JLabel status;
-    private JLabel startedAt;
+    private JComponent mainPanel;
 
     public ChecksDialogWrapper() {
         super(true);
@@ -26,34 +24,33 @@ public class ChecksDialogWrapper extends DialogWrapper {
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
-        LayoutManager mainLayout = new GridLayout(2, 3);
-        JComponent mainPanel = new JPanel(mainLayout);
+        GridLayout mainLayout = new GridLayout(1, 3);
+        mainLayout.setHgap(10);
+        mainLayout.setVgap(5);
+        mainPanel = new JPanel(mainLayout);
 
-        JComponent nameLabel = new JLabel("Name");
+        JLabel nameLabel = new JLabel("Name");
         mainPanel.add(nameLabel);
-        JComponent statusLabel = new JLabel("Status");
+        JLabel statusLabel = new JLabel("Status");
+        statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
         mainPanel.add(statusLabel);
-        JComponent startedAtLabel = new JLabel("Started At");
+        JLabel startedAtLabel = new JLabel("Started At");
         mainPanel.add(startedAtLabel);
 
-        name = new JLabel();
-        mainPanel.add(name);
-        status = new JLabel();
-        mainPanel.add(status);
-        startedAt = new JLabel();
-        mainPanel.add(startedAt);
         return mainPanel;
     }
 
-    public void setName(String name) {
-        this.name.setText(name);
-    }
+    public void addRow(String name, String status, String startedAt) {
+        GridLayout mainLayout = (GridLayout) mainPanel.getLayout();
+        mainLayout.setRows(mainLayout.getRows() + 1);
+        mainLayout.setColumns(3);
 
-    public void setStatus(String status) {
-        this.status.setText(status);
-    }
-
-    public void setStartedAt(String startedAt) {
-        this.startedAt.setText(startedAt);
+        mainPanel.add(new JLabel(name));
+        JLabel statusLabel = new JLabel(status);
+        statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        mainPanel.add(statusLabel);
+        mainPanel.add(new JLabel(startedAt));
+        mainPanel.revalidate();
+        mainPanel.repaint();
     }
 }

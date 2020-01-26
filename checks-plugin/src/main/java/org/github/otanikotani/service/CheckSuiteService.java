@@ -6,6 +6,7 @@ import org.github.otanikotani.dto.CheckSuiteResultDto;
 import org.github.otanikotani.dto.RepoDetailsDto;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public interface CheckSuiteService {
@@ -15,5 +16,5 @@ public interface CheckSuiteService {
 
     void setRepoDetails(@NotNull RepoDetailsDto repoDetails);
 
-    void run(Consumer<CheckSuiteResultDto> consumer);
+    void run(Consumer<List<CheckSuiteResultDto>> consumer);
 }

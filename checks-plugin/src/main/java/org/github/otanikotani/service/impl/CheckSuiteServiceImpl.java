@@ -12,6 +12,7 @@ import org.github.otanikotani.service.CheckSuiteService;
 import com.intellij.openapi.project.Project;
 import org.ocpsoft.prettytime.PrettyTime;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -26,7 +27,7 @@ public class CheckSuiteServiceImpl implements CheckSuiteService {
     }
 
     @Override
-    public void run(Consumer<CheckSuiteResultDto> consumer) {
+    public void run(Consumer<List<CheckSuiteResultDto>> consumer) {
         try {
             CompletableFuture<CheckSuites> checkSuitesFuture = new CheckSuiteRepository(repoDetails.getToken())
                     .getCheckSuites(repoDetails.getOwner(), repoDetails.getRepo(), repoDetails.getBranch());
@@ -37,12 +38,15 @@ public class CheckSuiteServiceImpl implements CheckSuiteService {
                     .sorted((l, r) -> r.getStarted_at().compareTo(l.getStarted_at()))
                     .toList();
             PrettyTime prettyTime = new PrettyTime();
+            List<CheckSuiteResultDto> results = new ArrayList<>();
             for (CheckRun checkRun : checkRuns) {
                 String name = checkRun.getName();
                 String status = statusToIcons(checkRun.getStatus());
                 String startedAt = prettyTime.format(checkRun.getStarted_at());
-                consumer.accept(new CheckSuiteResultDto(name, status, startedAt));
+                CheckSuiteResultDto result = new CheckSuiteResultDto(name, status, startedAt);
+                results.add(result);
             }
+            consumer.accept(results);
         } catch (Exception e) {
             e.printStackTrace();
         }
