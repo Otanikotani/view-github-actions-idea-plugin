@@ -13,6 +13,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
+        <projectService serviceInterface="org.github.otanikotani.service.CheckSuiteService"
+                        serviceImplementation="org.github.otanikotani.service.impl.CheckSuiteServiceImpl"/>
     </extensions>
 
     <actions>
