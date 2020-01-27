@@ -3,13 +3,17 @@ package org.github.otanikotani.ui.action;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentManager;
 import one.util.streamex.StreamEx;
 import org.github.otanikotani.dto.CheckSuiteResultDto;
 import org.github.otanikotani.dto.RepoDetailsDto;
 import org.github.otanikotani.repository.CheckRun;
 import org.github.otanikotani.repository.CheckSuiteRepository;
 import org.github.otanikotani.repository.CheckSuites;
-import org.github.otanikotani.ui.dialog.ChecksDialogWrapper;
+import org.github.otanikotani.ui.toolwindow.ChecksToolWindowContent;
 import org.jetbrains.annotations.NotNull;
 import org.ocpsoft.prettytime.PrettyTime;
 
@@ -31,17 +35,28 @@ public class OpenMainPanel extends AnAction {
         if (isNull(project)) {
             return;
         }
-
-        final ChecksDialogWrapper checksDialogWrapper = new ChecksDialogWrapper();
-
+        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
+        ToolWindow checksToolWindow = toolWindowManager.getToolWindow("checksToolWindow");
+        if (!checksToolWindow.isVisible()) {
+            checksToolWindow.show(null);
+        }
+        ContentManager contentManager = checksToolWindow.getContentManager();
+        if (contentManager.getContentCount() == 0) {
+            return;
+        }
+        Content content = contentManager.getContent(0);
+        if (isNull(content)) {
+            return;
+        }
+        ChecksToolWindowContent checksContent = (ChecksToolWindowContent) content.getComponent();
+        checksContent.removeAllRows();
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.execute(() -> {
             run(result ->
-                    checksDialogWrapper.addRow(result.getName(), result.getStatus(), result.getStartedAt())
+                    checksContent.addRow(result.getName(), result.getStatus(), result.getStartedAt())
             );
             executorService.shutdown();
         });
-        checksDialogWrapper.show();
     }
 
     public void run(Consumer<CheckSuiteResultDto> consumer) {

@@ -13,7 +13,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-
+        <toolWindow id="checksToolWindow" anchor="bottom"
+                    factoryClass="org.github.otanikotani.ui.ChecksToolWindowFactory"/>
     </extensions>
 
     <actions>
