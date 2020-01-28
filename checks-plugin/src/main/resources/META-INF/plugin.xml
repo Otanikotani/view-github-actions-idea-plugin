@@ -13,8 +13,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <projectService serviceInterface="org.github.otanikotani.service.CheckSuiteService"
-                        serviceImplementation="org.github.otanikotani.service.impl.CheckSuiteServiceImpl"/>
+        <toolWindow id="checksToolWindow" anchor="bottom"
+                    factoryClass="org.github.otanikotani.ui.ChecksToolWindowFactory"/>
     </extensions>
 
     <actions>
