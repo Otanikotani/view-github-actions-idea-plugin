@@ -24,6 +24,8 @@ public class ChecksToolWindowContent extends JPanel {
 
     public void addRow(String name, String status, String startedAt) {
         tableModel.addRow(name, status, startedAt);
+        revalidate();
+        repaint();
     }
 
     public void removeAllRows() {
