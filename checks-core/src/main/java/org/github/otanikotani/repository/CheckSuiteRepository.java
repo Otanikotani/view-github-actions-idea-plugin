@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
-import kong.unirest.UnirestInstance;
 import one.util.streamex.StreamEx;
 import org.github.otanikotani.api.CheckRunsResponse;
 import org.github.otanikotani.api.CheckSuiteResponse;
@@ -16,22 +15,20 @@ public class CheckSuiteRepository {
   public static final String GITHUB_API_BASE = "https://api.github.com";
   public static final String GITHUB_API_REPO_BASE = GITHUB_API_BASE + "/repos";
 
-  private final UnirestInstance unirest;
+  static {
+    Unirest.config()
+      .setDefaultHeader("Accept", "application/vnd.github.antiope-preview+json")
+      .automaticRetries(true)
+      .setObjectMapper(new JacksonUnirestObjectMapper());
+  }
 
   public CheckSuiteRepository(String githubToken) {
-    unirest = Unirest.spawnInstance();
-    Runtime.getRuntime().addShutdownHook(new Thread(unirest::shutDown));
-
-    unirest.config()
-      .automaticRetries(true)
-      .setDefaultHeader("Accept", "application/vnd.github.antiope-preview+json")
-      .setDefaultHeader("authorization", "Bearer " + githubToken)
-      .setObjectMapper(new JacksonUnirestObjectMapper());
+    Unirest.config().setDefaultHeader("authorization", "Bearer " + githubToken);
   }
 
   public CompletableFuture<CheckSuites> getCheckSuites(String owner, String repo, String ref) {
     String requestUrl = String.format(GITHUB_API_REPO_BASE + "/%s/%s/commits/%s/check-suites", owner, repo, ref);
-    CompletableFuture<HttpResponse<CheckSuitesResponse>> checkSuiteResponse = unirest
+    CompletableFuture<HttpResponse<CheckSuitesResponse>> checkSuiteResponse = Unirest
       .get(requestUrl)
       .asObjectAsync(CheckSuitesResponse.class);
 
@@ -59,7 +56,7 @@ public class CheckSuiteRepository {
   }
 
   private List<CheckRun> getCheckRuns(CheckSuiteResponse checkSuiteResponse) {
-    CheckRunsResponse checkRunsResponse = unirest
+    CheckRunsResponse checkRunsResponse = Unirest
       .get(checkSuiteResponse.getCheck_runs_url())
       .asObject(CheckRunsResponse.class)
       .getBody();

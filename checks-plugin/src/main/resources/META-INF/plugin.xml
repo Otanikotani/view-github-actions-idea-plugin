@@ -5,11 +5,16 @@
         Otanikotani
     </vendor>
 
+    <idea-version since-build="193"/>
+
     <description><![CDATA[This plugin provides GitHub Actions support]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
     <depends>com.intellij.modules.platform</depends>
+
+
+<!--    TODO: Add dependency to git2idea plugin -->
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
@@ -19,9 +24,14 @@
 
     <actions>
         <!-- Add your actions here -->
-        <action id="ChecksPluginOpenMainPanel" class="org.github.otanikotani.ui.action.OpenMainPanel"
+        <action id="ChecksPluginOpenMainPanel" class="org.github.otanikotani.ui.action.OpenMainPanelAction"
                 text="GitHub Actions">
             <add-to-group group-id="MainToolBar" anchor="last"/>
         </action>
     </actions>
+
+    <projectListeners>
+        <listener class="org.github.otanikotani.ui.listener.BranchChangeListener" topic="com.intellij.openapi.vcs.BranchChangeListener"/>
+    </projectListeners>
+
 </idea-plugin>
