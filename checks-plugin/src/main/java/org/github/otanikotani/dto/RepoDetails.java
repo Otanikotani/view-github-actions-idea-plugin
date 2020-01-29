@@ -1,8 +1,7 @@
 package org.github.otanikotani.dto;
 
 public class RepoDetails {
-  public static String token = "160a0ea828f4b476561516ed1989ff36e931b5fa";
-  public static String owner = "otanikotani";
-  public static String repo = "view-github-actions-idea-plugin";
-  public static String branch = "heads/feature/mvp";
+  public static String token = "f52c737584e4db3e770cf45d33cc91191b642578";
+  public static String owner = "trilogy-group";
+  public static String repo = "5k-fogbugz-test-automation";
 }

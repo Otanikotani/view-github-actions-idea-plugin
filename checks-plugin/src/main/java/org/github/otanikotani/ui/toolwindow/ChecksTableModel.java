@@ -5,12 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
-public class ChecksResultTableModel extends DefaultTableModel {
+public class ChecksTableModel extends DefaultTableModel {
 
     private static final List<String> COLUMN_NAMES = Arrays.asList("Name", "Status", "Started At");
 
     @SuppressWarnings("unchecked")
-    public ChecksResultTableModel() {
+    public ChecksTableModel() {
         columnIdentifiers.addAll(COLUMN_NAMES);
     }
 

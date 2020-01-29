@@ -5,33 +5,26 @@
         Otanikotani
     </vendor>
 
-    <idea-version since-build="193"/>
+    <idea-version since-build="193.4386.10"/>
 
     <description><![CDATA[This plugin provides GitHub Actions support]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
     <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.plugins.github</depends>
 
 
 <!--    TODO: Add dependency to git2idea plugin -->
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Add your extensions here -->
-        <toolWindow id="checksToolWindow" anchor="bottom"
-                    factoryClass="org.github.otanikotani.ui.ChecksToolWindowFactory"/>
+        <projectService serviceImplementation="org.github.otanikotani.ui.toolwindow.GHChecksToolWindowTabsManager"/>
     </extensions>
 
-    <actions>
-        <!-- Add your actions here -->
-        <action id="ChecksPluginOpenMainPanel" class="org.github.otanikotani.ui.action.OpenMainPanelAction"
-                text="GitHub Actions">
-            <add-to-group group-id="MainToolBar" anchor="last"/>
-        </action>
-    </actions>
-
     <projectListeners>
-        <listener class="org.github.otanikotani.ui.listener.BranchChangeListener" topic="com.intellij.openapi.vcs.BranchChangeListener"/>
+        <listener class="org.github.otanikotani.ui.toolwindow.GHChecksToolWindowTabsManager$ChangeListener"
+                  topic="git4idea.repo.GitRepositoryChangeListener"
+                  activeInHeadlessMode="false" activeInTestMode="false"/>
     </projectListeners>
 
 </idea-plugin>

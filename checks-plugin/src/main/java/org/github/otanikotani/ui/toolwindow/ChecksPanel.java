@@ -12,14 +12,14 @@ import org.github.otanikotani.repository.CheckRun;
 import org.ocpsoft.prettytime.PrettyTime;
 
 @Getter
-public class ChecksToolWindowContent extends JPanel {
+public class ChecksPanel extends JPanel {
 
-    private ChecksResultTableModel tableModel;
+    private ChecksTableModel tableModel;
     private JLabel testLabel;
 
-    public ChecksToolWindowContent() {
+    public ChecksPanel() {
         super(new GridLayout(1, 0));
-        tableModel = new ChecksResultTableModel();
+        tableModel = new ChecksTableModel();
         final JBTable table = new JBTable(tableModel);
         table.setRowSelectionAllowed(false);
         setLayout(new BorderLayout());
