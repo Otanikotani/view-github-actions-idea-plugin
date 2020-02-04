@@ -1,4 +1,4 @@
-package org.github.otanikotani.ui.toolwindow;
+package org.github.otanikotani.api;
 
 import java.util.List;
 

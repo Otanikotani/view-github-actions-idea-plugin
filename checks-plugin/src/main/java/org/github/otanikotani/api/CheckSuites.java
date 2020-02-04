@@ -1,4 +1,4 @@
-package org.github.otanikotani.ui.toolwindow;
+package org.github.otanikotani.api;
 
 import org.jetbrains.plugins.github.api.GithubApiRequest;
 import org.jetbrains.plugins.github.api.GithubApiRequest.Get;

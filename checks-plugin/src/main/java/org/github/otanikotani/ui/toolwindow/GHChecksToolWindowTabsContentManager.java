@@ -14,18 +14,18 @@ import git4idea.repo.GitRepository;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
-import lombok.SneakyThrows;
 import one.util.streamex.StreamEx;
+import org.github.otanikotani.api.CheckSuites;
+import org.github.otanikotani.api.GithubCheckRun;
+import org.github.otanikotani.api.GithubCheckRuns;
+import org.github.otanikotani.api.GithubCheckSuites;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.github.api.GHRepositoryPath;
 import org.jetbrains.plugins.github.api.GithubApiRequest;
 import org.jetbrains.plugins.github.api.GithubApiRequest.Get.Json;
-import org.jetbrains.plugins.github.api.GithubApiRequest.Get.JsonList;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor.WithTokenAuth;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutorManager;
 import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager;
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
-import org.jetbrains.plugins.github.util.GithubProjectSettings;
 
 public class GHChecksToolWindowTabsContentManager {
 

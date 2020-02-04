@@ -7,6 +7,7 @@ import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import lombok.Getter;
+import org.github.otanikotani.api.GithubCheckRun;
 import org.ocpsoft.prettytime.PrettyTime;
 
 @Getter
