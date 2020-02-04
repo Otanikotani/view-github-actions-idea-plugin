@@ -2,18 +2,30 @@ package org.github.otanikotani.ui.toolwindow;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task.Backgroundable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentI;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
-import one.util.streamex.StreamEx;
-import org.github.otanikotani.dto.RepoDetails;
-import org.github.otanikotani.repository.CheckRun;
-import org.github.otanikotani.repository.CheckSuiteRepository;
-
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.List;
+import lombok.SneakyThrows;
+import one.util.streamex.StreamEx;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.github.api.GHRepositoryPath;
+import org.jetbrains.plugins.github.api.GithubApiRequest;
+import org.jetbrains.plugins.github.api.GithubApiRequest.Get.Json;
+import org.jetbrains.plugins.github.api.GithubApiRequest.Get.JsonList;
+import org.jetbrains.plugins.github.api.GithubApiRequestExecutor.WithTokenAuth;
+import org.jetbrains.plugins.github.api.GithubApiRequestExecutorManager;
+import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager;
+import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
+import org.jetbrains.plugins.github.util.GithubProjectSettings;
 
 public class GHChecksToolWindowTabsContentManager {
 
@@ -33,7 +45,7 @@ public class GHChecksToolWindowTabsContentManager {
     Content content = contentFactory.createContent(checksPanel, CONTENT_TAB_NAME, false);
     content.setDescription("GitHub Checks for your builds");
     content.putUserData(ChangesViewContentManager.ORDER_WEIGHT_KEY,
-            ChangesViewContentManager.TabOrderWeight.OTHER.getWeight());
+      ChangesViewContentManager.TabOrderWeight.OTHER.getWeight());
 
     updateChecksPanel(checksPanel, repository);
 
@@ -43,22 +55,71 @@ public class GHChecksToolWindowTabsContentManager {
   private void updateChecksPanel(ChecksPanel checksPanel, GitRepository repository) {
     checksPanel.removeAllRows();
 
-    CheckSuiteRepository checkSuiteRepository = new CheckSuiteRepository(RepoDetails.token);
-    String branchName = repository.getCurrentBranch().getName();
-    checksPanel.setBranch(branchName);
-    checkSuiteRepository.getCheckSuites(RepoDetails.owner, RepoDetails.repo, branchName)
-            .thenAccept(checkSuites -> {
-              List<CheckRun> checkRuns = StreamEx.of(checkSuites.getCheckSuites())
-                      .flatMap(it -> it.getCheckRuns().stream())
-                      .sorted((l, r) -> r.getStarted_at().compareTo(l.getStarted_at()))
-                      .toList();
-              checksPanel.addRows(checkRuns);
-            });
+    GithubAuthenticationManager authManager = GithubAuthenticationManager.getInstance();
+    if (!authManager.ensureHasAccounts(repository.getProject())) {
+      return;
+    }
+
+    GithubAccount account = authManager.getSingleOrDefaultAccount(repository.getProject());
+    if (account == null) {
+      return;
+    }
+
+    GithubApiRequestExecutorManager executorManager = GithubApiRequestExecutorManager.getInstance();
+    WithTokenAuth executor = executorManager.getExecutor(account, repository.getProject());
+    if (executor == null) {
+      return;
+    }
+
+    new Backgroundable(project, "Getting Check Suites...") {
+
+      private List<? extends GithubCheckRun> checkRuns;
+
+      @Override
+      public void run(@NotNull ProgressIndicator indicator) {
+        String remoteUrl = StreamEx.of(repository.getRemotes()).map(GitRemote::getFirstUrl)
+          .findFirst()
+          .orElseThrow(() -> new RuntimeException("Failed to find a remote url"));
+
+        String[] parts = remoteUrl.split("/");
+        String repo = parts[parts.length - 1];
+        String owner = parts[parts.length - 2];
+
+        GithubApiRequest<GithubCheckSuites> request = new CheckSuites()
+          .get(account.getServer(), owner, repo, repository.getCurrentBranchName());
+        GithubCheckSuites suites;
+        try {
+          suites = executor.execute(indicator, request);
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
+        }
+
+        checkRuns = StreamEx.of(suites.getCheck_suites())
+          .flatMap(it -> {
+            GithubApiRequest<GithubCheckRuns> checkRunsRequest = new Json<>(
+              it.getCheck_runs_url(),
+              GithubCheckRuns.class,
+              "application/vnd.github.antiope-preview+json")
+              .withOperationName("Get Check Runs...");
+            try {
+              return executor.execute(indicator, checkRunsRequest).getCheck_runs().stream();
+            } catch (IOException e) {
+              throw new UncheckedIOException(e);
+            }
+          })
+          .toList();
+      }
+
+      @Override
+      public void onSuccess() {
+        checksPanel.addRows(checkRuns);
+      }
+    }.queue();
   }
 
   private void updateContent(GitRepository repository) {
     final List<Content> contents = viewContentManager.findContents(content ->
-            CONTENT_TAB_NAME.equalsIgnoreCase(content.getTabName())
+      CONTENT_TAB_NAME.equalsIgnoreCase(content.getTabName())
     );
     if (contents.isEmpty()) {
       viewContentManager.addContent(createContent(repository));
