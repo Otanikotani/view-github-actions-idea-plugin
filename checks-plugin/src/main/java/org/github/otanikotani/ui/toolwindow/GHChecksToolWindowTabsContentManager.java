@@ -114,6 +114,12 @@ public class GHChecksToolWindowTabsContentManager {
       public void onSuccess() {
         checksPanel.addRows(checkRuns);
       }
+
+      @Override
+      public void onThrowable(@NotNull Throwable error) {
+        super.onThrowable(error);
+        //TODO: Show something about the failure in UI
+      }
     }.queue();
   }
 
