@@ -3,8 +3,8 @@ package org.github.otanikotani.ui.toolwindow;
 import com.intellij.ui.table.JBTable;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.util.Arrays;
 import java.util.List;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import lombok.Getter;
 import org.github.otanikotani.api.GithubCheckRun;
@@ -14,7 +14,6 @@ import org.ocpsoft.prettytime.PrettyTime;
 public class ChecksPanel extends JPanel {
 
   private ChecksTableModel tableModel;
-  private JLabel testLabel;
 
   public ChecksPanel() {
     super(new GridLayout(1, 0));
@@ -24,20 +23,6 @@ public class ChecksPanel extends JPanel {
     setLayout(new BorderLayout());
     add(table.getTableHeader(), BorderLayout.PAGE_START);
     add(table, BorderLayout.CENTER);
-    testLabel = new JLabel("{{branch-name}}");
-    add(testLabel, BorderLayout.PAGE_END);
-  }
-
-  public void addRow(String name, String status, String startedAt) {
-    tableModel.addRow(name, status, startedAt);
-    revalidate();
-    repaint();
-  }
-
-  public void setBranch(String branchName) {
-    testLabel.setText(branchName);
-    revalidate();
-    repaint();
   }
 
   public void removeAllRows() {
@@ -47,17 +32,22 @@ public class ChecksPanel extends JPanel {
   public void addRows(List<? extends GithubCheckRun> checkRuns) {
     PrettyTime prettyTime = new PrettyTime();
     for (GithubCheckRun checkRun : checkRuns) {
+      String id = String.valueOf(checkRun.getId());
       String name = checkRun.getName();
-      String status = statusToIcons(checkRun.getStatus());
+      String conclusion = conclusionToIcons(checkRun.getConclusion());
       String startedAt = prettyTime.format(checkRun.getStarted_at());
-      tableModel.addRow(name, status, startedAt);
+      String completedAt = prettyTime.format(checkRun.getCompleted_at());
+      tableModel.addRow(Arrays.asList(id, name, conclusion, startedAt, completedAt));
     }
   }
 
-  private String statusToIcons(String status) {
-    if (status.equals("in_progress")) {
+  private String conclusionToIcons(String conclusion) {
+    if (conclusion == null) {
       return "⌛";
-    } else if (status.equals("completed")) {
+    }
+    if (conclusion.equals("in_progress")) {
+      return "⌛";
+    } else if (conclusion.equals("success")) {
       return "✓";
     } else {
       return "❌";

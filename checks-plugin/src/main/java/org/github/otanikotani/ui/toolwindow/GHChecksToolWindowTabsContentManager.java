@@ -2,11 +2,9 @@ package org.github.otanikotani.ui.toolwindow;
 
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.Service;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task.Backgroundable;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.BranchChangeListener;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentI;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentManager;
 import com.intellij.ui.content.Content;
@@ -19,13 +17,13 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
 import one.util.streamex.StreamEx;
+import org.github.otanikotani.api.CheckRuns;
 import org.github.otanikotani.api.CheckSuites;
 import org.github.otanikotani.api.GithubCheckRun;
 import org.github.otanikotani.api.GithubCheckRuns;
 import org.github.otanikotani.api.GithubCheckSuites;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.github.api.GithubApiRequest;
-import org.jetbrains.plugins.github.api.GithubApiRequest.Get.Json;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor.WithTokenAuth;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutorManager;
 import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager;
@@ -52,17 +50,6 @@ public class GHChecksToolWindowTabsContentManager {
 
     MessageBusConnection bus = project.getMessageBus().connect();
     bus.subscribe(ACCOUNT_CHANGED_TOPIC, githubAccount -> this.account = githubAccount);
-    bus.subscribe(BranchChangeListener.VCS_BRANCH_CHANGED, new BranchChangeListener() {
-      @Override
-      public void branchWillChange(@NotNull String branchName) {
-
-      }
-
-      @Override
-      public void branchHasChanged(@NotNull String branchName) {
-        update();
-      }
-    });
   }
 
   private Content createContent(GitRepository repository) {
@@ -118,11 +105,8 @@ public class GHChecksToolWindowTabsContentManager {
 
         checkRuns = StreamEx.of(suites.getCheck_suites())
           .flatMap(it -> {
-            GithubApiRequest<GithubCheckRuns> checkRunsRequest = new Json<>(
-              it.getCheck_runs_url(),
-              GithubCheckRuns.class,
-              "application/vnd.github.antiope-preview+json")
-              .withOperationName("Get Check Runs...");
+
+            GithubApiRequest<GithubCheckRuns> checkRunsRequest = new CheckRuns().get(it.getCheck_runs_url());
             try {
               return executor.execute(indicator, checkRunsRequest).getCheck_runs().stream();
             } catch (IOException e) {
