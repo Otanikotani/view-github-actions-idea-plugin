@@ -10,6 +10,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task.Backgroundable;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.BranchChangeListener;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentI;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentManager;
 import com.intellij.ui.content.Content;
@@ -63,6 +64,17 @@ public class GHChecksToolWindowTabsContentManager {
 
     MessageBusConnection bus = project.getMessageBus().connect();
     bus.subscribe(ACCOUNT_CHANGED_TOPIC, githubAccount -> this.account = githubAccount);
+    bus.subscribe(BranchChangeListener.VCS_BRANCH_CHANGED, new BranchChangeListener() {
+      @Override
+      public void branchWillChange(@NotNull String branchName) {
+
+      }
+
+      @Override
+      public void branchHasChanged(@NotNull String branchName) {
+        update();
+      }
+    });
   }
 
   private Content createContent(GitRepository repository) {
@@ -76,6 +88,7 @@ public class GHChecksToolWindowTabsContentManager {
 
     ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
     Content content = contentFactory.createContent(mainPanel, CONTENT_TAB_NAME, false);
+    content.setCloseable(false);
     content.setDescription("GitHub Checks for your builds");
     content.putUserData(ChangesViewContentManager.ORDER_WEIGHT_KEY,
             ChangesViewContentManager.TabOrderWeight.OTHER.getWeight());
@@ -104,8 +117,6 @@ public class GHChecksToolWindowTabsContentManager {
   }
 
   private void updateChecksPanel(ChecksPanel checksPanel, GitRepository repository) {
-    checksPanel.removeAllRows();
-
     GithubAccount account = getAccount();
     if (account == null) {
       //TODO: Show login in UI
@@ -120,6 +131,8 @@ public class GHChecksToolWindowTabsContentManager {
 
     new Backgroundable(project, "Getting Check Suites...") {
 
+      private String owner;
+      private String repo;
       private List<? extends GithubCheckRun> checkRuns;
 
       @Override
@@ -129,8 +142,8 @@ public class GHChecksToolWindowTabsContentManager {
           .orElseThrow(() -> new RuntimeException("Failed to find a remote url"));
 
         String[] parts = remoteUrl.split("/");
-        String repo = parts[parts.length - 1];
-        String owner = parts[parts.length - 2];
+        repo = parts[parts.length - 1];
+        owner = parts[parts.length - 2];
 
         GithubApiRequest<GithubCheckSuites> request = new CheckSuites()
           .get(account.getServer(), owner, repo, repository.getCurrentBranchName());
@@ -156,7 +169,7 @@ public class GHChecksToolWindowTabsContentManager {
 
       @Override
       public void onSuccess() {
-        checksPanel.addRows(checkRuns);
+        checksPanel.refresh(owner, repo, checkRuns);
       }
 
       @Override
