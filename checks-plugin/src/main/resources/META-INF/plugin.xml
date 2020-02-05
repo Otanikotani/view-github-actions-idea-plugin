@@ -27,4 +27,8 @@
                   activeInHeadlessMode="false" activeInTestMode="false"/>
     </projectListeners>
 
+    <actions>
+        <group id="GHChecks.ActionGroup" popup="false"/>
+    </actions>
+
 </idea-plugin>
