@@ -39,6 +39,8 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -49,6 +51,7 @@ public class GHChecksToolWindowTabsContentManager {
   private static final String GHCHECKS_ACTION_GROUP_ID = "GHChecks.ActionGroup";
   private static final AnActionEvent EMPTY_ACTION_EVENT = new AnActionEvent(null, dataId -> null,
           ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0);
+  private static final int DEFAULT_REFRESH_DELAY = 1;
 
   public static final Topic<AccountTokenChangedListener> ACCOUNT_CHANGED_TOPIC = new Topic<>(
     "GITHUB_ACCOUNT_TOKEN_CHANGED",
@@ -57,12 +60,14 @@ public class GHChecksToolWindowTabsContentManager {
   Project project;
   GitRepository repository;
   GithubAccount account;
+  LocalDateTime lastRefreshTime;
 
   private final ChangesViewContentI viewContentManager;
 
   public GHChecksToolWindowTabsContentManager(Project project) {
     this.project = project;
     this.viewContentManager = ChangesViewContentManager.getInstance(project);
+    this.lastRefreshTime = LocalDateTime.now();
 
     MessageBusConnection bus = project.getMessageBus().connect();
     bus.subscribe(ACCOUNT_CHANGED_TOPIC, githubAccount -> this.account = githubAccount);
@@ -85,7 +90,7 @@ public class GHChecksToolWindowTabsContentManager {
     ChecksPanel checksPanel = new ChecksPanel();
     mainPanel.add(checksPanel, BorderLayout.CENTER);
 
-    JPanel toolbarPanel = createToolbar(repository, checksPanel);
+    JPanel toolbarPanel = createToolbar(() -> updateChecksPanel(checksPanel, repository));
     mainPanel.add(toolbarPanel, BorderLayout.WEST);
 
     ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
@@ -98,22 +103,26 @@ public class GHChecksToolWindowTabsContentManager {
     updateChecksPanel(checksPanel, repository);
 
     AppExecutorUtil.getAppScheduledExecutorService().scheduleWithFixedDelay(
-            () -> updateChecksPanel(checksPanel, repository),
-            1,
-            1,
+            () -> {
+              Duration duration = Duration.between(LocalDateTime.now(), lastRefreshTime);
+              if (Math.abs(duration.toMinutes()) >= DEFAULT_REFRESH_DELAY) {
+                updateChecksPanel(checksPanel, repository);
+              }
+            },
+            DEFAULT_REFRESH_DELAY,
+            DEFAULT_REFRESH_DELAY,
             TimeUnit.MINUTES
     );
 
     return content;
   }
 
-  private JPanel createToolbar(GitRepository repository, ChecksPanel checksPanel) {
+  private JPanel createToolbar(Runnable refreshChecksPanel) {
     JPanel toolbarPanel = new JPanel(new BorderLayout());
-    Runnable refreshChecksPanelRunnable = () -> updateChecksPanel(checksPanel, repository);
     ActionManager actionManager = ActionManager.getInstance();
     actionManager.registerAction(
             REFRESH_ACTION_ID,
-            new RefreshAction(refreshChecksPanelRunnable)
+            new RefreshAction(refreshChecksPanel)
     );
     DefaultActionGroup checksActionGroup = (DefaultActionGroup) actionManager.getAction(GHCHECKS_ACTION_GROUP_ID);
     checksActionGroup.add(actionManager.getAction(REFRESH_ACTION_ID));
@@ -179,6 +188,7 @@ public class GHChecksToolWindowTabsContentManager {
       @Override
       public void onSuccess() {
         checksPanel.refresh(owner, repo, checkRuns);
+        lastRefreshTime = LocalDateTime.now();
       }
 
       @Override
