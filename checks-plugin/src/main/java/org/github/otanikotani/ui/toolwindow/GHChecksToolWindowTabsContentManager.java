@@ -15,6 +15,7 @@ import com.intellij.openapi.vcs.changes.ui.ChangesViewContentI;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
 import git4idea.repo.GitRemote;
@@ -39,6 +40,7 @@ import java.awt.BorderLayout;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class GHChecksToolWindowTabsContentManager {
 
@@ -94,6 +96,13 @@ public class GHChecksToolWindowTabsContentManager {
             ChangesViewContentManager.TabOrderWeight.OTHER.getWeight());
 
     updateChecksPanel(checksPanel, repository);
+
+    AppExecutorUtil.getAppScheduledExecutorService().scheduleWithFixedDelay(
+            () -> updateChecksPanel(checksPanel, repository),
+            1,
+            1,
+            TimeUnit.MINUTES
+    );
 
     return content;
   }
