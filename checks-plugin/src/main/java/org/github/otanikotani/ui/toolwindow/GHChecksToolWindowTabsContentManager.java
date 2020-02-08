@@ -39,6 +39,7 @@ import java.awt.BorderLayout;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class GHChecksToolWindowTabsContentManager {
 
@@ -47,6 +48,7 @@ public class GHChecksToolWindowTabsContentManager {
   private static final String GHCHECKS_ACTION_GROUP_ID = "GHChecks.ActionGroup";
   private static final AnActionEvent EMPTY_ACTION_EVENT = new AnActionEvent(null, dataId -> null,
           ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0);
+  private static final Pattern DOT_GIT_PATTERN = Pattern.compile("\\.git$");
 
   public static final Topic<AccountTokenChangedListener> ACCOUNT_CHANGED_TOPIC = new Topic<>(
     "GITHUB_ACCOUNT_TOKEN_CHANGED",
@@ -139,6 +141,7 @@ public class GHChecksToolWindowTabsContentManager {
       public void run(@NotNull ProgressIndicator indicator) {
         String remoteUrl = StreamEx.of(repository.getRemotes()).map(GitRemote::getFirstUrl)
           .findFirst()
+          .map(url -> DOT_GIT_PATTERN.matcher(url).replaceFirst(""))
           .orElseThrow(() -> new RuntimeException("Failed to find a remote url"));
 
         String[] parts = remoteUrl.split("/");
