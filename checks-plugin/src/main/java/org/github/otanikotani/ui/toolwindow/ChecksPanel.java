@@ -12,6 +12,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.Icon;
@@ -42,7 +44,18 @@ public class ChecksPanel extends JPanel {
     conclusionColumn.setCellRenderer(ICON_RENDERER);
     TableColumn urlColumn = columnModel.getColumn(Columns.Url.index);
     urlColumn.setCellRenderer(new LinkTableCellRenderer());
+    table.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        int row = table.getSelectedRow();
+        int col = table.getSelectedColumn();
 
+        if (col == Columns.Url.index) {
+          LinkLabel<?> label = (LinkLabel<?>)table.getValueAt(row, col);
+          label.doClick();
+        }
+      }
+    });
     table.setRowSelectionAllowed(false);
     setLayout(new BorderLayout());
     add(table.getTableHeader(), BorderLayout.PAGE_START);
