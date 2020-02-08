@@ -51,8 +51,9 @@ public class ChecksPanel extends JPanel {
         int col = table.getSelectedColumn();
 
         if (row >= 0 && col == Columns.Url.index) {
-          LinkLabel<?> label = (LinkLabel<?>)table.getValueAt(row, col);
-          label.doClick();
+          table.clearSelection();
+          LinkLabel<?> url = (LinkLabel<?>)table.getValueAt(row, col);
+          url.doClick();
         }
       }
     });
