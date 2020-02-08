@@ -205,7 +205,7 @@ public class GHChecksToolWindowTabsContentManager {
   private GithubAccount getAccount() {
     if (account == null) {
       GithubAuthenticationManager authManager = GithubAuthenticationManager.getInstance();
-      if (!authManager.ensureHasAccounts(repository.getProject())) {
+      if (!authManager.hasAccounts()) {
         return null;
       }
       GithubAccount account = authManager.getSingleOrDefaultAccount(repository.getProject());
