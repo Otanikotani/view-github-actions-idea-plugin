@@ -18,13 +18,18 @@ import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import org.github.otanikotani.api.GithubCheckRun;
+import org.github.otanikotani.ui.toolwindow.ChecksTableModel.Columns;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.ocpsoft.prettytime.PrettyTime;
 
 public class ChecksPanel extends JPanel {
+
+  private static final DefaultTableCellRenderer ICON_RENDERER = new SimpleIconTableCellRenderer();
 
   private ChecksTableModel tableModel;
 
@@ -32,30 +37,11 @@ public class ChecksPanel extends JPanel {
     super(new GridLayout(1, 0));
     tableModel = new ChecksTableModel();
     final JBTable table = new JBTable(tableModel);
-    TableColumn conclusionColumn = table.getColumnModel().getColumn(1);
-    conclusionColumn.setCellRenderer(new IconTableCellRenderer<Icon>() {
-
-      @Override
-      public Component getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean focus,
-        int row, int column) {
-        Component component = super.getTableCellRendererComponent(table, value, false, focus, row, column);
-        Color bg = selected ? table.getSelectionBackground() : table.getBackground();
-        component.setBackground(bg);
-        ((JLabel) component).setText("");
-        return component;
-      }
-
-      @Nullable
-      @Override
-      protected Icon getIcon(@NotNull Icon value, JTable table, int row) {
-        return value;
-      }
-
-      @Override
-      protected boolean isCenterAlignment() {
-        return true;
-      }
-    });
+    TableColumnModel columnModel = table.getColumnModel();
+    TableColumn conclusionColumn = columnModel.getColumn(Columns.Conclusion.index);
+    conclusionColumn.setCellRenderer(ICON_RENDERER);
+    TableColumn urlColumn = columnModel.getColumn(Columns.Url.index);
+    urlColumn.setCellRenderer(new LinkTableCellRenderer());
 
     table.setRowSelectionAllowed(false);
     setLayout(new BorderLayout());
@@ -104,5 +90,37 @@ public class ChecksPanel extends JPanel {
   public void refresh(String owner, String repo, List<? extends GithubCheckRun> checkRuns) {
     removeAllRows();
     addRows(owner, repo, checkRuns);
+  }
+
+  private static class SimpleIconTableCellRenderer extends IconTableCellRenderer<Icon> {
+
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean focus,
+      int row, int column) {
+      Component component = super.getTableCellRendererComponent(table, value, false, focus, row, column);
+      Color bg = selected ? table.getSelectionBackground() : table.getBackground();
+      component.setBackground(bg);
+      ((JLabel) component).setText("");
+      return component;
+    }
+
+    @Nullable
+    @Override
+    protected Icon getIcon(@NotNull Icon value, JTable table, int row) {
+      return value;
+    }
+
+    @Override
+    protected boolean isCenterAlignment() {
+      return true;
+    }
+  }
+  private static class LinkTableCellRenderer extends DefaultTableCellRenderer {
+
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean focus,
+      int row, int column) {
+      return (LinkLabel<?>)value;
+    }
   }
 }
