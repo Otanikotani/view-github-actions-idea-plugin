@@ -1,13 +1,28 @@
 <idea-plugin>
     <id>org.github.otanikotani.checks-plugin</id>
-    <name>GitHub Actions</name>
+    <name>GitHub Checks</name>
     <vendor url="https://github.com/Otanikotani/view-github-actions-idea-plugin">
         Otanikotani
     </vendor>
 
     <idea-version since-build="193.4386.10"/>
 
-    <description><![CDATA[This plugin provides GitHub Actions support]]></description>
+    <description>
+        <![CDATA[This plugin checks a status of GitHub Actions jobs for the current branch.
+        <br>
+        <br>
+        Features:
+        <ul>
+            <li>Adds a new tab - Checks - to Version control tool window</li>
+            <li>Automatic checks every minute</li>
+            <li>Manual refresh</>
+        </ul>
+        <br>
+        <br>
+        <div>Plugin icon made by <a href="https://www.flaticon.com/authors/freepik"
+        title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/"
+        title="Flaticon">www.flaticon.com</a></div>]]>
+    </description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
@@ -15,7 +30,7 @@
     <depends>org.jetbrains.plugins.github</depends>
 
 
-<!--    TODO: Add dependency to git2idea plugin -->
+    <!--    TODO: Add dependency to git2idea plugin -->
 
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="org.github.otanikotani.ui.toolwindow.GHChecksToolWindowTabsManager"/>
