@@ -2,7 +2,7 @@
 
 ![](https://github.com/otanikotani/view-github-checks-idea-plugin/workflows/Check/badge.svg) [![codecov](https://codecov.io/gh/otanikotani/view-github-checks-idea-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/otanikotani/view-github-checks-idea-plugin)
 
-![Checks Plugin](img/checks-plugin-screenshot-1.png)
+![Checks Plugin](img/checks-plugin-screenshot-2.png)
 
 This plugin displays statuses of GitHub Checks for the current branch.
 This plugin is a good alternative to alt-tabbing for every time you push some changed to the branch and want to see whether the repository's checks are passing on your changes.
