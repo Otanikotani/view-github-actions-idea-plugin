@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.ocpsoft.prettytime.PrettyTime;
 
-public class ChecksPanel extends JPanel {
+class ChecksPanel extends JPanel {
 
   private static final DefaultTableCellRenderer ICON_RENDERER = new SimpleIconTableCellRenderer();
 
@@ -44,19 +44,7 @@ public class ChecksPanel extends JPanel {
     conclusionColumn.setCellRenderer(ICON_RENDERER);
     TableColumn urlColumn = columnModel.getColumn(Columns.Url.index);
     urlColumn.setCellRenderer(new LinkTableCellRenderer());
-    table.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        int row = table.getSelectedRow();
-        int col = table.getSelectedColumn();
-
-        if (row >= 0 && col == Columns.Url.index) {
-          table.clearSelection();
-          LinkLabel<?> url = (LinkLabel<?>)table.getValueAt(row, col);
-          url.doClick();
-        }
-      }
-    });
+    table.addMouseListener(new ColumnLinkLabelMouseAdapter(table, Columns.Url.index));
     table.setRowSelectionAllowed(false);
     setLayout(new BorderLayout());
     add(table.getTableHeader(), BorderLayout.PAGE_START);
@@ -84,11 +72,14 @@ public class ChecksPanel extends JPanel {
     }
   }
 
-  private String toUrl(String owner, String repo, GithubCheckRun checkRun) {
+  static String toUrl(String owner, String repo, GithubCheckRun checkRun) {
+    if (checkRun == null || checkRun.getId() == null) {
+      return String.format("https://github.com/%s/%s/runs", owner, repo);
+    }
     return String.format("https://github.com/%s/%s/runs/%d", owner, repo, checkRun.getId());
   }
 
-  private Icon conclusionToIcons(String conclusion) {
+  static Icon conclusionToIcons(String conclusion) {
     if (conclusion == null) {
       return Process.Step_mask;
     }
