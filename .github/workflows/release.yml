@@ -26,8 +26,5 @@ jobs:
         env:
           USERNAME: ${{ github.actor }}
           PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish the plugin to Intellij
-        run: ./gradlew publishPlugin
-        env:
           ORG_GRADLE_PROJECT_intellijPublishToken: ${{ secrets.INTELLIJ_PUBLISH_TOKEN }}
+
