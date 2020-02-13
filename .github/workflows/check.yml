@@ -20,4 +20,11 @@ jobs:
 
       - name: Run Unit tests
         run: |
-          ./gradlew test
+          ./gradlew test jacocoTestReport
+
+      - uses: codecov/codecov-action@v1
+        name: Upload coverage report to codecov
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./build/reports/jacoco/report.xml
+          fail_ci_if_error: true
