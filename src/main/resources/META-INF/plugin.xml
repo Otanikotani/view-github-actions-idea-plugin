@@ -5,7 +5,7 @@
         Otanikotani
     </vendor>
 
-    <idea-version since-build="193.4386.10"/>
+    <idea-version since-build="193.5662"/>
 
     <description>
         <![CDATA[This plugin checks a status of GitHub Actions jobs for the current branch.
