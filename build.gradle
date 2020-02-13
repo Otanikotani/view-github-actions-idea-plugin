@@ -70,3 +70,7 @@ jacocoTestReport {
     html.destination file("${buildDir}/jacocoHtml")
   }
 }
+
+publishPlugin {
+  token = System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken")
+}
