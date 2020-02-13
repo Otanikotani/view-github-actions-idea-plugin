@@ -15,6 +15,6 @@ public class CheckSuites extends Entity {
     String url = String.format("%s%s/%s/%s/commits/%s/check-suites",
       server.toApiUrl(), getUrlSuffix(), owner, repo, ref);
     return new Get.Json<>(url, GithubCheckSuites.class, "application/vnd.github.antiope-preview+json")
-      .withOperationName("get check suites");
+      .withOperationName("Get Check Suites...");
   }
 }

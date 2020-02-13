@@ -89,7 +89,7 @@ public class GHChecksToolWindowTabsContentManager {
   private Content createContent(GitRepository repository) {
     JPanel mainPanel = new JPanel(new BorderLayout());
 
-    ChecksPanel checksPanel = new ChecksPanel();
+    ChecksPanel checksPanel = new ChecksPanel(new ChecksTableModel());
     mainPanel.add(checksPanel, BorderLayout.CENTER);
 
     JPanel toolbarPanel = createToolbar(() -> updateChecksPanel(checksPanel, repository));

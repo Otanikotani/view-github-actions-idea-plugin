@@ -35,9 +35,9 @@ public class ChecksPanel extends JPanel {
 
   private ChecksTableModel tableModel;
 
-  public ChecksPanel() {
+  public ChecksPanel(ChecksTableModel tableModel) {
     super(new GridLayout(1, 0));
-    tableModel = new ChecksTableModel();
+    this.tableModel = tableModel;
     final JBTable table = new JBTable(tableModel);
     TableColumnModel columnModel = table.getColumnModel();
     TableColumn conclusionColumn = columnModel.getColumn(Columns.Conclusion.index);
@@ -106,7 +106,7 @@ public class ChecksPanel extends JPanel {
     addRows(owner, repo, checkRuns);
   }
 
-  private static class SimpleIconTableCellRenderer extends IconTableCellRenderer<Icon> {
+  static class SimpleIconTableCellRenderer extends IconTableCellRenderer<Icon> {
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean focus,
@@ -129,7 +129,8 @@ public class ChecksPanel extends JPanel {
       return true;
     }
   }
-  private static class LinkTableCellRenderer extends DefaultTableCellRenderer {
+
+  static class LinkTableCellRenderer extends DefaultTableCellRenderer {
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean focus,
