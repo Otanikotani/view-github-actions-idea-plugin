@@ -27,38 +27,40 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version '2019.3.1'
+  version '2019.3.1'
 
-    plugins = ['github', 'git4idea']
+  plugins = ['github', 'git4idea']
 }
 
 patchPluginXml {
-    changeNotes """
+  changeNotes """
       Add change notes here.<br>
       <em>most HTML tags may be used</em>"""
 }
 
+List<String> opensArgs = [
+  '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+  '--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED',
+  '--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED',
+  '--add-opens', 'java.base/java.util=ALL-UNNAMED',
+  '--add-opens', 'java.base/java.util.concurrent=ALL-UNNAMED',
+  '--add-opens', 'java.base/java.util.stream=ALL-UNNAMED',
+  '--add-opens', 'java.base/java.util.function=ALL-UNNAMED',
+  '--add-opens', 'java.base/java.util.regex=ALL-UNNAMED',
+  '--add-opens', 'java.base/java.time=ALL-UNNAMED',
+  '--add-opens', 'java.base/java.time.temporal=ALL-UNNAMED',
+  '--add-opens', 'java.base/java.time.chrono=ALL-UNNAMED',
+  '--add-opens', 'java.base/java.time.format=ALL-UNNAMED',
+  '--add-opens', 'java.base/java.io=ALL-UNNAMED',
+  '--add-exports', 'java.base/jdk.internal.vm=ALL-UNNAMED',
+  '--add-opens', 'java.base/java.nio.file=ALL-UNNAMED',
+  '--add-opens', 'java.base/java.net=ALL-UNNAMED',
+  '--add-opens', 'java.base/sun.nio.fs=ALL-UNNAMED',
+  '-ea'
+]
+
 runIde {
-    jvmArgs = [
-      '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
-      '--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED',
-      '--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED',
-      '--add-opens', 'java.base/java.util=ALL-UNNAMED',
-      '--add-opens', 'java.base/java.util.concurrent=ALL-UNNAMED',
-      '--add-opens', 'java.base/java.util.stream=ALL-UNNAMED',
-      '--add-opens', 'java.base/java.util.function=ALL-UNNAMED',
-      '--add-opens', 'java.base/java.util.regex=ALL-UNNAMED',
-      '--add-opens', 'java.base/java.time=ALL-UNNAMED',
-      '--add-opens', 'java.base/java.time.temporal=ALL-UNNAMED',
-      '--add-opens', 'java.base/java.time.chrono=ALL-UNNAMED',
-      '--add-opens', 'java.base/java.time.format=ALL-UNNAMED',
-      '--add-opens', 'java.base/java.io=ALL-UNNAMED',
-      '--add-exports', 'java.base/jdk.internal.vm=ALL-UNNAMED',
-      '--add-opens', 'java.base/java.nio.file=ALL-UNNAMED',
-      '--add-opens', 'java.base/java.net=ALL-UNNAMED',
-      '--add-opens', 'java.base/sun.nio.fs=ALL-UNNAMED',
-      '-ea'
-    ]
+  jvmArgs = opensArgs
 }
 
 testlogger {
@@ -67,32 +69,14 @@ testlogger {
 }
 
 test {
-  jvmArgs = [
-    '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
-    '--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED',
-    '--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED',
-    '--add-opens', 'java.base/java.util=ALL-UNNAMED',
-    '--add-opens', 'java.base/java.util.concurrent=ALL-UNNAMED',
-    '--add-opens', 'java.base/java.util.stream=ALL-UNNAMED',
-    '--add-opens', 'java.base/java.util.function=ALL-UNNAMED',
-    '--add-opens', 'java.base/java.util.regex=ALL-UNNAMED',
-    '--add-opens', 'java.base/java.time=ALL-UNNAMED',
-    '--add-opens', 'java.base/java.time.temporal=ALL-UNNAMED',
-    '--add-opens', 'java.base/java.time.chrono=ALL-UNNAMED',
-    '--add-opens', 'java.base/java.time.format=ALL-UNNAMED',
-    '--add-opens', 'java.base/java.io=ALL-UNNAMED',
-    '--add-opens', 'java.base/java.nio.file=ALL-UNNAMED',
-    '--add-opens', 'java.base/java.net=ALL-UNNAMED',
-    '--add-opens', 'java.base/sun.nio.fs=ALL-UNNAMED',
-    '-ea'
-  ]
+  jvmArgs = opensArgs
   ignoreFailures = true
 
   finalizedBy jacocoTestReport
 }
 
 jacoco {
-    toolVersion = "0.8.5"
+  toolVersion = "0.8.5"
 }
 
 jacocoTestReport {

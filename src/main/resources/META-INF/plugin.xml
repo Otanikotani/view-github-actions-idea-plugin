@@ -30,8 +30,6 @@
     <depends>org.jetbrains.plugins.github</depends>
 
 
-    <!--    TODO: Add dependency to git2idea plugin -->
-
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="org.github.otanikotani.ui.toolwindow.GHChecksToolWindowTabsManager"/>
     </extensions>
