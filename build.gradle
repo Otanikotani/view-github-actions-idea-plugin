@@ -1,84 +1,104 @@
 plugins {
-    id 'com.adarshr.test-logger' version '1.7.0'
-    id 'groovy'
-    id 'jacoco'
+  id 'com.adarshr.test-logger' version '1.7.0'
+  id 'groovy'
+  id 'jacoco'
+  id 'java-library'
+  id 'org.jetbrains.intellij' version '0.4.15'
+}
+
+group 'org.github.otanikotani'
+version '0.0.1'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+  jcenter()
+  mavenCentral()
+}
+
+dependencies {
+  implementation group: 'one.util', name: 'streamex', version: '0.6.8'
+  implementation group: 'org.ocpsoft.prettytime', name: 'prettytime', version: '4.0.2.Final'
+
+  testImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
+  testImplementation 'org.spockframework:spock-core:1.3-groovy-2.5'
+  testImplementation 'junit:junit:4.12'
+}
+
+// See https://github.com/JetBrains/gradle-intellij-plugin/
+intellij {
+    version '2019.3.1'
+
+    plugins = ['github', 'git4idea']
+}
+
+patchPluginXml {
+    changeNotes """
+      Add change notes here.<br>
+      <em>most HTML tags may be used</em>"""
+}
+
+runIde {
+    jvmArgs = [
+      '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+      '--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED',
+      '--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED',
+      '--add-opens', 'java.base/java.util=ALL-UNNAMED',
+      '--add-opens', 'java.base/java.util.concurrent=ALL-UNNAMED',
+      '--add-opens', 'java.base/java.util.stream=ALL-UNNAMED',
+      '--add-opens', 'java.base/java.util.function=ALL-UNNAMED',
+      '--add-opens', 'java.base/java.util.regex=ALL-UNNAMED',
+      '--add-opens', 'java.base/java.time=ALL-UNNAMED',
+      '--add-opens', 'java.base/java.time.temporal=ALL-UNNAMED',
+      '--add-opens', 'java.base/java.time.chrono=ALL-UNNAMED',
+      '--add-opens', 'java.base/java.time.format=ALL-UNNAMED',
+      '--add-opens', 'java.base/java.io=ALL-UNNAMED',
+      '--add-exports', 'java.base/jdk.internal.vm=ALL-UNNAMED',
+      '--add-opens', 'java.base/java.nio.file=ALL-UNNAMED',
+      '--add-opens', 'java.base/java.net=ALL-UNNAMED',
+      '--add-opens', 'java.base/sun.nio.fs=ALL-UNNAMED',
+      '-ea'
+    ]
+}
+
+testlogger {
+  theme 'mocha'
+  showSkipped true
+}
+
+test {
+  jvmArgs = [
+    '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.util=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.util.concurrent=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.util.stream=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.util.function=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.util.regex=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.time=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.time.temporal=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.time.chrono=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.time.format=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.io=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.nio.file=ALL-UNNAMED',
+    '--add-opens', 'java.base/java.net=ALL-UNNAMED',
+    '--add-opens', 'java.base/sun.nio.fs=ALL-UNNAMED',
+    '-ea'
+  ]
+  ignoreFailures = true
+
+  finalizedBy jacocoTestReport
 }
 
 jacoco {
     toolVersion = "0.8.5"
 }
 
-subprojects {
-    apply plugin: 'groovy'
-    apply plugin: 'java-library'
-    apply plugin: 'jacoco'
-
-    group = 'org.github.otanikotani'
-
-    sourceCompatibility = JavaVersion.VERSION_1_8
-
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-        testImplementation 'org.codehaus.groovy:groovy-all:2.5.8'
-        testImplementation 'org.spockframework:spock-core:1.3-groovy-2.5'
-        testImplementation 'junit:junit:4.12'
-    }
-
-    testlogger {
-        theme 'mocha'
-        showSkipped true
-    }
-
-    test {
-        jvmArgs = [
-          '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
-          '--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED',
-          '--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED',
-          '--add-opens', 'java.base/java.util=ALL-UNNAMED',
-          '--add-opens', 'java.base/java.util.concurrent=ALL-UNNAMED',
-          '--add-opens', 'java.base/java.util.stream=ALL-UNNAMED',
-          '--add-opens', 'java.base/java.util.function=ALL-UNNAMED',
-          '--add-opens', 'java.base/java.util.regex=ALL-UNNAMED',
-          '--add-opens', 'java.base/java.time=ALL-UNNAMED',
-          '--add-opens', 'java.base/java.time.temporal=ALL-UNNAMED',
-          '--add-opens', 'java.base/java.time.chrono=ALL-UNNAMED',
-          '--add-opens', 'java.base/java.time.format=ALL-UNNAMED',
-          '--add-opens', 'java.base/java.io=ALL-UNNAMED',
-          '--add-opens', 'java.base/java.nio.file=ALL-UNNAMED',
-          '--add-opens', 'java.base/java.net=ALL-UNNAMED',
-          '--add-opens', 'java.base/sun.nio.fs=ALL-UNNAMED',
-          '-ea'
-        ]
-        ignoreFailures = true
-
-        finalizedBy jacocoTestReport
-    }
-
-    jacocoTestReport {
-        reports {
-            xml.enabled false
-            csv.enabled false
-            html.destination file("${buildDir}/jacocoHtml")
-        }
-
-        // needed for report - if you use source sets it'll bring in all deps into the report
-        def classTree = fileTree(dir: 'build/classes/java/main')
-        classDirectories.from = classTree
-
-        // needed for source highlight
-        sourceDirectories.from = files(sourceSets.main.allSource.srcDirs)
-    }
-}
-
-task jacocoRootReport(type: JacocoReport) {
-    description = 'Generates an aggregate report from all subprojects'
-    def allSubprojectsExceptPlayground = subprojects.findAll { it.name != 'arch-playground'}
-
-    additionalSourceDirs.from = files(allSubprojectsExceptPlayground.sourceSets.main.allSource.srcDirs)
-    sourceDirectories.from = files(allSubprojectsExceptPlayground.sourceSets.main.allSource.srcDirs)
-    classDirectories.from = files(allSubprojectsExceptPlayground.sourceSets.main.output)
-    executionData.from = files(allSubprojectsExceptPlayground.jacocoTestReport.executionData)
+jacocoTestReport {
+  reports {
+    xml.enabled false
+    csv.enabled false
+    html.destination file("${buildDir}/jacocoHtml")
+  }
 }
