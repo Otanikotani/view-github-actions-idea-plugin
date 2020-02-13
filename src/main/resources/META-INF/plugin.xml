@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.github.otanikotani.checks-plugin</id>
     <name>GitHub Checks</name>
-    <vendor url="https://github.com/Otanikotani/view-github-actions-idea-plugin">
+    <vendor url="https://github.com/Otanikotani/view-github-checks-idea-plugin">
         Otanikotani
     </vendor>
 
