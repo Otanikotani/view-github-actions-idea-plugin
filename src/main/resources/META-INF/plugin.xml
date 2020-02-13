@@ -7,22 +7,26 @@
 
     <idea-version since-build="193.5662"/>
 
-    <description>
-        <![CDATA[This plugin checks a status of GitHub Actions jobs for the current branch.
+    <description><![CDATA[
+        This plugin displays statuses of GitHub Checks for the current branch.
+        This plugin is a good alternative to alt-tabbing for every time you push some changed to the branch and want to see whether the repository's checks are passing on your changes.
+        Use cases:
+        - Imagine having checks on pull requests that must pass before you can merge the pull request. With this plugin you can see whether the checks are passing without switching to GitHub website.
+        - You did a push into some branch and you want to see how your GitHub Actions that were triggered by that push are doing. You can monitor the status of the actions via this plugin.
         <br>
         <br>
         Features:
         <ul>
-            <li>Adds a new tab - Checks - to Version control tool window</li>
-            <li>Automatic checks every minute</li>
-            <li>Manual refresh</>
+            <li>Adds a new tab - Checks - to the Version control tool window that shows the checks (see https://developer.github.com/v3/checks/) of the currently checked out branch of the GitHub repository.</li>
+            <li>The Checks are refreshed periodically</li>
+            <li>The Checks can be refreshed manually</li>
+            <li>Every time a branch is changed in the project - the Checks will be refreshed</li>
         </ul>
         <br>
         <br>
         <div>Plugin icon made by <a href="https://www.flaticon.com/authors/freepik"
         title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/"
-        title="Flaticon">www.flaticon.com</a></div>]]>
-    </description>
+        title="Flaticon">www.flaticon.com</a></div>]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->

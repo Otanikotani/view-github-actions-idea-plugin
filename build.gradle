@@ -36,9 +36,14 @@ intellij {
 }
 
 patchPluginXml {
-  changeNotes """
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>"""
+  changeNotes """                                              
+      <h4>v 0.0.1</h4>
+      <ul>
+          <li>Current functionality is limited to showing checks of the current branch of the project</li>
+          <li>Integration with the existing github plugin. The authentication, events and so on are taken from https://github.com/JetBrains/intellij-community/tree/master/plugins/github</li>
+          <li>Experimental mime type "application/vnd.github.antiope-preview+json" is used in all Check API requests. See https://developer.github.com/v3/checks/ for more details</li>
+      </ul>
+      """
 }
 
 
