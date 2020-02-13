@@ -45,15 +45,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-public class GHChecksToolWindowTabsContentManager {
+class GHChecksToolWindowTabsContentManager {
 
   private static final String CONTENT_TAB_NAME = "Checks";
   private static final String REFRESH_ACTION_ID = "GHChecks.Action.Refresh";
   private static final String GHCHECKS_ACTION_GROUP_ID = "GHChecks.ActionGroup";
-  private static final AnActionEvent EMPTY_ACTION_EVENT = new AnActionEvent(null, dataId -> null,
-          ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0);
   private static final int DEFAULT_REFRESH_DELAY = 1;
-  private static final Pattern DOT_GIT_PATTERN = Pattern.compile("\\.git$");
+
 
   public static final Topic<AccountTokenChangedListener> ACCOUNT_CHANGED_TOPIC = new Topic<>(
     "GITHUB_ACCOUNT_TOKEN_CHANGED",
@@ -65,10 +63,11 @@ public class GHChecksToolWindowTabsContentManager {
   LocalDateTime lastRefreshTime;
 
   private final ChangesViewContentI viewContentManager;
+  private AnActionEvent emptyEvent;
 
-  public GHChecksToolWindowTabsContentManager(Project project) {
+  GHChecksToolWindowTabsContentManager(Project project, ChangesViewContentI viewContentManager) {
     this.project = project;
-    this.viewContentManager = ChangesViewContentManager.getInstance(project);
+    this.viewContentManager = viewContentManager;
     this.lastRefreshTime = LocalDateTime.now();
 
     MessageBusConnection bus = project.getMessageBus().connect();
@@ -84,6 +83,7 @@ public class GHChecksToolWindowTabsContentManager {
         update();
       }
     });
+    bus.subscribe(ChecksRefreshedListener.CHECKS_REFRESHED, () -> lastRefreshTime = LocalDateTime.now());
   }
 
   private Content createContent(GitRepository repository) {
@@ -149,57 +149,20 @@ public class GHChecksToolWindowTabsContentManager {
       return;
     }
 
-    new Backgroundable(project, "Getting Check Suites...") {
+    new GettingCheckSuites(project, checksPanel, repository, getAccount(), executor).queue();
+  }
 
-      private String owner;
-      private String repo;
-      private List<? extends GithubCheckRun> checkRuns;
+  void update() {
+    Application app = ApplicationManager.getApplication();
+    if (app.isDispatchThread()) {
+      updateContent();
+    } else {
+      app.invokeLater(this::updateContent);
+    }
+  }
 
-      @Override
-      public void run(@NotNull ProgressIndicator indicator) {
-        String remoteUrl = StreamEx.of(repository.getRemotes()).map(GitRemote::getFirstUrl)
-          .findFirst()
-          .map(url -> DOT_GIT_PATTERN.matcher(url).replaceFirst(""))
-          .orElseThrow(() -> new RuntimeException("Failed to find a remote url"));
-
-        String[] parts = remoteUrl.split("/");
-        repo = parts[parts.length - 1];
-        owner = parts[parts.length - 2];
-
-        GithubApiRequest<GithubCheckSuites> request = new CheckSuites()
-          .get(account.getServer(), owner, repo, repository.getCurrentBranchName());
-        GithubCheckSuites suites;
-        try {
-          suites = executor.execute(indicator, request);
-        } catch (IOException e) {
-          throw new UncheckedIOException(e);
-        }
-
-        checkRuns = StreamEx.of(suites.getCheck_suites())
-          .flatMap(it -> {
-
-            GithubApiRequest<GithubCheckRuns> checkRunsRequest = new CheckRuns().get(it.getCheck_runs_url());
-            try {
-              return executor.execute(indicator, checkRunsRequest).getCheck_runs().stream();
-            } catch (IOException e) {
-              throw new UncheckedIOException(e);
-            }
-          })
-          .toList();
-      }
-
-      @Override
-      public void onSuccess() {
-        checksPanel.refresh(owner, repo, checkRuns);
-        lastRefreshTime = LocalDateTime.now();
-      }
-
-      @Override
-      public void onThrowable(@NotNull Throwable error) {
-        super.onThrowable(error);
-        //TODO: Show something about the failure in UI
-      }
-    }.queue();
+  void setRepository(GitRepository repository) {
+    this.repository = repository;
   }
 
   private GithubAccount getAccount() {
@@ -224,20 +187,15 @@ public class GHChecksToolWindowTabsContentManager {
     if (contents.isEmpty()) {
       viewContentManager.addContent(createContent(repository));
     } else {
-      ActionManager.getInstance().getAction(REFRESH_ACTION_ID).actionPerformed(EMPTY_ACTION_EVENT);
+      ActionManager.getInstance().getAction(REFRESH_ACTION_ID).actionPerformed(getEmptyActionEvent());
     }
   }
 
-  public void update() {
-    Application app = ApplicationManager.getApplication();
-    if (app.isDispatchThread()) {
-      updateContent();
-    } else {
-      app.invokeLater(this::updateContent);
+  private AnActionEvent getEmptyActionEvent() {
+    if (null == emptyEvent) {
+      emptyEvent = new AnActionEvent(null, dataId -> null,
+        ActionPlaces.UNKNOWN, new Presentation(), ActionManager.getInstance(), 0);
     }
-  }
-
-  public void setRepository(GitRepository repository) {
-    this.repository = repository;
+    return emptyEvent;
   }
 }
