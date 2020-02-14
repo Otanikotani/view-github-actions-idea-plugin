@@ -3,7 +3,8 @@ name: Check
 on:
   push:
     branches:
-      - master
+      - 'master'
+      - 'feature/**'
 
 jobs:
   check:
