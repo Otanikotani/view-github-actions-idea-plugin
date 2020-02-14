@@ -10,7 +10,7 @@ public class RefreshAction extends AnAction {
     private Runnable refreshChecksPanel;
 
     public RefreshAction(@NotNull Runnable refreshChecksPanel) {
-        super("Refresh", "Refreshes checks", AllIcons.Actions.Refresh);
+        super("Refresh Checks", "Refreshes checks", AllIcons.Actions.Refresh);
         this.refreshChecksPanel = refreshChecksPanel;
     }
 
