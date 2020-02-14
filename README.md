@@ -2,6 +2,8 @@
 
 ![](https://github.com/otanikotani/view-github-checks-idea-plugin/workflows/Check/badge.svg) [![codecov](https://codecov.io/gh/otanikotani/view-github-checks-idea-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/otanikotani/view-github-checks-idea-plugin)
 
+[Jetbrains Repository Plugin page](https://plugins.jetbrains.com/plugin/13793-github-checks)
+
 ![Checks Plugin](img/checks-plugin-screenshot-2.png)
 
 This plugin displays statuses of GitHub Checks for the current branch.
