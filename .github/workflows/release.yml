@@ -21,7 +21,7 @@ jobs:
         run: |
           ./gradlew test jacocoTestReport
 
-      - name: Publish to GitHub Packages
+      - name: Publish the plugin
         run: ./gradlew publish
         env:
           USERNAME: ${{ github.actor }}
