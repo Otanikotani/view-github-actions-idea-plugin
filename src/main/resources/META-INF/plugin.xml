@@ -17,7 +17,9 @@
         <br>
         Features:
         <ul>
-            <li>Adds a new tab - Checks - to the Version control tool window that shows the checks (see https://developer.github.com/v3/checks/) of the currently checked out branch of the GitHub repository.</li>
+            <li>Adds a new tab - Checks - to the Version control tool window that shows the checks (see
+                https://developer.github.com/v3/checks/) of the currently checked out branch of the GitHub repository.
+            </li>
             <li>The Checks are refreshed periodically</li>
             <li>The Checks can be refreshed manually</li>
             <li>Every time a branch is changed in the project - the Checks will be refreshed</li>
@@ -25,8 +27,9 @@
         <br>
         <br>
         <div>Plugin icon made by <a href="https://www.flaticon.com/authors/freepik"
-        title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/"
-        title="Flaticon">www.flaticon.com</a></div>]]></description>
+                                    title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/"
+                                                                        title="Flaticon">www.flaticon.com</a></div>
+        ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->

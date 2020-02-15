@@ -29,7 +29,7 @@ public class ChecksTableModel extends DefaultTableModel {
 
   @Override
   public Class<?> getColumnClass(int columnIndex) {
-    if (columnIndex == 1) {
+    if (columnIndex == Columns.Conclusion.index) {
       return Icon.class;
     }
     return super.getColumnClass(columnIndex);
