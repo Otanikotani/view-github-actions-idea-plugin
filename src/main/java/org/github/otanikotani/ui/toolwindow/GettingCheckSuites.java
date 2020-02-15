@@ -58,7 +58,7 @@ public class GettingCheckSuites extends Backgroundable {
     try {
       suites = executor.execute(indicator, request);
     } catch (IOException e) {
-      throw new UncheckedIOException(e);
+      throw new UncheckedIOException("Expected failure", e);
     }
 
     checkRuns = StreamEx.of(suites.getCheck_suites())
