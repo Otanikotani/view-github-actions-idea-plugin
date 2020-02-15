@@ -17,7 +17,7 @@ class ChecksTableModelSpec extends Specification {
     thrown(ArrayIndexOutOfBoundsException)
   }
 
-  def "class of the conclusion column is Icon"() {
+  def "class of the conclusion column should be Icon"() {
     expect:
     new ChecksTableModel().getColumnClass(ChecksTableModel.Columns.Conclusion.index) == Icon
   }
