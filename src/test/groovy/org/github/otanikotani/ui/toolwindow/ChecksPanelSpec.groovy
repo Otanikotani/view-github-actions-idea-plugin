@@ -3,10 +3,14 @@ package org.github.otanikotani.ui.toolwindow
 import com.intellij.icons.AllIcons
 import com.intellij.ui.components.labels.LinkLabel
 import org.github.otanikotani.api.GithubCheckRun
+import org.ocpsoft.prettytime.PrettyTime
 import spock.lang.Specification
 
 import javax.swing.*
 import java.awt.*
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 
 class ChecksPanelSpec extends Specification {
 
@@ -161,5 +165,4 @@ class ChecksPanelSpec extends Specification {
     then:
     result == linkLabel
   }
-
 }

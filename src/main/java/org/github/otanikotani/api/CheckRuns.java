@@ -12,5 +12,4 @@ public class CheckRuns {
       "application/vnd.github.antiope-preview+json")
       .withOperationName("Get Check Runs...");
   }
-
 }

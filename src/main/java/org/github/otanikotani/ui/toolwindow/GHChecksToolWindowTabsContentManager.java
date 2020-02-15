@@ -7,8 +7,6 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task.Backgroundable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.BranchChangeListener;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentI;
@@ -18,51 +16,35 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
-import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
-import one.util.streamex.StreamEx;
+import java.awt.BorderLayout;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import javax.swing.JPanel;
 import org.github.otanikotani.action.RefreshAction;
-import org.github.otanikotani.api.CheckRuns;
-import org.github.otanikotani.api.CheckSuites;
-import org.github.otanikotani.api.GithubCheckRun;
-import org.github.otanikotani.api.GithubCheckRuns;
-import org.github.otanikotani.api.GithubCheckSuites;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.github.api.GithubApiRequest;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor.WithTokenAuth;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutorManager;
 import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager;
 import org.jetbrains.plugins.github.authentication.accounts.AccountTokenChangedListener;
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
 
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
-
 class GHChecksToolWindowTabsContentManager {
-
-  private static final String CONTENT_TAB_NAME = "Checks";
-  private static final String REFRESH_ACTION_ID = "GHChecks.Action.Refresh";
-  private static final String GHCHECKS_ACTION_GROUP_ID = "GHChecks.ActionGroup";
-  private static final int DEFAULT_REFRESH_DELAY = 1;
-
 
   public static final Topic<AccountTokenChangedListener> ACCOUNT_CHANGED_TOPIC = new Topic<>(
     "GITHUB_ACCOUNT_TOKEN_CHANGED",
     AccountTokenChangedListener.class);
-
+  private static final String CONTENT_TAB_NAME = "Checks";
+  private static final String REFRESH_ACTION_ID = "GHChecks.Action.Refresh";
+  private static final String GHCHECKS_ACTION_GROUP_ID = "GHChecks.ActionGroup";
+  private static final int DEFAULT_REFRESH_DELAY = 1;
+  private final ChangesViewContentI viewContentManager;
   Project project;
   GitRepository repository;
   GithubAccount account;
   LocalDateTime lastRefreshTime;
-
-  private final ChangesViewContentI viewContentManager;
   private AnActionEvent emptyEvent;
 
   GHChecksToolWindowTabsContentManager(Project project, ChangesViewContentI viewContentManager) {
@@ -100,20 +82,20 @@ class GHChecksToolWindowTabsContentManager {
     content.setCloseable(false);
     content.setDescription("GitHub Checks for your builds");
     content.putUserData(ChangesViewContentManager.ORDER_WEIGHT_KEY,
-            ChangesViewContentManager.TabOrderWeight.OTHER.getWeight());
+      ChangesViewContentManager.TabOrderWeight.OTHER.getWeight());
 
     updateChecksPanel(checksPanel, repository);
 
     AppExecutorUtil.getAppScheduledExecutorService().scheduleWithFixedDelay(
-            () -> {
-              Duration duration = Duration.between(LocalDateTime.now(), lastRefreshTime);
-              if (Math.abs(duration.toMinutes()) >= DEFAULT_REFRESH_DELAY) {
-                updateChecksPanel(checksPanel, repository);
-              }
-            },
-            DEFAULT_REFRESH_DELAY,
-            DEFAULT_REFRESH_DELAY,
-            TimeUnit.MINUTES
+      () -> {
+        Duration duration = Duration.between(LocalDateTime.now(), lastRefreshTime);
+        if (Math.abs(duration.toMinutes()) >= DEFAULT_REFRESH_DELAY) {
+          updateChecksPanel(checksPanel, repository);
+        }
+      },
+      DEFAULT_REFRESH_DELAY,
+      DEFAULT_REFRESH_DELAY,
+      TimeUnit.MINUTES
     );
 
     return content;
@@ -123,15 +105,15 @@ class GHChecksToolWindowTabsContentManager {
     JPanel toolbarPanel = new JPanel(new BorderLayout());
     ActionManager actionManager = ActionManager.getInstance();
     actionManager.registerAction(
-            REFRESH_ACTION_ID,
-            new RefreshAction(refreshChecksPanel)
+      REFRESH_ACTION_ID,
+      new RefreshAction(refreshChecksPanel)
     );
     DefaultActionGroup checksActionGroup = (DefaultActionGroup) actionManager.getAction(GHCHECKS_ACTION_GROUP_ID);
     checksActionGroup.add(actionManager.getAction(REFRESH_ACTION_ID));
 
     toolbarPanel.add(
-            actionManager.createActionToolbar(ActionPlaces.TOOLBAR, checksActionGroup, false).getComponent(),
-            BorderLayout.PAGE_START
+      actionManager.createActionToolbar(ActionPlaces.TOOLBAR, checksActionGroup, false).getComponent(),
+      BorderLayout.PAGE_START
     );
     return toolbarPanel;
   }

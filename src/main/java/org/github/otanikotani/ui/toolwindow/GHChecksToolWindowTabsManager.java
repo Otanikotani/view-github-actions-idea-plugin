@@ -16,6 +16,11 @@ public final class GHChecksToolWindowTabsManager {
     contentManager = new GHChecksToolWindowTabsContentManager(project, ChangesViewContentManager.getInstance(project));
   }
 
+  private void update(GitRepository repository) {
+    contentManager.setRepository(repository);
+    contentManager.update();
+  }
+
   //Kicks of
   static class ChangeListener implements GitRepositoryChangeListener {
 
@@ -30,10 +35,5 @@ public final class GHChecksToolWindowTabsManager {
       GHChecksToolWindowTabsManager service = project.getService(GHChecksToolWindowTabsManager.class);
       service.update(repository);
     }
-  }
-
-  private void update(GitRepository repository) {
-    contentManager.setRepository(repository);
-    contentManager.update();
   }
 }

@@ -8,19 +8,6 @@ import com.intellij.ide.BrowserUtil;
 import com.intellij.ui.components.labels.LinkLabel;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.table.IconTableCellRenderer;
-import org.github.otanikotani.api.GithubCheckRun;
-import org.github.otanikotani.ui.toolwindow.ChecksTableModel.Columns;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.ocpsoft.prettytime.PrettyTime;
-
-import javax.swing.Icon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -32,6 +19,18 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import javax.swing.Icon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import org.github.otanikotani.api.GithubCheckRun;
+import org.github.otanikotani.ui.toolwindow.ChecksTableModel.Columns;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.ocpsoft.prettytime.PrettyTime;
 
 class ChecksPanel extends JPanel {
 
@@ -56,30 +55,11 @@ class ChecksPanel extends JPanel {
     add(table, BorderLayout.CENTER);
   }
 
-  public void removeAllRows() {
-    tableModel.removeAllRows();
-  }
-
-  public void addRows(String owner, String repo, List<? extends GithubCheckRun> checkRuns) {
-    for (GithubCheckRun checkRun : checkRuns) {
-      String name = checkRun.getName();
-      Icon conclusion = conclusionToIcons(checkRun.getConclusion());
-      String startedAt = makeTimePretty(checkRun.getStarted_at());
-      String completedAt = makeTimePretty(checkRun.getCompleted_at());
-
-      String url = toUrl(owner, repo, checkRun);
-      LinkLabel<?> urlLabel = new LinkLabel<>(
-              url,
-              Ide.External_link_arrow,
-              (_0, _1) -> BrowserUtil.browse(url));
-      tableModel.addRow(Arrays.asList(name, conclusion, startedAt, completedAt, urlLabel));
-    }
-  }
-
-  private String makeTimePretty(Date date) {
+  @SuppressWarnings("SameParameterValue")
+  static String makeTimePretty(Date date, PrettyTime prettyTime) {
     LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
     ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneOffset.UTC);
-    return PRETTY_TIME.format(Date.from(zonedDateTime.toInstant()));
+    return prettyTime.format(Date.from(zonedDateTime.toInstant()));
   }
 
   static String toUrl(String owner, String repo, GithubCheckRun checkRun) {
@@ -99,6 +79,26 @@ class ChecksPanel extends JPanel {
       return Actions.Checked;
     } else {
       return General.Error;
+    }
+  }
+
+  public void removeAllRows() {
+    tableModel.removeAllRows();
+  }
+
+  public void addRows(String owner, String repo, List<? extends GithubCheckRun> checkRuns) {
+    for (GithubCheckRun checkRun : checkRuns) {
+      String name = checkRun.getName();
+      Icon conclusion = conclusionToIcons(checkRun.getConclusion());
+      String startedAt = makeTimePretty(checkRun.getStarted_at(), PRETTY_TIME);
+      String completedAt = makeTimePretty(checkRun.getCompleted_at(), PRETTY_TIME);
+
+      String url = toUrl(owner, repo, checkRun);
+      LinkLabel<?> urlLabel = new LinkLabel<>(
+        url,
+        Ide.External_link_arrow,
+        (_0, _1) -> BrowserUtil.browse(url));
+      tableModel.addRow(Arrays.asList(name, conclusion, startedAt, completedAt, urlLabel));
     }
   }
 
@@ -136,7 +136,7 @@ class ChecksPanel extends JPanel {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean focus,
       int row, int column) {
-      return (LinkLabel<?>)value;
+      return (LinkLabel<?>) value;
     }
   }
 }

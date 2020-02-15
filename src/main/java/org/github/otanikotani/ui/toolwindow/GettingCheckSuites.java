@@ -7,7 +7,6 @@ import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.regex.Pattern;
 import one.util.streamex.StreamEx;
@@ -81,11 +80,5 @@ public class GettingCheckSuites extends Backgroundable {
     ChecksRefreshedListener publisher = myProject.getMessageBus()
       .syncPublisher(ChecksRefreshedListener.CHECKS_REFRESHED);
     publisher.checksRefreshed();
-  }
-
-  @Override
-  public void onThrowable(@NotNull Throwable error) {
-    super.onThrowable(error);
-    //TODO: Show something about the failure in UI
   }
 }
