@@ -3,22 +3,18 @@ package org.github.otanikotani.ui.toolwindow
 import com.intellij.icons.AllIcons
 import com.intellij.ui.components.labels.LinkLabel
 import org.github.otanikotani.api.GithubCheckRun
-import org.ocpsoft.prettytime.PrettyTime
 import spock.lang.Specification
 
 import javax.swing.*
 import java.awt.*
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZoneOffset
 
-class ChecksPanelSpec extends Specification {
+class ChecksTableSpec extends Specification {
 
   def "removing all rows is delegated to the model"() {
     given:
     ChecksTableModel model = new ChecksTableModel()
     model.addRow(["foo", AllIcons.General.Error, "started", "completed", new LinkLabel("any label", AllIcons.General.Error)])
-    ChecksPanel panel = new ChecksPanel(model)
+    ChecksTable panel = new ChecksTable(model)
 
     when:
     panel.removeAllRows()
@@ -30,7 +26,7 @@ class ChecksPanelSpec extends Specification {
   def "adding a row"() {
     given:
     ChecksTableModel model = new ChecksTableModel()
-    ChecksPanel panel = new ChecksPanel(model)
+    ChecksTable panel = new ChecksTable(model)
     def checkRun = new GithubCheckRun()
     checkRun.name = "my run"
     checkRun.conclusion = "unknown"
@@ -56,7 +52,7 @@ class ChecksPanelSpec extends Specification {
     checkRun.id = 123L
 
     when:
-    String url = ChecksPanel.toUrl("trini", "taba", checkRun)
+    String url = ChecksTable.toUrl("trini", "taba", checkRun)
 
     then:
     url == "https://github.com/trini/taba/runs/123"
@@ -72,7 +68,7 @@ class ChecksPanelSpec extends Specification {
     checkRun.id = null
 
     when:
-    String url = ChecksPanel.toUrl("trini", "taba", checkRun)
+    String url = ChecksTable.toUrl("trini", "taba", checkRun)
 
     then:
     url == "https://github.com/trini/taba/runs"
@@ -80,7 +76,7 @@ class ChecksPanelSpec extends Specification {
 
   def "conclusions to icons converts string conclusion to the icon"(String conclusion, Icon icon) {
     expect:
-    ChecksPanel.conclusionToIcons(conclusion) == icon
+    ChecksTable.conclusionToIcons(conclusion) == icon
 
     where:
     conclusion    | icon
@@ -93,7 +89,7 @@ class ChecksPanelSpec extends Specification {
   def "refresh replace current rows with the new ones"() {
     given:
     ChecksTableModel model = new ChecksTableModel()
-    ChecksPanel panel = new ChecksPanel(model)
+    ChecksTable panel = new ChecksTable(model)
     def checkRun = new GithubCheckRun()
     checkRun.name = "my run"
     checkRun.conclusion = "unknown"
@@ -112,7 +108,7 @@ class ChecksPanelSpec extends Specification {
 
   def "icon table cell renderer is aligned to center"() {
     expect:
-    new ChecksPanel.SimpleIconTableCellRenderer().centerAlignment
+    new ChecksTable.SimpleIconTableCellRenderer().centerAlignment
   }
 
   def "icon table cell renderer uses the given value as an icon"() {
@@ -121,7 +117,7 @@ class ChecksPanelSpec extends Specification {
     JTable table = new JTable(0, 0)
 
     when:
-    def result = new ChecksPanel.SimpleIconTableCellRenderer().getIcon(icon, table, 1)
+    def result = new ChecksTable.SimpleIconTableCellRenderer().getIcon(icon, table, 1)
 
     then:
     result == icon
@@ -134,7 +130,7 @@ class ChecksPanelSpec extends Specification {
     table.setSelectionBackground(Color.BLACK)
 
     when:
-    Component result = new ChecksPanel.SimpleIconTableCellRenderer().getTableCellRendererComponent(table, value, true, false, 0, 0)
+    Component result = new ChecksTable.SimpleIconTableCellRenderer().getTableCellRendererComponent(table, value, true, false, 0, 0)
 
     then:
     result.getBackground() == Color.BLACK
@@ -146,7 +142,7 @@ class ChecksPanelSpec extends Specification {
     JTable table = new JTable(0, 0)
 
     when:
-    Component result = new ChecksPanel.SimpleIconTableCellRenderer().getTableCellRendererComponent(table, value, true, false, 0, 0)
+    Component result = new ChecksTable.SimpleIconTableCellRenderer().getTableCellRendererComponent(table, value, true, false, 0, 0)
 
     then:
     result instanceof JLabel
@@ -160,7 +156,7 @@ class ChecksPanelSpec extends Specification {
 
 
     when:
-    Component result = new ChecksPanel.LinkTableCellRenderer().getTableCellRendererComponent(table, linkLabel, true, false, 0, 0)
+    Component result = new ChecksTable.LinkTableCellRenderer().getTableCellRendererComponent(table, linkLabel, true, false, 0, 0)
 
     then:
     result == linkLabel
