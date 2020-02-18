@@ -34,7 +34,7 @@ public class GettingCheckSuites extends Backgroundable {
     private List<? extends GithubCheckRun> checkRuns;
 
     GettingCheckSuites(Project project, ChecksTable checksTable, GitRepository repository,
-                       GithubAccount account, WithTokenAuth executor) {
+        GithubAccount account, WithTokenAuth executor) {
         super(project, "Getting Check Suites...");
         this.checksTable = checksTable;
         this.repository = repository;
