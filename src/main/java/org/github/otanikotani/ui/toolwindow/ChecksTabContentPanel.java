@@ -1,5 +1,6 @@
 package org.github.otanikotani.ui.toolwindow;
 
+import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.ui.JBColor;
 
 import javax.swing.JLabel;
@@ -15,11 +16,12 @@ public class ChecksTabContentPanel extends JPanel {
 
     private ChecksTable table;
     private JPanel stub;
+    private ChecksToolbar toolbar;
 
-    public ChecksTabContentPanel(Runnable refreshChecksTable, boolean isAuthorized) {
+    public ChecksTabContentPanel(ActionManager actionManager, Runnable refreshChecksTable, boolean isAuthorized) {
         super(new BorderLayout());
         redraw(isAuthorized);
-        createToolbar(refreshChecksTable);
+        createToolbar(actionManager, refreshChecksTable);
     }
 
     public void redraw(boolean isAuthorized) {
@@ -48,8 +50,8 @@ public class ChecksTabContentPanel extends JPanel {
         }
     }
 
-    private void createToolbar(Runnable refreshChecksTable) {
-        ChecksToolbar toolbar = new ChecksToolbar(refreshChecksTable);
+    private void createToolbar(ActionManager actionManager, Runnable refreshChecksTable) {
+        toolbar = new ChecksToolbar(actionManager, refreshChecksTable);
         add(toolbar, BorderLayout.WEST);
     }
 
@@ -74,5 +76,13 @@ public class ChecksTabContentPanel extends JPanel {
 
     public ChecksTable getTable() {
         return table;
+    }
+
+    public JPanel getStub() {
+        return stub;
+    }
+
+    public ChecksToolbar getToolbar() {
+        return toolbar;
     }
 }

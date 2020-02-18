@@ -1,5 +1,6 @@
 package org.github.otanikotani.ui.toolwindow;
 
+import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -104,7 +105,8 @@ class GHChecksToolWindowTabsContentManager {
     }
 
     private void createChecksTabContentPanel() {
-        checksTabContentPanel = new ChecksTabContentPanel(this::update, nonNull(getAccount()));
+        checksTabContentPanel = new ChecksTabContentPanel(ActionManager.getInstance(),
+            this::update, nonNull(getAccount()));
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(checksTabContentPanel, CONTENT_TAB_NAME, false);
         content.setCloseable(false);

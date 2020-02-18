@@ -9,13 +9,17 @@ import org.github.otanikotani.action.RefreshAction;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
+import static java.util.Objects.isNull;
+
 public class ChecksToolbar extends JPanel {
     private static final String REFRESH_ACTION_ID = "GHChecks.Action.Refresh";
     private static final String GHCHECKS_ACTION_GROUP_ID = "GHChecks.ActionGroup";
 
-    public ChecksToolbar(Runnable refreshChecksTable) {
+    public ChecksToolbar(ActionManager actionManager, Runnable refreshChecksTable) {
         super(new BorderLayout());
-        ActionManager actionManager = ActionManager.getInstance();
+        if (isNull(actionManager)) {
+            return;
+        }
         actionManager.registerAction(
             REFRESH_ACTION_ID,
             new RefreshAction(refreshChecksTable)
