@@ -1,7 +1,8 @@
 package org.github.otanikotani.ui.toolwindow
 
-
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vcs.BranchChangeListener
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentI
 import com.intellij.util.messages.MessageBus
 import com.intellij.util.messages.MessageBusConnection
@@ -14,20 +15,37 @@ class GHChecksToolWindowTabsContentManagerSpec extends Specification {
     MessageBusConnection messageBusConnection
 
     GHChecksToolWindowTabsContentManager manager
+    private ActionManager actionManager = Stub(ActionManager)
 
 
     def setup() {
         MessageBus messageBus = Stub(MessageBus)
-        messageBusConnection = Stub(MessageBusConnection)
+        messageBusConnection = Mock(MessageBusConnection)
         project.getMessageBus() >> messageBus
         messageBus.connect() >> this.messageBusConnection
-        manager = new GHChecksToolWindowTabsContentManager(project, viewContentManager)
     }
 
-    def "content manager is subscribed to branch changed event"() {
-        expect:
-        true
+    def "account changed subscription"() {
+        when:
+        manager = new GHChecksToolWindowTabsContentManager(project, viewContentManager, actionManager)
+        
+        then:
+        1 * messageBusConnection.subscribe(GHChecksToolWindowTabsContentManager.ACCOUNT_CHANGED_TOPIC, _)
+    }
 
+    def "branch change subscription"() {
+        when:
+        manager = new GHChecksToolWindowTabsContentManager(project, viewContentManager, actionManager)
 
+        then:
+        1 * messageBusConnection.subscribe(BranchChangeListener.VCS_BRANCH_CHANGED, _)
+    }
+
+    def "checks refreshed subscription"() {
+        when:
+        manager = new GHChecksToolWindowTabsContentManager(project, viewContentManager, actionManager)
+
+        then:
+        1 * messageBusConnection.subscribe(ContentRefresher.ChecksRefreshedListener.CHECKS_REFRESHED, _)
     }
 }

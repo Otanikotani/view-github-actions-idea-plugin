@@ -8,7 +8,7 @@ plugins {
 }
 
 group 'org.github.otanikotani'
-version '0.0.1'
+version '0.0.2'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 
@@ -37,6 +37,12 @@ intellij {
 
 patchPluginXml {
   changeNotes """                                              
+      <h4>v 0.0.2</h4>
+      <ul>
+          <li>Fixed https://github.com/Otanikotani/view-github-checks-idea-plugin/issues/14</li>
+          <li>Fixed https://github.com/Otanikotani/view-github-checks-idea-plugin/issues/11</li>
+          <li>Fixed https://github.com/Otanikotani/view-github-checks-idea-plugin/issues/10</li>
+      </ul>
       <h4>v 0.0.1</h4>
       <ul>
           <li>Current functionality is limited to showing checks of the current branch of the project</li>

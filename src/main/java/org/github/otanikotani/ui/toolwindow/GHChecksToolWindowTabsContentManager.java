@@ -1,6 +1,8 @@
 package org.github.otanikotani.ui.toolwindow;
 
 import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -9,10 +11,12 @@ import com.intellij.openapi.vcs.changes.ui.ChangesViewContentI;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
 import git4idea.repo.GitRepository;
+import javax.swing.JPanel;
+import org.github.otanikotani.action.RefreshAction;
+import org.github.otanikotani.ui.toolwindow.ContentRefresher.ChecksRefreshedListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor.WithTokenAuth;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutorManager;
@@ -20,9 +24,7 @@ import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager;
 import org.jetbrains.plugins.github.authentication.accounts.AccountTokenChangedListener;
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.concurrent.TimeUnit;
+import java.awt.BorderLayout;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -32,22 +34,34 @@ class GHChecksToolWindowTabsContentManager {
     public static final Topic<AccountTokenChangedListener> ACCOUNT_CHANGED_TOPIC = new Topic<>(
         "GITHUB_ACCOUNT_TOKEN_CHANGED",
         AccountTokenChangedListener.class);
+
+    static final String REFRESH_ACTION_ID = "GHChecks.Action.Refresh";
+    static final String GHCHECKS_ACTION_GROUP_ID = "GHChecks.ActionGroup";
+
     private static final String CONTENT_TAB_NAME = "Checks";
-    private static final int DEFAULT_REFRESH_DELAY = 1;
+
     private final ChangesViewContentI viewContentManager;
+    private final ActionManager actionManager;
     private Project project;
     private GitRepository repository;
     private GithubAccount account;
-    private LocalDateTime lastRefreshTime;
+    private ContentRefresher contentRefresher;
+
+
     private ChecksTabContentPanel checksTabContentPanel;
 
-    GHChecksToolWindowTabsContentManager(Project project, ChangesViewContentI viewContentManager) {
+    GHChecksToolWindowTabsContentManager(Project project, ChangesViewContentI viewContentManager,
+        ActionManager actionManager) {
         this.project = project;
         this.viewContentManager = viewContentManager;
-        this.lastRefreshTime = LocalDateTime.now();
+        this.actionManager = actionManager;
+        contentRefresher = new ContentRefresher(this::update);
 
         MessageBusConnection bus = project.getMessageBus().connect();
-        bus.subscribe(ACCOUNT_CHANGED_TOPIC, githubAccount -> this.account = githubAccount);
+        bus.subscribe(ACCOUNT_CHANGED_TOPIC, githubAccount -> {
+            this.account = githubAccount;
+            update();
+        });
         bus.subscribe(BranchChangeListener.VCS_BRANCH_CHANGED, new BranchChangeListener() {
             @Override
             public void branchWillChange(@NotNull String branchName) {
@@ -59,21 +73,7 @@ class GHChecksToolWindowTabsContentManager {
                 update();
             }
         });
-        bus.subscribe(ChecksRefreshedListener.CHECKS_REFRESHED, () -> lastRefreshTime = LocalDateTime.now());
-    }
-
-    private void startScheduler() {
-        AppExecutorUtil.getAppScheduledExecutorService().scheduleWithFixedDelay(
-            () -> {
-                Duration duration = Duration.between(LocalDateTime.now(), lastRefreshTime);
-                if (Math.abs(duration.toMinutes()) >= DEFAULT_REFRESH_DELAY) {
-                    update();
-                }
-            },
-            DEFAULT_REFRESH_DELAY,
-            DEFAULT_REFRESH_DELAY,
-            TimeUnit.MINUTES
-        );
+        bus.subscribe(ChecksRefreshedListener.CHECKS_REFRESHED, contentRefresher::refreshed);
     }
 
     void update() {
@@ -88,9 +88,9 @@ class GHChecksToolWindowTabsContentManager {
     private void updateChecksTabContentPanel() {
         if (isNull(checksTabContentPanel)) {
             createChecksTabContentPanel();
-            startScheduler();
+            contentRefresher.everyMinutes(1);
         }
-        boolean isAuthorized = nonNull(getAccount());
+        boolean isAuthorized = isAuthorized();
         checksTabContentPanel.redraw(isAuthorized);
         if (!isAuthorized) {
             return;
@@ -102,11 +102,18 @@ class GHChecksToolWindowTabsContentManager {
         }
 
         new GettingCheckSuites(project, checksTabContentPanel.getTable(), repository, getAccount(), executor).queue();
+        contentRefresher.refreshed();
     }
 
     private void createChecksTabContentPanel() {
-        checksTabContentPanel = new ChecksTabContentPanel(ActionManager.getInstance(),
-            this::update, nonNull(getAccount()));
+        JPanel toolbar;
+        if (null == actionManager) {
+            toolbar = createEmptyToolbar();
+        } else {
+            toolbar = createToolbar(actionManager);
+        }
+        checksTabContentPanel = new ChecksTabContentPanel(toolbar, isAuthorized());
+
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(checksTabContentPanel, CONTENT_TAB_NAME, false);
         content.setCloseable(false);
@@ -114,6 +121,33 @@ class GHChecksToolWindowTabsContentManager {
         content.putUserData(ChangesViewContentManager.ORDER_WEIGHT_KEY,
             ChangesViewContentManager.TabOrderWeight.OTHER.getWeight());
         viewContentManager.addContent(content);
+    }
+
+    private boolean isAuthorized() {
+        return nonNull(getAccount());
+    }
+
+    @NotNull
+    private JPanel createToolbar(@NotNull ActionManager actionManager) {
+        AnAction actionGroup = actionManager.getAction(GHCHECKS_ACTION_GROUP_ID);
+        if (actionManager.isGroup(GHCHECKS_ACTION_GROUP_ID) && actionGroup != null) {
+            AnAction refreshAction = actionManager.getAction(REFRESH_ACTION_ID);
+            if (refreshAction == null) {
+                refreshAction = new RefreshAction(this::update);
+                actionManager.registerAction(REFRESH_ACTION_ID, refreshAction);
+            }
+
+            DefaultActionGroup checksActionGroup = (DefaultActionGroup) actionGroup;
+            checksActionGroup.add(refreshAction);
+            return new ChecksToolbar(actionManager, checksActionGroup);
+        } else {
+            return createEmptyToolbar();
+        }
+    }
+
+    @NotNull
+    private JPanel createEmptyToolbar() {
+        return new JPanel(new BorderLayout());
     }
 
     private GithubAccount getAccount() {

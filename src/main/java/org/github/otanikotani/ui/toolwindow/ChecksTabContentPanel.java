@@ -1,10 +1,11 @@
 package org.github.otanikotani.ui.toolwindow;
 
-import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.ui.JBColor;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -16,12 +17,11 @@ public class ChecksTabContentPanel extends JPanel {
 
     private ChecksTable table;
     private JPanel stub;
-    private ChecksToolbar toolbar;
 
-    public ChecksTabContentPanel(ActionManager actionManager, Runnable refreshChecksTable, boolean isAuthorized) {
+    public ChecksTabContentPanel(@NotNull JComponent checksToolbar, boolean isAuthorized) {
         super(new BorderLayout());
         redraw(isAuthorized);
-        createToolbar(actionManager, refreshChecksTable);
+        add(checksToolbar, BorderLayout.WEST);
     }
 
     public void redraw(boolean isAuthorized) {
@@ -50,11 +50,6 @@ public class ChecksTabContentPanel extends JPanel {
         }
     }
 
-    private void createToolbar(ActionManager actionManager, Runnable refreshChecksTable) {
-        toolbar = new ChecksToolbar(actionManager, refreshChecksTable);
-        add(toolbar, BorderLayout.WEST);
-    }
-
     private void createStub() {
         if (isNull(stub)) {
             stub = new JPanel(new GridLayout(1, 0));
@@ -81,9 +76,5 @@ public class ChecksTabContentPanel extends JPanel {
 
     public JPanel getStub() {
         return stub;
-    }
-
-    public ChecksToolbar getToolbar() {
-        return toolbar;
     }
 }

@@ -11,10 +11,12 @@ import org.github.otanikotani.api.CheckSuites;
 import org.github.otanikotani.api.GithubCheckRun;
 import org.github.otanikotani.api.GithubCheckRuns;
 import org.github.otanikotani.api.GithubCheckSuites;
+import org.github.otanikotani.ui.toolwindow.ContentRefresher.ChecksRefreshedListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.github.api.GithubApiRequest;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor.WithTokenAuth;
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
+import org.jetbrains.plugins.github.exceptions.GithubStatusCodeException;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -58,8 +60,14 @@ public class GettingCheckSuites extends Backgroundable {
         GithubCheckSuites suites;
         try {
             suites = executor.execute(indicator, request);
+        } catch (GithubStatusCodeException e) {
+            if (e.getStatusCode() == 404) {
+                suites = new GithubCheckSuites();
+            } else {
+                throw new UncheckedIOException("Unexpected failure", e);
+            }
         } catch (IOException e) {
-            throw new UncheckedIOException("Expected failure", e);
+            throw new UncheckedIOException("Unexpected failure", e);
         }
 
         checkRuns = StreamEx.of(suites.getCheck_suites())

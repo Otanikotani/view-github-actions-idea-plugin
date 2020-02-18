@@ -1,5 +1,6 @@
 package org.github.otanikotani.ui.toolwindow;
 
+import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentManager;
@@ -14,7 +15,8 @@ public final class GHChecksToolWindowTabsManager {
 
     public GHChecksToolWindowTabsManager(Project project) {
         contentManager = new GHChecksToolWindowTabsContentManager(project,
-            ChangesViewContentManager.getInstance(project));
+            ChangesViewContentManager.getInstance(project),
+            ActionManager.getInstance());
     }
 
     private void update(GitRepository repository) {
