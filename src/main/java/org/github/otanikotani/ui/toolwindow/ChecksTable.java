@@ -8,12 +8,6 @@ import com.intellij.ide.BrowserUtil;
 import com.intellij.ui.components.labels.LinkLabel;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.table.IconTableCellRenderer;
-import org.github.otanikotani.api.GithubCheckRun;
-import org.github.otanikotani.ui.toolwindow.ChecksTableModel.Columns;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.ocpsoft.prettytime.PrettyTime;
-
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -21,6 +15,12 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import org.github.otanikotani.api.GithubCheckRun;
+import org.github.otanikotani.ui.toolwindow.ChecksTableModel.Columns;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.ocpsoft.prettytime.PrettyTime;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -110,7 +110,7 @@ class ChecksTable extends JPanel {
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean focus,
-                                                       int row, int column) {
+            int row, int column) {
             Component component = super.getTableCellRendererComponent(table, value, false, focus, row, column);
             Color bg = selected ? table.getSelectionBackground() : table.getBackground();
             component.setBackground(bg);
@@ -134,7 +134,7 @@ class ChecksTable extends JPanel {
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean focus,
-                                                       int row, int column) {
+            int row, int column) {
             return (LinkLabel<?>) value;
         }
     }

@@ -2,10 +2,10 @@ package org.github.otanikotani.ui.toolwindow;
 
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.ui.JBColor;
-
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 
@@ -59,7 +59,8 @@ public class ChecksTabContentPanel extends JPanel {
         if (isNull(stub)) {
             stub = new JPanel(new GridLayout(1, 0));
             stub.setBackground(JBColor.WHITE);
-            JLabel message = new JLabel("Log in to GitHub. To add account go to Idea Settings -> Version Control -> GitHub");
+            JLabel message = new JLabel(
+                "Log in to GitHub. To add account go to Idea Settings -> Version Control -> GitHub");
             message.setHorizontalAlignment(SwingConstants.CENTER);
             message.setForeground(JBColor.GRAY);
             stub.add(message);

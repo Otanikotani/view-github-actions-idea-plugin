@@ -4,14 +4,15 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import javax.swing.JPanel;
 import org.github.otanikotani.action.RefreshAction;
 
-import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 import static java.util.Objects.isNull;
 
 public class ChecksToolbar extends JPanel {
+
     private static final String REFRESH_ACTION_ID = "GHChecks.Action.Refresh";
     private static final String GHCHECKS_ACTION_GROUP_ID = "GHChecks.ActionGroup";
 

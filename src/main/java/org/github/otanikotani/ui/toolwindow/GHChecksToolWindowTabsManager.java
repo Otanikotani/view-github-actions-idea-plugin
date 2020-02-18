@@ -10,30 +10,31 @@ import org.jetbrains.annotations.NotNull;
 @Service
 public final class GHChecksToolWindowTabsManager {
 
-  private final GHChecksToolWindowTabsContentManager contentManager;
+    private final GHChecksToolWindowTabsContentManager contentManager;
 
-  public GHChecksToolWindowTabsManager(Project project) {
-    contentManager = new GHChecksToolWindowTabsContentManager(project, ChangesViewContentManager.getInstance(project));
-  }
-
-  private void update(GitRepository repository) {
-    contentManager.setRepository(repository);
-    contentManager.update();
-  }
-
-  //Kicks of
-  static class ChangeListener implements GitRepositoryChangeListener {
-
-    private final Project project;
-
-    ChangeListener(Project project) {
-      this.project = project;
+    public GHChecksToolWindowTabsManager(Project project) {
+        contentManager = new GHChecksToolWindowTabsContentManager(project,
+            ChangesViewContentManager.getInstance(project));
     }
 
-    @Override
-    public void repositoryChanged(@NotNull GitRepository repository) {
-      GHChecksToolWindowTabsManager service = project.getService(GHChecksToolWindowTabsManager.class);
-      service.update(repository);
+    private void update(GitRepository repository) {
+        contentManager.setRepository(repository);
+        contentManager.update();
     }
-  }
+
+    //Kicks of
+    static class ChangeListener implements GitRepositoryChangeListener {
+
+        private final Project project;
+
+        ChangeListener(Project project) {
+            this.project = project;
+        }
+
+        @Override
+        public void repositoryChanged(@NotNull GitRepository repository) {
+            GHChecksToolWindowTabsManager service = project.getService(GHChecksToolWindowTabsManager.class);
+            service.update(repository);
+        }
+    }
 }
