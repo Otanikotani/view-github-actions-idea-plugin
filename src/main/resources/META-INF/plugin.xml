@@ -38,11 +38,11 @@
 
 
     <extensions defaultExtensionNs="com.intellij">
-        <projectService serviceImplementation="org.github.otanikotani.ui.toolwindow.GHChecksToolWindowTabsManager"/>
+        <projectService serviceImplementation="org.github.otanikotani.LazyChecksContext"/>
     </extensions>
 
     <projectListeners>
-        <listener class="org.github.otanikotani.ui.toolwindow.GHChecksToolWindowTabsManager$ChangeListener"
+        <listener class="org.github.otanikotani.LazyChecksContext$ChangeListener"
                   topic="git4idea.repo.GitRepositoryChangeListener"
                   activeInHeadlessMode="false" activeInTestMode="false"/>
     </projectListeners>

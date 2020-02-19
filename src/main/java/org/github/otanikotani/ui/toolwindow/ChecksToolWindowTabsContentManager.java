@@ -4,24 +4,17 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.Application;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.BranchChangeListener;
-import com.intellij.openapi.vcs.changes.ui.ChangesViewContentI;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.intellij.util.messages.MessageBusConnection;
-import com.intellij.util.messages.Topic;
 import git4idea.repo.GitRepository;
 import javax.swing.JPanel;
+import org.github.otanikotani.ChecksContext;
 import org.github.otanikotani.action.RefreshAction;
-import org.github.otanikotani.ui.toolwindow.ContentRefresher.ChecksRefreshedListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor.WithTokenAuth;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutorManager;
 import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager;
-import org.jetbrains.plugins.github.authentication.accounts.AccountTokenChangedListener;
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
 
 import java.awt.BorderLayout;
@@ -29,55 +22,26 @@ import java.awt.BorderLayout;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-class GHChecksToolWindowTabsContentManager {
-
-    public static final Topic<AccountTokenChangedListener> ACCOUNT_CHANGED_TOPIC = new Topic<>(
-        "GITHUB_ACCOUNT_TOKEN_CHANGED",
-        AccountTokenChangedListener.class);
+public class ChecksToolWindowTabsContentManager implements ChecksListener {
 
     static final String REFRESH_ACTION_ID = "GHChecks.Action.Refresh";
     static final String GHCHECKS_ACTION_GROUP_ID = "GHChecks.ActionGroup";
 
     private static final String CONTENT_TAB_NAME = "Checks";
 
-    private final ChangesViewContentI viewContentManager;
-    private final ActionManager actionManager;
-    private Project project;
+    private final ChecksContext context;
+
     private GitRepository repository;
     private GithubAccount account;
-    private ContentRefresher contentRefresher;
-
 
     private ChecksTabContentPanel checksTabContentPanel;
 
-    GHChecksToolWindowTabsContentManager(Project project, ChangesViewContentI viewContentManager,
-        ActionManager actionManager) {
-        this.project = project;
-        this.viewContentManager = viewContentManager;
-        this.actionManager = actionManager;
-        contentRefresher = new ContentRefresher(this::update);
-
-        MessageBusConnection bus = project.getMessageBus().connect();
-        bus.subscribe(ACCOUNT_CHANGED_TOPIC, githubAccount -> {
-            this.account = githubAccount;
-            update();
-        });
-        bus.subscribe(BranchChangeListener.VCS_BRANCH_CHANGED, new BranchChangeListener() {
-            @Override
-            public void branchWillChange(@NotNull String branchName) {
-
-            }
-
-            @Override
-            public void branchHasChanged(@NotNull String branchName) {
-                update();
-            }
-        });
-        bus.subscribe(ChecksRefreshedListener.CHECKS_REFRESHED, contentRefresher::refreshed);
+    public ChecksToolWindowTabsContentManager(ChecksContext context) {
+        this.context = context;
     }
 
     void update() {
-        Application app = ApplicationManager.getApplication();
+        Application app = context.getApplication();
         if (app.isDispatchThread()) {
             updateChecksTabContentPanel();
         } else {
@@ -88,39 +52,36 @@ class GHChecksToolWindowTabsContentManager {
     private void updateChecksTabContentPanel() {
         if (isNull(checksTabContentPanel)) {
             createChecksTabContentPanel();
-            contentRefresher.everyMinutes(1);
         }
         boolean isAuthorized = isAuthorized();
         checksTabContentPanel.redraw(isAuthorized);
         if (!isAuthorized) {
             return;
         }
-        GithubApiRequestExecutorManager executorManager = GithubApiRequestExecutorManager.getInstance();
+        GithubApiRequestExecutorManager executorManager = context.getGithubApiRequestExecutorManager();
         WithTokenAuth executor = executorManager.getExecutor(account, repository.getProject());
         if (executor == null) {
             return;
         }
 
-        new GettingCheckSuites(project, checksTabContentPanel.getTable(), repository, getAccount(), executor).queue();
-        contentRefresher.refreshed();
+        new GettingCheckSuites(context.getProject(), checksTabContentPanel.getTable(), repository, getAccount(),
+            executor).queue();
     }
 
     private void createChecksTabContentPanel() {
-        JPanel toolbar;
-        if (null == actionManager) {
-            toolbar = createEmptyToolbar();
-        } else {
-            toolbar = createToolbar(actionManager);
-        }
+        JPanel toolbar = context.getActionManager()
+            .map(this::createToolbar)
+            .orElseGet(this::createEmptyToolbar);
+
         checksTabContentPanel = new ChecksTabContentPanel(toolbar, isAuthorized());
 
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+        ContentFactory contentFactory = context.getContentFactory();
         Content content = contentFactory.createContent(checksTabContentPanel, CONTENT_TAB_NAME, false);
         content.setCloseable(false);
         content.setDescription("GitHub Checks for your builds");
         content.putUserData(ChangesViewContentManager.ORDER_WEIGHT_KEY,
             ChangesViewContentManager.TabOrderWeight.OTHER.getWeight());
-        viewContentManager.addContent(content);
+        context.getChangesViewContentManager().addContent(content);
     }
 
     private boolean isAuthorized() {
@@ -152,7 +113,7 @@ class GHChecksToolWindowTabsContentManager {
 
     private GithubAccount getAccount() {
         if (account == null) {
-            GithubAuthenticationManager authManager = GithubAuthenticationManager.getInstance();
+            GithubAuthenticationManager authManager = context.getGithubAuthenticationManager();
             if (!authManager.hasAccounts()) {
                 return null;
             }
@@ -165,7 +126,25 @@ class GHChecksToolWindowTabsContentManager {
         return this.account;
     }
 
-    void setRepository(GitRepository repository) {
+    @Override
+    public void onGithubAccountChange(GithubAccount githubAccount) {
+        this.account = githubAccount;
+        update();
+    }
+
+    @Override
+    public void onBranchChange(String branchName) {
+        update();
+    }
+
+    @Override
+    public void onRepositoryChange(GitRepository repository) {
         this.repository = repository;
+        update();
+    }
+
+    @Override
+    public void onRefresh() {
+        update();
     }
 }

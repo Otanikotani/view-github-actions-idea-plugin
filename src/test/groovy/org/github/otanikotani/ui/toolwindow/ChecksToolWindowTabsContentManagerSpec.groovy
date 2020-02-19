@@ -8,13 +8,15 @@ import com.intellij.util.messages.MessageBus
 import com.intellij.util.messages.MessageBusConnection
 import spock.lang.Specification
 
-class GHChecksToolWindowTabsContentManagerSpec extends Specification {
+class ChecksToolWindowTabsContentManagerSpec extends Specification {
+
+    SimpleChecksContext context = new SimpleChecksContext()
 
     Project project = Stub(Project)
     ChangesViewContentI viewContentManager = Stub(ChangesViewContentI)
     MessageBusConnection messageBusConnection
 
-    GHChecksToolWindowTabsContentManager manager
+    ChecksToolWindowTabsContentManager manager
     private ActionManager actionManager = Stub(ActionManager)
 
 
@@ -27,15 +29,15 @@ class GHChecksToolWindowTabsContentManagerSpec extends Specification {
 
     def "account changed subscription"() {
         when:
-        manager = new GHChecksToolWindowTabsContentManager(project, viewContentManager, actionManager)
+        manager = new ChecksToolWindowTabsContentManager(context)
         
         then:
-        1 * messageBusConnection.subscribe(GHChecksToolWindowTabsContentManager.ACCOUNT_CHANGED_TOPIC, _)
+        1 * messageBusConnection.subscribe(ChecksToolWindowTabsContentManager.ACCOUNT_CHANGED_TOPIC, _)
     }
 
     def "branch change subscription"() {
         when:
-        manager = new GHChecksToolWindowTabsContentManager(project, viewContentManager, actionManager)
+        manager = new ChecksToolWindowTabsContentManager(context)
 
         then:
         1 * messageBusConnection.subscribe(BranchChangeListener.VCS_BRANCH_CHANGED, _)
@@ -43,9 +45,9 @@ class GHChecksToolWindowTabsContentManagerSpec extends Specification {
 
     def "checks refreshed subscription"() {
         when:
-        manager = new GHChecksToolWindowTabsContentManager(project, viewContentManager, actionManager)
+        manager = new ChecksToolWindowTabsContentManager(context)
 
         then:
-        1 * messageBusConnection.subscribe(ContentRefresher.ChecksRefreshedListener.CHECKS_REFRESHED, _)
+        1 * messageBusConnection.subscribe(ChecksRefresher.ChecksRefreshedListener.CHECKS_REFRESHED, _)
     }
 }

@@ -11,7 +11,7 @@ import org.github.otanikotani.api.CheckSuites;
 import org.github.otanikotani.api.GithubCheckRun;
 import org.github.otanikotani.api.GithubCheckRuns;
 import org.github.otanikotani.api.GithubCheckSuites;
-import org.github.otanikotani.ui.toolwindow.ContentRefresher.ChecksRefreshedListener;
+import org.github.otanikotani.ui.toolwindow.ChecksRefresher.ChecksRefreshedListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.github.api.GithubApiRequest;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor.WithTokenAuth;
