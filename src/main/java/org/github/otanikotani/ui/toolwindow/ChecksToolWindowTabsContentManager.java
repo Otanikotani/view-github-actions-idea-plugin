@@ -4,15 +4,18 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.intellij.ui.content.ContentFactory.SERVICE;
 import git4idea.repo.GitRepository;
 import javax.swing.JPanel;
-import org.github.otanikotani.ChecksContext;
 import org.github.otanikotani.action.RefreshAction;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.github.api.GithubApiRequestExecutorManager;
 import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager;
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
 
@@ -20,6 +23,7 @@ import java.awt.BorderLayout;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static java.util.Optional.ofNullable;
 
 public class ChecksToolWindowTabsContentManager implements ChecksListener {
 
@@ -28,20 +32,19 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
 
     private static final String CONTENT_TAB_NAME = "Checks";
 
-    private final ChecksContext context;
-
     private GitRepository repository;
+    private Project project;
     private GithubAccount account;
 
     private ChecksTabContentPanel checksTabContentPanel;
 
-    public ChecksToolWindowTabsContentManager(ChecksContext context, GitRepository repository) {
-        this.context = context;
+    public ChecksToolWindowTabsContentManager(GitRepository repository) {
         this.repository = repository;
+        this.project = repository.getProject();
     }
 
     void update() {
-        Application app = context.getApplication();
+        Application app = ApplicationManager.getApplication();
         if (app.isDispatchThread()) {
             updateChecksTabContentPanel();
         } else {
@@ -58,30 +61,30 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
         if (!isAuthorized) {
             return;
         }
-        context.getGithubApiExecutor(account, repository.getProject())
-            .ifPresent(executor -> {
-                Task getSuites = new GettingCheckSuites(context.getProject(), checksTabContentPanel.getTable(),
-                    repository,
-                    getAccount(),
-                    executor);
-                executor.queue(getSuites);
-            });
+
+        GithubApiRequestExecutorManager requestExecutorManager = GithubApiRequestExecutorManager.getInstance();
+        ofNullable(requestExecutorManager.getExecutor(account, project))
+            .map(executor -> new GettingCheckSuites(project, checksTabContentPanel.getTable(),
+                repository,
+                getAccount(),
+                executor))
+            .ifPresent(Task::queue);
     }
 
     private void createChecksTabContentPanel() {
-        JPanel toolbar = context.getActionManager()
+        JPanel toolbar = ofNullable(ActionManager.getInstance())
             .map(this::createToolbar)
             .orElseGet(this::createEmptyToolbar);
 
         checksTabContentPanel = new ChecksTabContentPanel(toolbar, isAuthorized());
 
-        ContentFactory contentFactory = context.getContentFactory();
+        ContentFactory contentFactory = SERVICE.getInstance();
         Content content = contentFactory.createContent(checksTabContentPanel, CONTENT_TAB_NAME, false);
         content.setCloseable(false);
         content.setDescription("GitHub Checks for your builds");
         content.putUserData(ChangesViewContentManager.ORDER_WEIGHT_KEY,
             ChangesViewContentManager.TabOrderWeight.OTHER.getWeight());
-        context.getChangesViewContentManager().addContent(content);
+        ChangesViewContentManager.getInstance(project).addContent(content);
     }
 
     private boolean isAuthorized() {
@@ -113,10 +116,10 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
 
     private GithubAccount getAccount() {
         if (account == null) {
-            this.account = context.getGithubAccountManager()
-                .getAccountForProject(repository.getProject())
-                .orElse(null);
-
+            GithubAuthenticationManager manager = GithubAuthenticationManager.getInstance();
+            if (manager.hasAccounts()) {
+                this.account = manager.getSingleOrDefaultAccount(project);
+            }
         }
         return this.account;
     }
@@ -135,5 +138,10 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
     @Override
     public void onRefresh() {
         update();
+    }
+
+    public void onRepositoryChanged(GitRepository repository) {
+        this.repository = repository;
+        this.project = repository.getProject();
     }
 }

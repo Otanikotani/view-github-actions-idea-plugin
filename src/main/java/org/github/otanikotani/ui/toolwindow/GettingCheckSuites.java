@@ -6,7 +6,6 @@ import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import one.util.streamex.StreamEx;
-import org.github.otanikotani.GithubApiRequestExecutor;
 import org.github.otanikotani.api.CheckRuns;
 import org.github.otanikotani.api.CheckSuites;
 import org.github.otanikotani.api.GithubCheckRun;
@@ -15,7 +14,7 @@ import org.github.otanikotani.api.GithubCheckSuites;
 import org.github.otanikotani.ui.toolwindow.ChecksRefresher.ChecksRefreshedListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.github.api.GithubApiRequest;
-import org.jetbrains.plugins.github.api.GithubApiRequestExecutor.WithTokenAuth;
+import org.jetbrains.plugins.github.api.GithubApiRequestExecutor;
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
 import org.jetbrains.plugins.github.exceptions.GithubStatusCodeException;
 
@@ -31,13 +30,13 @@ public class GettingCheckSuites extends Backgroundable {
     private final ChecksTable checksTable;
     private final GitRepository repository;
     private final GithubAccount account;
-    private final GithubApiRequestExecutor executor;
+    private final GithubApiRequestExecutor.WithTokenAuth executor;
     private String owner;
     private String repo;
     private List<? extends GithubCheckRun> checkRuns;
 
     GettingCheckSuites(Project project, ChecksTable checksTable, GitRepository repository,
-        GithubAccount account, GithubApiRequestExecutor executor) {
+        GithubAccount account, GithubApiRequestExecutor.WithTokenAuth executor) {
         super(project, "Getting Check Suites...");
         this.checksTable = checksTable;
         this.repository = repository;
