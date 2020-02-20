@@ -6,17 +6,20 @@ import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
+import org.github.otanikotani.ui.toolwindow.ChecksLocation;
 import org.github.otanikotani.ui.toolwindow.ChecksRefresher;
 import org.github.otanikotani.ui.toolwindow.ChecksToolWindowTabsContentManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager;
+import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
 
 import java.util.concurrent.ScheduledExecutorService;
 
 @Service
 public final class LazyChecksContext {
 
-    private ChecksToolWindowTabsContentManager contentManager;
     private final Project project;
+    private ChecksToolWindowTabsContentManager contentManager;
     private ScheduledExecutorService appScheduledExecutorService;
     private ChecksRefresher refresher;
 
@@ -25,23 +28,32 @@ public final class LazyChecksContext {
     }
 
     private void update(GitRepository repository) {
-        ChecksToolWindowTabsContentManager contentManager = getContentManager(repository);
-        contentManager.onRepositoryChanged(repository);
-        getChecksRefresher(project, contentManager);
+        ChecksLocation location = new ChecksLocation(repository, getAccount());
+        ChecksToolWindowTabsContentManager contentManager = getContentManager();
+        contentManager.onRefresh(location);
+        getChecksRefresher(location, contentManager);
     }
 
-    private void getChecksRefresher(Project project,
+    private void getChecksRefresher(ChecksLocation location,
         ChecksToolWindowTabsContentManager contentManager) {
         if (null == refresher) {
-            MessageBusConnection bus = project.getMessageBus().connect();
-            refresher = new ChecksRefresher(bus, contentManager);
+            MessageBusConnection bus = location.repository.getProject().getMessageBus().connect();
+            refresher = new ChecksRefresher(bus, contentManager, location);
             refresher.everyMinutes(getAppScheduledExecutorService(), 1);
         }
     }
 
-    private ChecksToolWindowTabsContentManager getContentManager(GitRepository repository) {
+    private GithubAccount getAccount() {
+        GithubAuthenticationManager manager = GithubAuthenticationManager.getInstance();
+        if (manager.hasAccounts()) {
+            return manager.getSingleOrDefaultAccount(project);
+        }
+        return null;
+    }
+
+    private ChecksToolWindowTabsContentManager getContentManager() {
         if (null == contentManager) {
-            contentManager = new ChecksToolWindowTabsContentManager(repository);
+            contentManager = new ChecksToolWindowTabsContentManager();
         }
         return contentManager;
     }

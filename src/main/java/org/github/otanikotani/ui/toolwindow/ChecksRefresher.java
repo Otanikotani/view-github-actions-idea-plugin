@@ -1,8 +1,6 @@
 package org.github.otanikotani.ui.toolwindow;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.BranchChangeListener;
-import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
 import org.jetbrains.annotations.NotNull;
@@ -24,12 +22,19 @@ public class ChecksRefresher {
 
     @NotNull
     private final ChecksListener checksListener;
+
     private LocalDateTime lastRefreshTime = LocalDateTime.now();
+    private ChecksLocation lastLocation;
 
-    public ChecksRefresher(MessageBusConnection bus, ChecksListener checksListener) {
+    public ChecksRefresher(MessageBusConnection bus, @NotNull ChecksListener checksListener,
+        ChecksLocation initialLocation) {
         this.checksListener = checksListener;
+        this.lastLocation = initialLocation;
 
-        bus.subscribe(ACCOUNT_CHANGED_TOPIC, checksListener::onGithubAccountChange);
+        bus.subscribe(ACCOUNT_CHANGED_TOPIC, githubAccount -> {
+            lastLocation = new ChecksLocation(lastLocation.repository, githubAccount);
+            refresh();
+        });
         bus.subscribe(BranchChangeListener.VCS_BRANCH_CHANGED, new BranchChangeListener() {
             @Override
             public void branchWillChange(@NotNull String branchName) {
@@ -38,10 +43,10 @@ public class ChecksRefresher {
 
             @Override
             public void branchHasChanged(@NotNull String branchName) {
-                checksListener.onBranchChange(branchName);
+                refresh();
             }
         });
-        bus.subscribe(ChecksRefreshedListener.CHECKS_REFRESHED, this::refreshed);
+        bus.subscribe(ChecksRefreshedListener.CHECKS_REFRESHED, () -> lastRefreshTime = LocalDateTime.now());
     }
 
     public void everyMinutes(ScheduledExecutorService scheduledExecutorService, int minutes) {
@@ -49,8 +54,8 @@ public class ChecksRefresher {
             () -> {
                 Duration duration = Duration.between(LocalDateTime.now(), lastRefreshTime);
                 if (Math.abs(duration.toMinutes()) >= DEFAULT_REFRESH_DELAY) {
-                    checksListener.onRefresh();
-                    refreshed();
+                    checksListener.onRefresh(lastLocation);
+                    refresh();
                 }
             },
             minutes,
@@ -59,7 +64,8 @@ public class ChecksRefresher {
         );
     }
 
-    void refreshed() {
+    void refresh() {
+        checksListener.onRefresh(lastLocation);
         lastRefreshTime = LocalDateTime.now();
     }
 

@@ -16,8 +16,6 @@ import javax.swing.JPanel;
 import org.github.otanikotani.action.RefreshAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutorManager;
-import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager;
-import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
 
 import java.awt.BorderLayout;
 
@@ -31,17 +29,8 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
     static final String GHCHECKS_ACTION_GROUP_ID = "GHChecks.ActionGroup";
 
     private static final String CONTENT_TAB_NAME = "Checks";
-
-    private GitRepository repository;
-    private Project project;
-    private GithubAccount account;
-
+    ChecksLocation location;
     private ChecksTabContentPanel checksTabContentPanel;
-
-    public ChecksToolWindowTabsContentManager(GitRepository repository) {
-        this.repository = repository;
-        this.project = repository.getProject();
-    }
 
     void update() {
         Application app = ApplicationManager.getApplication();
@@ -53,8 +42,10 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
     }
 
     private void updateChecksTabContentPanel() {
+        GitRepository repo = location.repository;
+
         if (isNull(checksTabContentPanel)) {
-            createChecksTabContentPanel();
+            createChecksTabContentPanel(repo.getProject());
         }
         boolean isAuthorized = isAuthorized();
         checksTabContentPanel.redraw(isAuthorized);
@@ -63,15 +54,15 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
         }
 
         GithubApiRequestExecutorManager requestExecutorManager = GithubApiRequestExecutorManager.getInstance();
-        ofNullable(requestExecutorManager.getExecutor(account, project))
-            .map(executor -> new GettingCheckSuites(project, checksTabContentPanel.getTable(),
-                repository,
-                getAccount(),
+        ofNullable(requestExecutorManager.getExecutor(location.account, repo.getProject()))
+            .map(executor -> new GettingCheckSuites(repo.getProject(), checksTabContentPanel.getTable(),
+                repo,
+                location.account,
                 executor))
             .ifPresent(Task::queue);
     }
 
-    private void createChecksTabContentPanel() {
+    private void createChecksTabContentPanel(Project project) {
         JPanel toolbar = ofNullable(ActionManager.getInstance())
             .map(this::createToolbar)
             .orElseGet(this::createEmptyToolbar);
@@ -88,7 +79,7 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
     }
 
     private boolean isAuthorized() {
-        return nonNull(getAccount());
+        return nonNull(location.account);
     }
 
     @NotNull
@@ -114,34 +105,9 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
         return new JPanel(new BorderLayout());
     }
 
-    private GithubAccount getAccount() {
-        if (account == null) {
-            GithubAuthenticationManager manager = GithubAuthenticationManager.getInstance();
-            if (manager.hasAccounts()) {
-                this.account = manager.getSingleOrDefaultAccount(project);
-            }
-        }
-        return this.account;
-    }
-
     @Override
-    public void onGithubAccountChange(GithubAccount githubAccount) {
-        this.account = githubAccount;
+    public void onRefresh(ChecksLocation location) {
+        this.location = location;
         update();
-    }
-
-    @Override
-    public void onBranchChange(String branchName) {
-        update();
-    }
-
-    @Override
-    public void onRefresh() {
-        update();
-    }
-
-    public void onRepositoryChanged(GitRepository repository) {
-        this.repository = repository;
-        this.project = repository.getProject();
     }
 }

@@ -1,13 +1,7 @@
 package org.github.otanikotani.ui.toolwindow;
 
-import git4idea.repo.GitRepository;
-import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
-
+@FunctionalInterface
 public interface ChecksListener {
 
-    void onGithubAccountChange(GithubAccount githubAccount);
-
-    void onBranchChange(String branchName);
-
-    void onRefresh();
+    void onRefresh(ChecksLocation coordinates);
 }
