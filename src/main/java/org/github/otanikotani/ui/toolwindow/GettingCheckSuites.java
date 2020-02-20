@@ -2,9 +2,7 @@ package org.github.otanikotani.ui.toolwindow;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task.Backgroundable;
-import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRemote;
-import git4idea.repo.GitRepository;
 import one.util.streamex.StreamEx;
 import org.github.otanikotani.api.CheckRuns;
 import org.github.otanikotani.api.CheckSuites;
@@ -15,7 +13,6 @@ import org.github.otanikotani.ui.toolwindow.ChecksRefresher.ChecksRefreshedListe
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.github.api.GithubApiRequest;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor;
-import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
 import org.jetbrains.plugins.github.exceptions.GithubStatusCodeException;
 
 import java.io.IOException;
@@ -28,25 +25,23 @@ public class GettingCheckSuites extends Backgroundable {
     private static final Pattern DOT_GIT_PATTERN = Pattern.compile("\\.git$");
 
     private final ChecksTable checksTable;
-    private final GitRepository repository;
-    private final GithubAccount account;
+    private final ChecksLocation location;
     private final GithubApiRequestExecutor.WithTokenAuth executor;
     private String owner;
     private String repo;
     private List<? extends GithubCheckRun> checkRuns;
 
-    GettingCheckSuites(Project project, ChecksTable checksTable, GitRepository repository,
-        GithubAccount account, GithubApiRequestExecutor.WithTokenAuth executor) {
-        super(project, "Getting Check Suites...");
+    GettingCheckSuites(ChecksLocation location, ChecksTable checksTable,
+        GithubApiRequestExecutor.WithTokenAuth executor) {
+        super(location.repository.getProject(), "Getting Check Suites...");
+        this.location = location;
         this.checksTable = checksTable;
-        this.repository = repository;
-        this.account = account;
         this.executor = executor;
     }
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
-        String remoteUrl = StreamEx.of(repository.getRemotes()).map(GitRemote::getFirstUrl)
+        String remoteUrl = StreamEx.of(location.repository.getRemotes()).map(GitRemote::getFirstUrl)
             .findFirst()
             .map(url -> DOT_GIT_PATTERN.matcher(url).replaceFirst(""))
             .orElseThrow(() -> new RuntimeException("Failed to find a remote url"));
@@ -56,7 +51,7 @@ public class GettingCheckSuites extends Backgroundable {
         owner = parts[parts.length - 2];
 
         GithubApiRequest<GithubCheckSuites> request = new CheckSuites()
-            .get(account.getServer(), owner, repo, repository.getCurrentBranchName());
+            .get(location.account.getServer(), owner, repo, location.repository.getCurrentBranchName());
         GithubCheckSuites suites;
         try {
             suites = executor.execute(indicator, request);

@@ -55,9 +55,7 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
 
         GithubApiRequestExecutorManager requestExecutorManager = GithubApiRequestExecutorManager.getInstance();
         ofNullable(requestExecutorManager.getExecutor(location.account, repo.getProject()))
-            .map(executor -> new GettingCheckSuites(repo.getProject(), checksTabContentPanel.getTable(),
-                repo,
-                location.account,
+            .map(executor -> new GettingCheckSuites(location, checksTabContentPanel.getTable(),
                 executor))
             .ifPresent(Task::queue);
     }

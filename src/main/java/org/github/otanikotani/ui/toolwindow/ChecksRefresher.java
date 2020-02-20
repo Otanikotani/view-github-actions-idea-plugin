@@ -26,27 +26,9 @@ public class ChecksRefresher {
     private LocalDateTime lastRefreshTime = LocalDateTime.now();
     private ChecksLocation lastLocation;
 
-    public ChecksRefresher(MessageBusConnection bus, @NotNull ChecksListener checksListener,
-        ChecksLocation initialLocation) {
+    public ChecksRefresher(@NotNull ChecksListener checksListener, ChecksLocation location) {
         this.checksListener = checksListener;
-        this.lastLocation = initialLocation;
-
-        bus.subscribe(ACCOUNT_CHANGED_TOPIC, githubAccount -> {
-            lastLocation = new ChecksLocation(lastLocation.repository, githubAccount);
-            refresh();
-        });
-        bus.subscribe(BranchChangeListener.VCS_BRANCH_CHANGED, new BranchChangeListener() {
-            @Override
-            public void branchWillChange(@NotNull String branchName) {
-
-            }
-
-            @Override
-            public void branchHasChanged(@NotNull String branchName) {
-                refresh();
-            }
-        });
-        bus.subscribe(ChecksRefreshedListener.CHECKS_REFRESHED, () -> lastRefreshTime = LocalDateTime.now());
+        this.lastLocation = location;
     }
 
     public void everyMinutes(ScheduledExecutorService scheduledExecutorService, int minutes) {
@@ -67,6 +49,27 @@ public class ChecksRefresher {
     void refresh() {
         checksListener.onRefresh(lastLocation);
         lastRefreshTime = LocalDateTime.now();
+    }
+
+    public void useLocation(ChecksLocation location) {
+        this.lastLocation = location;
+        MessageBusConnection bus = location.repository.getProject().getMessageBus().connect();
+        bus.subscribe(ACCOUNT_CHANGED_TOPIC, githubAccount -> {
+            lastLocation = new ChecksLocation(lastLocation.repository, githubAccount);
+            refresh();
+        });
+        bus.subscribe(BranchChangeListener.VCS_BRANCH_CHANGED, new BranchChangeListener() {
+            @Override
+            public void branchWillChange(@NotNull String branchName) {
+
+            }
+
+            @Override
+            public void branchHasChanged(@NotNull String branchName) {
+                refresh();
+            }
+        });
+        bus.subscribe(ChecksRefreshedListener.CHECKS_REFRESHED, () -> lastRefreshTime = LocalDateTime.now());
     }
 
     interface ChecksRefreshedListener extends EventListener {

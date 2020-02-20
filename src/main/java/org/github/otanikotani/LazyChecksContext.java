@@ -3,7 +3,6 @@ package org.github.otanikotani;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.concurrency.AppExecutorUtil;
-import com.intellij.util.messages.MessageBusConnection;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import org.github.otanikotani.ui.toolwindow.ChecksLocation;
@@ -31,15 +30,16 @@ public final class LazyChecksContext {
         ChecksLocation location = new ChecksLocation(repository, getAccount());
         ChecksToolWindowTabsContentManager contentManager = getContentManager();
         contentManager.onRefresh(location);
-        getChecksRefresher(location, contentManager);
+        getOrSetupRefresher(contentManager, location);
     }
 
-    private void getChecksRefresher(ChecksLocation location,
-        ChecksToolWindowTabsContentManager contentManager) {
+    private void getOrSetupRefresher(ChecksToolWindowTabsContentManager contentManager,
+        ChecksLocation location) {
         if (null == refresher) {
-            MessageBusConnection bus = location.repository.getProject().getMessageBus().connect();
-            refresher = new ChecksRefresher(bus, contentManager, location);
+            refresher = new ChecksRefresher(contentManager, location);
             refresher.everyMinutes(getAppScheduledExecutorService(), 1);
+        } else {
+            refresher.useLocation(location);
         }
     }
 
