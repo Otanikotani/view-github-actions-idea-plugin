@@ -7,8 +7,7 @@ import com.intellij.openapi.vcs.changes.ui.ChangesViewContentI;
 import com.intellij.ui.content.ContentFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.github.api.GithubApiRequestExecutorManager;
-import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager;
+import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
 
 import java.util.Optional;
 
@@ -25,9 +24,9 @@ public interface ChecksContext {
     @NotNull
     Application getApplication();
 
-    GithubApiRequestExecutorManager getGithubApiRequestExecutorManager();
-
-    GithubAuthenticationManager getGithubAuthenticationManager();
+    GithubAccountManager getGithubAccountManager();
 
     ContentFactory getContentFactory();
+
+    Optional<GithubApiRequestExecutor> getGithubApiExecutor(GithubAccount account, Project project);
 }

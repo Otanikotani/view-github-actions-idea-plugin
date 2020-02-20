@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.Application;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
@@ -12,8 +13,6 @@ import javax.swing.JPanel;
 import org.github.otanikotani.ChecksContext;
 import org.github.otanikotani.action.RefreshAction;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.github.api.GithubApiRequestExecutor.WithTokenAuth;
-import org.jetbrains.plugins.github.api.GithubApiRequestExecutorManager;
 import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager;
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
 
@@ -36,8 +35,9 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
 
     private ChecksTabContentPanel checksTabContentPanel;
 
-    public ChecksToolWindowTabsContentManager(ChecksContext context) {
+    public ChecksToolWindowTabsContentManager(ChecksContext context, GitRepository repository) {
         this.context = context;
+        this.repository = repository;
     }
 
     void update() {
@@ -58,14 +58,14 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
         if (!isAuthorized) {
             return;
         }
-        GithubApiRequestExecutorManager executorManager = context.getGithubApiRequestExecutorManager();
-        WithTokenAuth executor = executorManager.getExecutor(account, repository.getProject());
-        if (executor == null) {
-            return;
-        }
-
-        new GettingCheckSuites(context.getProject(), checksTabContentPanel.getTable(), repository, getAccount(),
-            executor).queue();
+        context.getGithubApiExecutor(account, repository.getProject())
+            .ifPresent(executor -> {
+                Task getSuites = new GettingCheckSuites(context.getProject(), checksTabContentPanel.getTable(),
+                    repository,
+                    getAccount(),
+                    executor);
+                executor.queue(getSuites);
+            });
     }
 
     private void createChecksTabContentPanel() {
@@ -113,15 +113,10 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
 
     private GithubAccount getAccount() {
         if (account == null) {
-            GithubAuthenticationManager authManager = context.getGithubAuthenticationManager();
-            if (!authManager.hasAccounts()) {
-                return null;
-            }
-            GithubAccount account = authManager.getSingleOrDefaultAccount(repository.getProject());
-            if (account == null) {
-                return null;
-            }
-            this.account = account;
+            this.account = context.getGithubAccountManager()
+                .getAccountForProject(repository.getProject())
+                .orElse(null);
+
         }
         return this.account;
     }
@@ -134,12 +129,6 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
 
     @Override
     public void onBranchChange(String branchName) {
-        update();
-    }
-
-    @Override
-    public void onRepositoryChange(GitRepository repository) {
-        this.repository = repository;
         update();
     }
 

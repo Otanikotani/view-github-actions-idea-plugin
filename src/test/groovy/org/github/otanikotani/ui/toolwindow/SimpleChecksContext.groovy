@@ -6,8 +6,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentI
 import com.intellij.ui.content.ContentFactory
 import org.github.otanikotani.ChecksContext
-import org.jetbrains.plugins.github.api.GithubApiRequestExecutorManager
-import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager
+import org.github.otanikotani.GithubAccountManager
+import org.github.otanikotani.GithubApiRequestExecutor
+import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
 
 class SimpleChecksContext implements ChecksContext {
 
@@ -15,7 +16,12 @@ class SimpleChecksContext implements ChecksContext {
     Optional<ActionManager> actionManager
     ChangesViewContentI changesViewContentManager
     Application application
-    GithubApiRequestExecutorManager githubApiRequestExecutorManager
-    GithubAuthenticationManager githubAuthenticationManager
+    GithubAccountManager githubAccountManager
     ContentFactory contentFactory
+    GithubApiRequestExecutor executor
+
+    @Override
+    Optional<GithubApiRequestExecutor> getGithubApiExecutor(GithubAccount account, Project project) {
+        return Optional.ofNullable(this.executor)
+    }
 }

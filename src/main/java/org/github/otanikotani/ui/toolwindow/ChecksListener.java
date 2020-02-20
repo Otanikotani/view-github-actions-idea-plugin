@@ -9,7 +9,5 @@ public interface ChecksListener {
 
     void onBranchChange(String branchName);
 
-    void onRepositoryChange(GitRepository repository);
-
     void onRefresh();
 }

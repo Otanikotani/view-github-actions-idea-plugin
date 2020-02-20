@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import one.util.streamex.StreamEx;
+import org.github.otanikotani.GithubApiRequestExecutor;
 import org.github.otanikotani.api.CheckRuns;
 import org.github.otanikotani.api.CheckSuites;
 import org.github.otanikotani.api.GithubCheckRun;
@@ -30,13 +31,13 @@ public class GettingCheckSuites extends Backgroundable {
     private final ChecksTable checksTable;
     private final GitRepository repository;
     private final GithubAccount account;
-    private final WithTokenAuth executor;
+    private final GithubApiRequestExecutor executor;
     private String owner;
     private String repo;
     private List<? extends GithubCheckRun> checkRuns;
 
     GettingCheckSuites(Project project, ChecksTable checksTable, GitRepository repository,
-        GithubAccount account, WithTokenAuth executor) {
+        GithubAccount account, GithubApiRequestExecutor executor) {
         super(project, "Getting Check Suites...");
         this.checksTable = checksTable;
         this.repository = repository;

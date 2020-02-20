@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutorManager;
 import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager;
+import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
 
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
@@ -34,7 +35,7 @@ public final class LazyChecksContext implements ChecksContext {
     private ChecksRefresher refresher;
     private Application application;
     private GithubApiRequestExecutorManager githubApiRequestExecutorManager;
-    private GithubAuthenticationManager githubAuthenticationManager;
+    private GithubAccountManager githubAuthenticationManager;
     private ContentFactory contentFactory;
 
     public LazyChecksContext(Project project) {
@@ -42,10 +43,8 @@ public final class LazyChecksContext implements ChecksContext {
     }
 
     private void update(GitRepository repository) {
-        ChecksToolWindowTabsContentManager contentManager = getContentManager();
+        ChecksToolWindowTabsContentManager contentManager = getContentManager(repository);
         getChecksRefresher(project, contentManager);
-
-        contentManager.onRepositoryChange(repository);
     }
 
     private void getChecksRefresher(Project project,
@@ -57,9 +56,9 @@ public final class LazyChecksContext implements ChecksContext {
         }
     }
 
-    private ChecksToolWindowTabsContentManager getContentManager() {
+    private ChecksToolWindowTabsContentManager getContentManager(GitRepository repository) {
         if (null == contentManager) {
-            contentManager = new ChecksToolWindowTabsContentManager(this);
+            contentManager = new ChecksToolWindowTabsContentManager(this, repository);
         }
         return contentManager;
     }
@@ -108,18 +107,18 @@ public final class LazyChecksContext implements ChecksContext {
         return application;
     }
 
-    @Override
-    public GithubApiRequestExecutorManager getGithubApiRequestExecutorManager() {
+    private GithubApiRequestExecutorManager getGithubApiRequestExecutorManager() {
         if (null == githubApiRequestExecutorManager) {
             githubApiRequestExecutorManager = GithubApiRequestExecutorManager.getInstance();
         }
         return githubApiRequestExecutorManager;
     }
 
+
     @Override
-    public GithubAuthenticationManager getGithubAuthenticationManager() {
+    public GithubAccountManager getGithubAccountManager() {
         if (null == githubAuthenticationManager) {
-            githubAuthenticationManager = GithubAuthenticationManager.getInstance();
+            githubAuthenticationManager = new JetbrainsGithubAccountManager(GithubAuthenticationManager.getInstance());
         }
         return githubAuthenticationManager;
     }
@@ -130,6 +129,15 @@ public final class LazyChecksContext implements ChecksContext {
             contentFactory = SERVICE.getInstance();
         }
         return contentFactory;
+    }
+
+    @Override
+    public Optional<GithubApiRequestExecutor> getGithubApiExecutor(
+        GithubAccount account,
+        Project project) {
+        return Optional.ofNullable(getGithubApiRequestExecutorManager())
+            .map(it -> it.getExecutor(account, project))
+            .map(GithubApiRequestExecutorWrapper::new);
     }
 
     //Kicks of the plugin. This is called whenever IDEA starts
