@@ -1,5 +1,6 @@
 package org.github.otanikotani.ui.toolwindow;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.BranchChangeListener;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.messages.Topic;
@@ -25,10 +26,14 @@ public class ChecksRefresher {
 
     private LocalDateTime lastRefreshTime = LocalDateTime.now();
     private ChecksLocation lastLocation;
+    private Project project;
+    private boolean subscribed;
 
     public ChecksRefresher(@NotNull ChecksListener checksListener, ChecksLocation location) {
         this.checksListener = checksListener;
         this.lastLocation = location;
+        this.project = location.repository.getProject();
+        subscribe(location);
     }
 
     public void everyMinutes(ScheduledExecutorService scheduledExecutorService, int minutes) {
@@ -53,7 +58,22 @@ public class ChecksRefresher {
 
     public void useLocation(ChecksLocation location) {
         this.lastLocation = location;
-        MessageBusConnection bus = location.repository.getProject().getMessageBus().connect();
+        subscribe(location);
+    }
+
+    private void subscribe(ChecksLocation location) {
+        if (!subscribed) {
+            MessageBusConnection bus = project.getMessageBus().connect();
+            subscribeToMessages(bus);
+            subscribed = true;
+        } else if (!project.equals(location.repository.getProject())) {
+            this.project = location.repository.getProject();
+            MessageBusConnection bus = project.getMessageBus().connect();
+            subscribeToMessages(bus);
+        }
+    }
+
+    private void subscribeToMessages(MessageBusConnection bus) {
         bus.subscribe(ACCOUNT_CHANGED_TOPIC, githubAccount -> {
             lastLocation = new ChecksLocation(lastLocation.repository, githubAccount);
             refresh();
