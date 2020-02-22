@@ -1,6 +1,6 @@
 # GitHub Checks 
 
-![](https://github.com/otanikotani/view-github-checks-idea-plugin/workflows/Check/badge.svg) [![codecov](https://codecov.io/gh/otanikotani/view-github-checks-idea-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/otanikotani/view-github-checks-idea-plugin)
+![](https://github.com/otanikotani/view-github-checks-idea-plugin/workflows/Check/badge.svg) [![codecov](https://codecov.io/gh/otanikotani/view-github-checks-idea-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/otanikotani/view-github-checks-idea-plugin) [![GitHub Checks](https://img.shields.io/badge/JB%20Repository-GitHub%20Checks-brightgreen.svg?style=flat)](https://plugins.jetbrains.com/plugin/13793-github-checks "JetBrains Repo: GitHub Checks Plugin")
 
 A plugin for Intellij IDEA to display statuses of GitHub Checks of the current branch. This plugin is a good alternative to switching windows for every time you push some changed to the branch and want to see whether the repository's checks are passing on your changes.
 
