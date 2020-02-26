@@ -20,5 +20,11 @@ A plugin for Intellij IDEA to display statuses of GitHub Checks of the current b
 - Every time a branch is changed in the project - the Checks will be refreshed
 
 
-### Acknowledgements
+## Team
+
+| [![Tofik Mamishov](https://github.com/tofik-mamishov.png?size=100)](https://github.com/tofik-mamishov) | [![Andrey Artyukhov](https://github.com/otanikotani.png?size=100)](https://github.com/otanikotani)  |
+|---------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| [Tofik Mamishov](https://github.com/tofik-mamishov)                                              | [Andrey Artyukhov](https://github.com/otanikotani)                                                |
+
+## Acknowledgements
 Plugin icon made by [Freepik](https://www.flaticon.com/authors/freepik) from [Flaticon](https://www.flaticon.com)
