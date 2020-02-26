@@ -1,10 +1,11 @@
 plugins {
-  id 'jacoco'
-  id 'java-library'
-  id 'groovy'
-  id 'org.jetbrains.intellij' version '0.4.16'
-  
-  id 'com.adarshr.test-logger' version '1.7.0'
+    id 'jacoco'
+    id 'java-library'
+    id 'groovy'
+    id 'org.jetbrains.intellij' version '0.4.16'
+    id 'org.kordamp.gradle.markdown' version '2.0.0'
+
+    id 'com.adarshr.test-logger' version '1.7.0'
 }
 
 group 'org.github.otanikotani'
@@ -13,70 +14,65 @@ version '0.0.2'
 sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
-  jcenter()
-  mavenCentral()
+    jcenter()
+    mavenCentral()
 }
 
 dependencies {
-  implementation group: 'one.util', name: 'streamex', version: '0.6.8'
-  implementation group: 'org.ocpsoft.prettytime', name: 'prettytime', version: '4.0.2.Final'
+    implementation group: 'one.util', name: 'streamex', version: '0.6.8'
+    implementation group: 'org.ocpsoft.prettytime', name: 'prettytime', version: '4.0.2.Final'
 
-  testImplementation 'org.codehaus.groovy:groovy-all:2.4.17'
-  testImplementation(group: 'org.spockframework', name: 'spock-core', version: '1.3-groovy-2.4') {
-    exclude group: 'org.codehaus.groovy', module: 'groovy-all'
-  }
+    testImplementation 'org.codehaus.groovy:groovy-all:2.4.17'
+    testImplementation(group: 'org.spockframework', name: 'spock-core', version: '1.3-groovy-2.4') {
+        exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+    }
 
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-  version '2019.3.1'
+    version '2019.3.1'
 
-  plugins = ['github', 'git4idea']
+    plugins = ['github', 'git4idea']
 }
 
 patchPluginXml {
-  changeNotes """                                              
-      <h4>v 0.0.2</h4>
-      <ul>
-          <li>Fixed https://github.com/Otanikotani/view-github-checks-idea-plugin/issues/14</li>
-          <li>Fixed https://github.com/Otanikotani/view-github-checks-idea-plugin/issues/11</li>
-          <li>Fixed https://github.com/Otanikotani/view-github-checks-idea-plugin/issues/10</li>
-      </ul>
-      <h4>v 0.0.1</h4>
-      <ul>
-          <li>Current functionality is limited to showing checks of the current branch of the project</li>
-          <li>Integration with the existing github plugin. The authentication, events and so on are taken from https://github.com/JetBrains/intellij-community/tree/master/plugins/github</li>
-          <li>Experimental mime type "application/vnd.github.antiope-preview+json" is used in all Check API requests. See https://developer.github.com/v3/checks/ for more details</li>
-      </ul>
-      """
+    dependsOn markdownToHtml
+
+    String content = new File("build/gen-html/CHANGELOG.html").text
+    changeNotes = """ 
+        $content
+    """
 }
 
+markdownToHtml {
+    sourceDir = new File(projectDir, "changelog")
+}
 
 testlogger {
-  theme 'mocha'
-  showSkipped true
+    theme 'mocha'
+    showSkipped true
 }
 
 test {
-  ignoreFailures = true
+    ignoreFailures = true
 
-  finalizedBy jacocoTestReport
+    finalizedBy jacocoTestReport
 }
 
 jacoco {
-  toolVersion = "0.8.5"
+    toolVersion = "0.8.5"
 }
 
 jacocoTestReport {
-  reports {
-    xml.enabled true
-    xml.destination new File("${buildDir}/reports/jacoco/report.xml")
-    csv.enabled false
-    html.destination file("${buildDir}/jacocoHtml")
-  }
+    reports {
+        xml.enabled true
+        xml.destination new File("${buildDir}/reports/jacoco/report.xml")
+        csv.enabled false
+        html.destination file("${buildDir}/jacocoHtml")
+    }
 }
 
 publishPlugin {
-  token = System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken")
+    token = System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken")
 }
