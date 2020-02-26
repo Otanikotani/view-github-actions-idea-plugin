@@ -26,7 +26,7 @@ public final class LazyChecksContext {
         this.project = project;
     }
 
-    private void update(GitRepository repository) {
+    private void onRepositoryChange(GitRepository repository) {
         ChecksLocation location = new ChecksLocation(repository, getAccount());
         ChecksToolWindowTabsContentManager contentManager = getContentManager();
         contentManager.onRefresh(location);
@@ -78,7 +78,7 @@ public final class LazyChecksContext {
         @Override
         public void repositoryChanged(@NotNull GitRepository repository) {
             LazyChecksContext service = project.getService(LazyChecksContext.class);
-            service.update(repository);
+            service.onRepositoryChange(repository);
         }
     }
 }
