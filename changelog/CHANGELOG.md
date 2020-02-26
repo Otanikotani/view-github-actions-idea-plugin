@@ -1,3 +1,15 @@
+## [0.0.3] - 18 Feb 2019
+
+### Bugfixes
+- Fixed https://github.com/Otanikotani/view-github-checks-idea-plugin/issues/16
+
+### Added
+
+### Changed
+- Refactor the context class to better store the state of the plugin
+
+### Removed
+
 ## [0.0.2] - 18 Feb 2019
 
 ### Bugfixes

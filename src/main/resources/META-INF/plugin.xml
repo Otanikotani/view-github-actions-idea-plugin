@@ -42,6 +42,7 @@
     </extensions>
 
     <projectListeners>
+        <!--suppress PluginXmlValidity -->
         <listener class="org.github.otanikotani.LazyChecksContext$ChangeListener"
                   topic="git4idea.repo.GitRepositoryChangeListener"
                   activeInHeadlessMode="false" activeInTestMode="false"/>

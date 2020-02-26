@@ -9,7 +9,7 @@ plugins {
 }
 
 group 'org.github.otanikotani'
-version '0.0.2'
+version '0.0.3'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 
