@@ -38,11 +38,12 @@ intellij {
 
 patchPluginXml {
     dependsOn markdownToHtml
-
-    String content = new File("build/gen-html/CHANGELOG.html").text
-    changeNotes = """ 
-        $content
-    """
+    changeNotes = {
+        String content = new File("build/gen-html/CHANGELOG.html").text
+        return """
+$content 
+"""
+    }
 }
 
 markdownToHtml {
