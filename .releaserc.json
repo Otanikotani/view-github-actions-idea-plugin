@@ -1,0 +1,22 @@
+{
+    "branches": ["master"],
+    "tagFormat": "${version}",
+    "plugins": [
+        "@semantic-release/commit-analyzer",
+        "@semantic-release/release-notes-generator",
+        ["@semantic-release/changelog", {
+            "changelogFile": "docs/CHANGELOG.md"
+        }],
+
+        ["@semantic-release/github", {
+            "assets": ["docs/CHANGELOG.md"]
+        }],
+        ["@semantic-release/exec", {
+            "prepareCmd": "sed -i \"s/version=[[:digit:]]\\+\\.[[:digit:]]\\+\\.[[:digit:]]\\+/version=${nextRelease.version}/g\" gradle.properties"
+        }],
+        ["@semantic-release/git", {
+            "assets": ["docs/CHANGELOG.md", "gradle.properties"],
+            "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+        }]
+    ]
+}
