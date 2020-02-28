@@ -10,7 +10,7 @@ import spock.lang.Specification
 class ChecksRefresherSpec extends Specification {
 
     SpyChecksListener spyChecksListener = new SpyChecksListener()
-    ChecksLocation location
+    WorkflowsLocation location
 
     def setup() {
         GitRepository gitRepository = Mock(GitRepository)
@@ -21,7 +21,7 @@ class ChecksRefresherSpec extends Specification {
         project.getMessageBus() >> messageBus
         gitRepository.getProject() >> project
         GithubAccount account = Mock(GithubAccount)
-        location = new ChecksLocation(gitRepository, account)
+        location = new WorkflowsLocation(gitRepository, account)
     }
 
     def "on account change refresh is triggered"() {
@@ -36,10 +36,10 @@ class ChecksRefresherSpec extends Specification {
 
     static class SpyChecksListener implements ChecksListener {
 
-        ChecksLocation coordinates
+        WorkflowsLocation coordinates
 
         @Override
-        void onRefresh(ChecksLocation coordinates) {
+        void onRefresh(WorkflowsLocation coordinates) {
             this.coordinates = coordinates
         }
     }

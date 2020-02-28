@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
-import org.github.otanikotani.ui.toolwindow.ChecksLocation;
+import org.github.otanikotani.ui.toolwindow.WorkflowsLocation;
 import org.github.otanikotani.ui.toolwindow.ChecksRefresher;
 import org.github.otanikotani.ui.toolwindow.ChecksToolWindowTabsContentManager;
 import org.jetbrains.annotations.NotNull;
@@ -27,14 +27,14 @@ public final class LazyChecksContext {
     }
 
     private void onRepositoryChange(GitRepository repository) {
-        ChecksLocation location = new ChecksLocation(repository, getAccount());
+        WorkflowsLocation location = new WorkflowsLocation(repository, getAccount());
         ChecksToolWindowTabsContentManager contentManager = getContentManager();
         contentManager.onRefresh(location);
         getOrSetupRefresher(contentManager, location);
     }
 
     private void getOrSetupRefresher(ChecksToolWindowTabsContentManager contentManager,
-        ChecksLocation location) {
+        WorkflowsLocation location) {
         if (null == refresher) {
             refresher = new ChecksRefresher(contentManager, location);
             refresher.everyMinutes(getAppScheduledExecutorService(), 1);

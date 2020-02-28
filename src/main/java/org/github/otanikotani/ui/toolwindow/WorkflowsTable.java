@@ -15,8 +15,9 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
-import org.github.otanikotani.api.GithubCheckRun;
-import org.github.otanikotani.ui.toolwindow.ChecksTableModel.Columns;
+import org.github.otanikotani.api.GithubWorkflow;
+import org.github.otanikotani.api.GithubWorkflowRun;
+import org.github.otanikotani.ui.toolwindow.WorkflowRunsTableModel.Columns;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -32,14 +33,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-class ChecksTable extends JPanel {
+class WorkflowsTable extends JPanel {
 
     private static final DefaultTableCellRenderer ICON_RENDERER = new SimpleIconTableCellRenderer();
     private static final PrettyTime PRETTY_TIME = new PrettyTime();
 
-    private ChecksTableModel tableModel;
+    private WorkflowRunsTableModel tableModel;
 
-    public ChecksTable(ChecksTableModel tableModel) {
+    public WorkflowsTable(WorkflowRunsTableModel tableModel) {
         this.tableModel = tableModel;
         final JBTable table = new JBTable(tableModel);
         TableColumnModel columnModel = table.getColumnModel();
@@ -61,13 +62,6 @@ class ChecksTable extends JPanel {
         return prettyTime.format(Date.from(zonedDateTime.toInstant()));
     }
 
-    static String toUrl(String owner, String repo, GithubCheckRun checkRun) {
-        if (checkRun == null || checkRun.getId() == null) {
-            return String.format("https://github.com/%s/%s/runs", owner, repo);
-        }
-        return String.format("https://github.com/%s/%s/runs/%d", owner, repo, checkRun.getId());
-    }
-
     static Icon conclusionToIcons(String conclusion) {
         if (conclusion == null) {
             return Process.Step_mask;
@@ -85,25 +79,24 @@ class ChecksTable extends JPanel {
         tableModel.removeAllRows();
     }
 
-    public void addRows(String owner, String repo, List<? extends GithubCheckRun> checkRuns) {
-        for (GithubCheckRun checkRun : checkRuns) {
-            String name = checkRun.getName();
-            Icon conclusion = conclusionToIcons(checkRun.getConclusion());
-            String startedAt = makeTimePretty(checkRun.getStarted_at(), PRETTY_TIME);
-            String completedAt = makeTimePretty(checkRun.getCompleted_at(), PRETTY_TIME);
+    public void addRows(List<GithubWorkflowRun> runs) {
+        for (GithubWorkflowRun run : runs) {
+            String name = String.valueOf(run.getId());
+            Icon conclusion = conclusionToIcons(run.getConclusion());
+            String startedAt = makeTimePretty(run.getCreated_at(), PRETTY_TIME);
 
-            String url = toUrl(owner, repo, checkRun);
+            String url = run.getHtml_url();
             LinkLabel<?> urlLabel = new LinkLabel<>(
                 url,
                 Ide.External_link_arrow,
                 (_0, _1) -> BrowserUtil.browse(url));
-            tableModel.addRow(Arrays.asList(name, conclusion, startedAt, completedAt, urlLabel));
+            tableModel.addRow(Arrays.asList(name, conclusion, startedAt, "", urlLabel));
         }
     }
 
-    public void refresh(String owner, String repo, List<? extends GithubCheckRun> checkRuns) {
+    public void refresh(List<GithubWorkflowRun> workflowRuns) {
         removeAllRows();
-        addRows(owner, repo, checkRuns);
+        addRows(workflowRuns);
     }
 
     static class SimpleIconTableCellRenderer extends IconTableCellRenderer<Icon> {

@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-public class ChecksTableModel extends DefaultTableModel {
+public class WorkflowRunsTableModel extends DefaultTableModel {
 
     @SuppressWarnings("unchecked")
-    public ChecksTableModel() {
+    public WorkflowRunsTableModel() {
         columnIdentifiers.addAll(Columns.getColumns());
     }
 

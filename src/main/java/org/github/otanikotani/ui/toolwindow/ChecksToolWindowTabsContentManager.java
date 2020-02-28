@@ -29,7 +29,7 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
     static final String GHCHECKS_ACTION_GROUP_ID = "GHChecks.ActionGroup";
 
     private static final String CONTENT_TAB_NAME = "Checks";
-    ChecksLocation location;
+    WorkflowsLocation location;
     private ChecksTabContentPanel checksTabContentPanel;
 
     void update() {
@@ -55,7 +55,7 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
 
         GithubApiRequestExecutorManager requestExecutorManager = GithubApiRequestExecutorManager.getInstance();
         ofNullable(requestExecutorManager.getExecutor(location.account, repo.getProject()))
-            .map(executor -> new GettingCheckSuites(location, checksTabContentPanel.getTable(),
+            .map(executor -> new GettingWorkflowRuns(location, checksTabContentPanel.getTable(),
                 executor))
             .ifPresent(Task::queue);
     }
@@ -104,7 +104,7 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
     }
 
     @Override
-    public void onRefresh(ChecksLocation location) {
+    public void onRefresh(WorkflowsLocation location) {
         this.location = location;
         update();
     }

@@ -4,38 +4,38 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task.Backgroundable;
 import git4idea.repo.GitRemote;
 import one.util.streamex.StreamEx;
-import org.github.otanikotani.api.CheckRuns;
-import org.github.otanikotani.api.CheckSuites;
-import org.github.otanikotani.api.GithubCheckRun;
-import org.github.otanikotani.api.GithubCheckRuns;
-import org.github.otanikotani.api.GithubCheckSuites;
-import org.github.otanikotani.ui.toolwindow.ChecksRefresher.ChecksRefreshedListener;
+import org.github.otanikotani.api.GithubWorkflowRun;
+import org.github.otanikotani.api.GithubWorkflowRuns;
+import org.github.otanikotani.api.Workflows;
+import org.github.otanikotani.ui.toolwindow.ChecksRefresher.WorkflowsRefreshedListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.github.api.GithubApiRequest;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor;
+import org.jetbrains.plugins.github.api.GithubServerPath;
 import org.jetbrains.plugins.github.exceptions.GithubStatusCodeException;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class GettingCheckSuites extends Backgroundable {
+public class GettingWorkflowRuns extends Backgroundable {
 
     private static final Pattern DOT_GIT_PATTERN = Pattern.compile("\\.git$");
 
-    private final ChecksTable checksTable;
-    private final ChecksLocation location;
+    private final WorkflowsTable workflowsTable;
+    private final WorkflowsLocation location;
     private final GithubApiRequestExecutor.WithTokenAuth executor;
     private String owner;
     private String repo;
-    private List<? extends GithubCheckRun> checkRuns;
+    private List<GithubWorkflowRun> workflowRuns;
 
-    GettingCheckSuites(ChecksLocation location, ChecksTable checksTable,
+    GettingWorkflowRuns(WorkflowsLocation location, WorkflowsTable workflowsTable,
         GithubApiRequestExecutor.WithTokenAuth executor) {
-        super(location.repository.getProject(), "Getting Check Suites...");
+        super(location.repository.getProject(), "Getting Workflow Runs...");
         this.location = location;
-        this.checksTable = checksTable;
+        this.workflowsTable = workflowsTable;
         this.executor = executor;
     }
 
@@ -50,39 +50,29 @@ public class GettingCheckSuites extends Backgroundable {
         repo = parts[parts.length - 1];
         owner = parts[parts.length - 2];
 
-        GithubApiRequest<GithubCheckSuites> request = new CheckSuites()
-            .get(location.account.getServer(), owner, repo, location.repository.getCurrentBranchName());
-        GithubCheckSuites suites;
+        GithubServerPath server = location.account.getServer();
+        String branchName = location.repository.getCurrentBranchName();
+        GithubApiRequest<GithubWorkflowRuns> apiRequest = new Workflows()
+            .getWorkflowRunsByBranch(server, owner, repo, branchName);
+
         try {
-            suites = executor.execute(indicator, request);
+            workflowRuns = executor.execute(indicator, apiRequest).getWorkflow_runs();
         } catch (GithubStatusCodeException e) {
             if (e.getStatusCode() == 404) {
-                suites = new GithubCheckSuites();
+                workflowRuns = Collections.emptyList();
             } else {
                 throw new UncheckedIOException("Unexpected failure", e);
             }
         } catch (IOException e) {
             throw new UncheckedIOException("Unexpected failure", e);
         }
-
-        checkRuns = StreamEx.of(suites.getCheck_suites())
-            .flatMap(it -> {
-
-                GithubApiRequest<GithubCheckRuns> checkRunsRequest = new CheckRuns().get(it.getCheck_runs_url());
-                try {
-                    return executor.execute(indicator, checkRunsRequest).getCheck_runs().stream();
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-            })
-            .toList();
     }
 
     @Override
     public void onSuccess() {
-        checksTable.refresh(owner, repo, checkRuns);
-        ChecksRefreshedListener publisher = myProject.getMessageBus()
-            .syncPublisher(ChecksRefreshedListener.CHECKS_REFRESHED);
-        publisher.checksRefreshed();
+        workflowsTable.refresh(workflowRuns);
+        WorkflowsRefreshedListener publisher = myProject.getMessageBus()
+            .syncPublisher(WorkflowsRefreshedListener.WORKFLOWS_REFRESHED);
+        publisher.workflowsRefreshed();
     }
 }

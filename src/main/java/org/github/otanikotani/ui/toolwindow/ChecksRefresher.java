@@ -25,11 +25,11 @@ public class ChecksRefresher {
     private final ChecksListener checksListener;
 
     private LocalDateTime lastRefreshTime = LocalDateTime.now();
-    private ChecksLocation lastLocation;
+    private WorkflowsLocation lastLocation;
     private Project project;
     private boolean subscribed;
 
-    public ChecksRefresher(@NotNull ChecksListener checksListener, ChecksLocation location) {
+    public ChecksRefresher(@NotNull ChecksListener checksListener, WorkflowsLocation location) {
         this.checksListener = checksListener;
         this.lastLocation = location;
         this.project = location.repository.getProject();
@@ -56,12 +56,12 @@ public class ChecksRefresher {
         lastRefreshTime = LocalDateTime.now();
     }
 
-    public void useLocation(ChecksLocation location) {
+    public void useLocation(WorkflowsLocation location) {
         this.lastLocation = location;
         subscribe(location);
     }
 
-    private void subscribe(ChecksLocation location) {
+    private void subscribe(WorkflowsLocation location) {
         if (!subscribed) {
             MessageBusConnection bus = project.getMessageBus().connect();
             subscribeToMessages(bus);
@@ -75,7 +75,7 @@ public class ChecksRefresher {
 
     private void subscribeToMessages(MessageBusConnection bus) {
         bus.subscribe(ACCOUNT_CHANGED_TOPIC, githubAccount -> {
-            lastLocation = new ChecksLocation(lastLocation.repository, githubAccount);
+            lastLocation = new WorkflowsLocation(lastLocation.repository, githubAccount);
             refresh();
         });
         bus.subscribe(BranchChangeListener.VCS_BRANCH_CHANGED, new BranchChangeListener() {
@@ -89,14 +89,14 @@ public class ChecksRefresher {
                 refresh();
             }
         });
-        bus.subscribe(ChecksRefreshedListener.CHECKS_REFRESHED, () -> lastRefreshTime = LocalDateTime.now());
+        bus.subscribe(WorkflowsRefreshedListener.WORKFLOWS_REFRESHED, () -> lastRefreshTime = LocalDateTime.now());
     }
 
-    interface ChecksRefreshedListener extends EventListener {
+    interface WorkflowsRefreshedListener extends EventListener {
 
-        Topic<ChecksRefreshedListener> CHECKS_REFRESHED = Topic
-            .create("GitHub checks refreshed", ChecksRefreshedListener.class);
+        Topic<WorkflowsRefreshedListener> WORKFLOWS_REFRESHED = Topic
+            .create("GitHub checks refreshed", WorkflowsRefreshedListener.class);
 
-        void checksRefreshed();
+        void workflowsRefreshed();
     }
 }

@@ -4,12 +4,12 @@ import git4idea.repo.GitRepository;
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
 
 
-public class ChecksLocation {
+public class WorkflowsLocation {
 
     public final GitRepository repository;
     public final GithubAccount account;
 
-    public ChecksLocation(GitRepository repository,
+    public WorkflowsLocation(GitRepository repository,
         GithubAccount account) {
         this.repository = repository;
         this.account = account;

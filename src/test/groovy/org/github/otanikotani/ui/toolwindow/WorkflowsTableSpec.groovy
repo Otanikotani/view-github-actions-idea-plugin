@@ -10,13 +10,13 @@ import javax.swing.JTable
 import org.github.otanikotani.api.GithubCheckRun
 import spock.lang.Specification
 
-class ChecksTableSpec extends Specification {
+class WorkflowsTableSpec extends Specification {
 
     def "removing all rows is delegated to the model"() {
         given:
-        ChecksTableModel model = new ChecksTableModel()
+        WorkflowRunsTableModel model = new WorkflowRunsTableModel()
         model.addRow(["foo", AllIcons.General.Error, "started", "completed", new LinkLabel("any label", AllIcons.General.Error)])
-        ChecksTable panel = new ChecksTable(model)
+        WorkflowsTable panel = new WorkflowsTable(model)
 
         when:
         panel.removeAllRows()
@@ -27,8 +27,8 @@ class ChecksTableSpec extends Specification {
 
     def "adding a row"() {
         given:
-        ChecksTableModel model = new ChecksTableModel()
-        ChecksTable panel = new ChecksTable(model)
+        WorkflowRunsTableModel model = new WorkflowRunsTableModel()
+        WorkflowsTable panel = new WorkflowsTable(model)
         def checkRun = new GithubCheckRun()
         checkRun.name = "my run"
         checkRun.conclusion = "unknown"
@@ -44,41 +44,9 @@ class ChecksTableSpec extends Specification {
         model.getValueAt(0, 0) == "my run"
     }
 
-    def "to url returns check run url when check is given"() {
-        given:
-        def checkRun = new GithubCheckRun()
-        checkRun.name = "my run"
-        checkRun.conclusion = "unknown"
-        checkRun.started_at = new Date()
-        checkRun.completed_at = new Date()
-        checkRun.id = 123L
-
-        when:
-        String url = ChecksTable.toUrl("trini", "taba", checkRun)
-
-        then:
-        url == "https://github.com/trini/taba/runs/123"
-    }
-
-    def "to url returns check run url when checkrun id is not present"() {
-        given:
-        def checkRun = new GithubCheckRun()
-        checkRun.name = "my run"
-        checkRun.conclusion = "unknown"
-        checkRun.started_at = new Date()
-        checkRun.completed_at = new Date()
-        checkRun.id = null
-
-        when:
-        String url = ChecksTable.toUrl("trini", "taba", checkRun)
-
-        then:
-        url == "https://github.com/trini/taba/runs"
-    }
-
     def "conclusions to icons converts string conclusion to the icon"(String conclusion, Icon icon) {
         expect:
-        ChecksTable.conclusionToIcons(conclusion) == icon
+        WorkflowsTable.conclusionToIcons(conclusion) == icon
 
         where:
         conclusion    | icon
@@ -90,8 +58,8 @@ class ChecksTableSpec extends Specification {
 
     def "refresh replace current rows with the new ones"() {
         given:
-        ChecksTableModel model = new ChecksTableModel()
-        ChecksTable panel = new ChecksTable(model)
+        WorkflowRunsTableModel model = new WorkflowRunsTableModel()
+        WorkflowsTable panel = new WorkflowsTable(model)
         def checkRun = new GithubCheckRun()
         checkRun.name = "my run"
         checkRun.conclusion = "unknown"
@@ -110,7 +78,7 @@ class ChecksTableSpec extends Specification {
 
     def "icon table cell renderer is aligned to center"() {
         expect:
-        new ChecksTable.SimpleIconTableCellRenderer().centerAlignment
+        new WorkflowsTable.SimpleIconTableCellRenderer().centerAlignment
     }
 
     def "icon table cell renderer uses the given value as an icon"() {
@@ -119,7 +87,7 @@ class ChecksTableSpec extends Specification {
         JTable table = new JTable(0, 0)
 
         when:
-        def result = new ChecksTable.SimpleIconTableCellRenderer().getIcon(icon, table, 1)
+        def result = new WorkflowsTable.SimpleIconTableCellRenderer().getIcon(icon, table, 1)
 
         then:
         result == icon
@@ -132,7 +100,7 @@ class ChecksTableSpec extends Specification {
         table.setSelectionBackground(Color.BLACK)
 
         when:
-        Component result = new ChecksTable.SimpleIconTableCellRenderer().getTableCellRendererComponent(table, value, true, false, 0, 0)
+        Component result = new WorkflowsTable.SimpleIconTableCellRenderer().getTableCellRendererComponent(table, value, true, false, 0, 0)
 
         then:
         result.getBackground() == Color.BLACK
@@ -144,7 +112,7 @@ class ChecksTableSpec extends Specification {
         JTable table = new JTable(0, 0)
 
         when:
-        Component result = new ChecksTable.SimpleIconTableCellRenderer().getTableCellRendererComponent(table, value, true, false, 0, 0)
+        Component result = new WorkflowsTable.SimpleIconTableCellRenderer().getTableCellRendererComponent(table, value, true, false, 0, 0)
 
         then:
         result instanceof JLabel
@@ -158,7 +126,7 @@ class ChecksTableSpec extends Specification {
 
 
         when:
-        Component result = new ChecksTable.LinkTableCellRenderer().getTableCellRendererComponent(table, linkLabel, true, false, 0, 0)
+        Component result = new WorkflowsTable.LinkTableCellRenderer().getTableCellRendererComponent(table, linkLabel, true, false, 0, 0)
 
         then:
         result == linkLabel

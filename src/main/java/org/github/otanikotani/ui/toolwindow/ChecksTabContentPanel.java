@@ -15,7 +15,7 @@ import static java.util.Objects.nonNull;
 
 public class ChecksTabContentPanel extends JPanel {
 
-    private ChecksTable table;
+    private WorkflowsTable table;
     private JPanel stub;
 
     public ChecksTabContentPanel(@NotNull JComponent checksToolbar, boolean isAuthorized) {
@@ -38,7 +38,7 @@ public class ChecksTabContentPanel extends JPanel {
 
     private void createTable() {
         if (isNull(table)) {
-            table = new ChecksTable(new ChecksTableModel());
+            table = new WorkflowsTable(new WorkflowRunsTableModel());
             add(table, BorderLayout.CENTER);
         }
     }
@@ -70,7 +70,7 @@ public class ChecksTabContentPanel extends JPanel {
         }
     }
 
-    public ChecksTable getTable() {
+    public WorkflowsTable getTable() {
         return table;
     }
 
