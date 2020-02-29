@@ -38,13 +38,13 @@ public class WorkflowsTabContentPanel extends JPanel {
         BorderLayoutPanel center = new BorderLayoutPanel();
         BorderLayoutPanel right = new BorderLayoutPanel();
 
-        OnePixelSplitter splitter = new OnePixelSplitter("Github.PullRequests.Component", 0.33f);
+        OnePixelSplitter splitter = new OnePixelSplitter("Github.Workflows.Component", 0.33f);
         splitter.setBackground(UIUtil.getListBackground());
         splitter.setOpaque(true);
         splitter.setFocusCycleRoot(true);
         splitter.setFirstComponent(left);
 
-        OnePixelSplitter rightSplitter = new OnePixelSplitter("Github.PullRequests.Component", 0.5f);
+        OnePixelSplitter rightSplitter = new OnePixelSplitter("Github.Workflows.Component", 0.5f);
         rightSplitter.setFirstComponent(center);
         rightSplitter.setSecondComponent(right);
         splitter.setSecondComponent(rightSplitter);
