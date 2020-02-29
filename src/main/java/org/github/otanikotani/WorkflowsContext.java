@@ -20,7 +20,7 @@ public final class WorkflowsContext {
     private final Project project;
     private WorkflowsToolWindowTabsContentManager contentManager;
     private ScheduledExecutorService appScheduledExecutorService;
-    private WorkflowsRefresher refresher;
+//    private WorkflowsRefresher refresher;
 
     public WorkflowsContext(Project project) {
         this.project = project;
@@ -30,18 +30,18 @@ public final class WorkflowsContext {
         WorkflowsLocation location = new WorkflowsLocation(repository, getAccount());
         WorkflowsToolWindowTabsContentManager contentManager = getContentManager();
         contentManager.onLocationChange(location);
-        getOrSetupRefresher(contentManager, location);
+//        getOrSetupRefresher(contentManager, location);
     }
 
-    private void getOrSetupRefresher(WorkflowsToolWindowTabsContentManager contentManager,
-        WorkflowsLocation location) {
-        if (null == refresher) {
-            refresher = new WorkflowsRefresher(contentManager, location);
-            refresher.everyMinutes(getAppScheduledExecutorService(), 1);
-        } else {
-            refresher.useLocation(location);
-        }
-    }
+//    private void getOrSetupRefresher(WorkflowsToolWindowTabsContentManager contentManager,
+//        WorkflowsLocation location) {
+//        if (null == refresher) {
+//            refresher = new WorkflowsRefresher(contentManager, location);
+//            refresher.everyMinutes(getAppScheduledExecutorService(), 1);
+//        } else {
+//            refresher.useLocation(location);
+//        }
+//    }
 
     private GithubAccount getAccount() {
         GithubAuthenticationManager manager = GithubAuthenticationManager.getInstance();

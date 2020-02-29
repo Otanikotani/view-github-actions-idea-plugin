@@ -7,7 +7,6 @@ import one.util.streamex.StreamEx;
 import org.github.otanikotani.api.GithubWorkflowRun;
 import org.github.otanikotani.api.GithubWorkflowRuns;
 import org.github.otanikotani.api.Workflows;
-import org.github.otanikotani.ui.toolwindow.WorkflowsRefresher.WorkflowsRefreshedListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.github.api.GithubApiRequest;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor;
@@ -41,7 +40,8 @@ public class GettingWorkflowRuns extends Backgroundable {
 
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
-        String remoteUrl = StreamEx.of(location.repository.getRemotes()).map(GitRemote::getFirstUrl)
+        String remoteUrl = StreamEx.of(location.repository.getRemotes())
+            .map(GitRemote::getFirstUrl)
             .findFirst()
             .map(url -> DOT_GIT_PATTERN.matcher(url).replaceFirst(""))
             .orElseThrow(() -> new RuntimeException("Failed to find a remote url"));
@@ -71,8 +71,8 @@ public class GettingWorkflowRuns extends Backgroundable {
     @Override
     public void onSuccess() {
         workflowsTable.refresh(workflowRuns);
-        WorkflowsRefreshedListener publisher = myProject.getMessageBus()
-            .syncPublisher(WorkflowsRefreshedListener.WORKFLOWS_REFRESHED);
-        publisher.workflowsRefreshed();
+//        WorkflowsRefreshedListener publisher = myProject.getMessageBus()
+//            .syncPublisher(WorkflowsRefreshedListener.WORKFLOWS_REFRESHED);
+//        publisher.workflowsRefreshed();
     }
 }

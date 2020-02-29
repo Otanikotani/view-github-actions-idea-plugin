@@ -24,12 +24,6 @@ class WorkflowsRefresherSpec extends Specification {
         location = new WorkflowsLocation(gitRepository, account)
     }
 
-    def "on account change refresh is triggered"() {
-        given:
-        WorkflowsRefresher refresher = new WorkflowsRefresher(listener, location)
-
-    }
-
     def "on branch change refresh is triggered"() {
 
     }
