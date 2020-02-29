@@ -13,7 +13,7 @@ import java.util.EventListener;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class ChecksRefresher {
+public class WorkflowsRefresher {
 
     public static final Topic<AccountTokenChangedListener> ACCOUNT_CHANGED_TOPIC = new Topic<>(
         "GITHUB_ACCOUNT_TOKEN_CHANGED",
@@ -22,15 +22,15 @@ public class ChecksRefresher {
     private static final int DEFAULT_REFRESH_DELAY = 1;
 
     @NotNull
-    private final ChecksListener checksListener;
+    private final WorkflowsListener workflowsListener;
 
     private LocalDateTime lastRefreshTime = LocalDateTime.now();
     private WorkflowsLocation lastLocation;
     private Project project;
     private boolean subscribed;
 
-    public ChecksRefresher(@NotNull ChecksListener checksListener, WorkflowsLocation location) {
-        this.checksListener = checksListener;
+    public WorkflowsRefresher(@NotNull WorkflowsListener workflowsListener, WorkflowsLocation location) {
+        this.workflowsListener = workflowsListener;
         this.lastLocation = location;
         this.project = location.repository.getProject();
         subscribe(location);
@@ -41,7 +41,7 @@ public class ChecksRefresher {
             () -> {
                 Duration duration = Duration.between(LocalDateTime.now(), lastRefreshTime);
                 if (Math.abs(duration.toMinutes()) >= DEFAULT_REFRESH_DELAY) {
-                    checksListener.onRefresh(lastLocation);
+                    workflowsListener.onLocationChange(lastLocation);
                     refresh();
                 }
             },
@@ -52,7 +52,7 @@ public class ChecksRefresher {
     }
 
     void refresh() {
-        checksListener.onRefresh(lastLocation);
+        workflowsListener.onLocationChange(lastLocation);
         lastRefreshTime = LocalDateTime.now();
     }
 
@@ -95,7 +95,7 @@ public class ChecksRefresher {
     interface WorkflowsRefreshedListener extends EventListener {
 
         Topic<WorkflowsRefreshedListener> WORKFLOWS_REFRESHED = Topic
-            .create("GitHub checks refreshed", WorkflowsRefreshedListener.class);
+            .create("GitHub workflows refreshed", WorkflowsRefreshedListener.class);
 
         void workflowsRefreshed();
     }

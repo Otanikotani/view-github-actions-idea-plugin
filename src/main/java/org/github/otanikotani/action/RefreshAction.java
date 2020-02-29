@@ -7,15 +7,15 @@ import org.jetbrains.annotations.NotNull;
 
 public class RefreshAction extends AnAction {
 
-    private Runnable refreshChecksTable;
+    private Runnable refreshWorkflowsTable;
 
-    public RefreshAction(@NotNull Runnable refreshChecksTable) {
-        super("Refresh Checks", "Refreshes checks", AllIcons.Actions.Refresh);
-        this.refreshChecksTable = refreshChecksTable;
+    public RefreshAction(@NotNull Runnable refreshWorkflowsTable) {
+        super("Refresh Workflows", "Refreshes workflows", AllIcons.Actions.Refresh);
+        this.refreshWorkflowsTable = refreshWorkflowsTable;
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        refreshChecksTable.run();
+        refreshWorkflowsTable.run();
     }
 }

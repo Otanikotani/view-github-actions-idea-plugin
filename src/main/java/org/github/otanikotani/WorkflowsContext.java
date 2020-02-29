@@ -6,8 +6,8 @@ import com.intellij.util.concurrency.AppExecutorUtil;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import org.github.otanikotani.ui.toolwindow.WorkflowsLocation;
-import org.github.otanikotani.ui.toolwindow.ChecksRefresher;
-import org.github.otanikotani.ui.toolwindow.ChecksToolWindowTabsContentManager;
+import org.github.otanikotani.ui.toolwindow.WorkflowsRefresher;
+import org.github.otanikotani.ui.toolwindow.WorkflowsToolWindowTabsContentManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager;
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
@@ -15,28 +15,28 @@ import org.jetbrains.plugins.github.authentication.accounts.GithubAccount;
 import java.util.concurrent.ScheduledExecutorService;
 
 @Service
-public final class LazyChecksContext {
+public final class WorkflowsContext {
 
     private final Project project;
-    private ChecksToolWindowTabsContentManager contentManager;
+    private WorkflowsToolWindowTabsContentManager contentManager;
     private ScheduledExecutorService appScheduledExecutorService;
-    private ChecksRefresher refresher;
+    private WorkflowsRefresher refresher;
 
-    public LazyChecksContext(Project project) {
+    public WorkflowsContext(Project project) {
         this.project = project;
     }
 
     private void onRepositoryChange(GitRepository repository) {
         WorkflowsLocation location = new WorkflowsLocation(repository, getAccount());
-        ChecksToolWindowTabsContentManager contentManager = getContentManager();
-        contentManager.onRefresh(location);
+        WorkflowsToolWindowTabsContentManager contentManager = getContentManager();
+        contentManager.onLocationChange(location);
         getOrSetupRefresher(contentManager, location);
     }
 
-    private void getOrSetupRefresher(ChecksToolWindowTabsContentManager contentManager,
+    private void getOrSetupRefresher(WorkflowsToolWindowTabsContentManager contentManager,
         WorkflowsLocation location) {
         if (null == refresher) {
-            refresher = new ChecksRefresher(contentManager, location);
+            refresher = new WorkflowsRefresher(contentManager, location);
             refresher.everyMinutes(getAppScheduledExecutorService(), 1);
         } else {
             refresher.useLocation(location);
@@ -51,9 +51,9 @@ public final class LazyChecksContext {
         return null;
     }
 
-    private ChecksToolWindowTabsContentManager getContentManager() {
+    private WorkflowsToolWindowTabsContentManager getContentManager() {
         if (null == contentManager) {
-            contentManager = new ChecksToolWindowTabsContentManager();
+            contentManager = new WorkflowsToolWindowTabsContentManager();
         }
         return contentManager;
     }
@@ -77,7 +77,7 @@ public final class LazyChecksContext {
 
         @Override
         public void repositoryChanged(@NotNull GitRepository repository) {
-            LazyChecksContext service = project.getService(LazyChecksContext.class);
+            WorkflowsContext service = project.getService(WorkflowsContext.class);
             service.onRepositoryChange(repository);
         }
     }

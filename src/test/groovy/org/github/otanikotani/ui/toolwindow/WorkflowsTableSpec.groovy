@@ -7,7 +7,6 @@ import java.awt.Component
 import javax.swing.Icon
 import javax.swing.JLabel
 import javax.swing.JTable
-import org.github.otanikotani.api.GithubCheckRun
 import spock.lang.Specification
 
 class WorkflowsTableSpec extends Specification {
@@ -29,15 +28,15 @@ class WorkflowsTableSpec extends Specification {
         given:
         WorkflowRunsTableModel model = new WorkflowRunsTableModel()
         WorkflowsTable panel = new WorkflowsTable(model)
-        def checkRun = new GithubCheckRun()
-        checkRun.name = "my run"
-        checkRun.conclusion = "unknown"
-        checkRun.started_at = new Date()
-        checkRun.completed_at = new Date()
-        checkRun.id = 123L
+//        def workflow = new GithubCheckRun()
+        workflow.name = "my run"
+        workflow.conclusion = "unknown"
+        workflow.started_at = new Date()
+        workflow.completed_at = new Date()
+        workflow.id = 123L
 
         when:
-        panel.addRows("trinidata", "tabahamas", [checkRun])
+        panel.addRows("trinidata", "tabahamas", [workflow])
 
         then:
         model.rowCount == 1
@@ -60,7 +59,7 @@ class WorkflowsTableSpec extends Specification {
         given:
         WorkflowRunsTableModel model = new WorkflowRunsTableModel()
         WorkflowsTable panel = new WorkflowsTable(model)
-        def checkRun = new GithubCheckRun()
+//        def checkRun = new GithubCheckRun()
         checkRun.name = "my run"
         checkRun.conclusion = "unknown"
         checkRun.started_at = new Date()

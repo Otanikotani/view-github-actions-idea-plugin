@@ -7,7 +7,7 @@ import one.util.streamex.StreamEx;
 import org.github.otanikotani.api.GithubWorkflowRun;
 import org.github.otanikotani.api.GithubWorkflowRuns;
 import org.github.otanikotani.api.Workflows;
-import org.github.otanikotani.ui.toolwindow.ChecksRefresher.WorkflowsRefreshedListener;
+import org.github.otanikotani.ui.toolwindow.WorkflowsRefresher.WorkflowsRefreshedListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.github.api.GithubApiRequest;
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor;

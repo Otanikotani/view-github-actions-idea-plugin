@@ -10,12 +10,12 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.BorderLayout;
 import java.util.Objects;
 
-public class ChecksToolbar extends JPanel {
+public class WorkflowsToolbar extends JPanel {
 
-    public ChecksToolbar(@NotNull ActionManager actionManager, ActionGroup checksActionGroup) {
+    public WorkflowsToolbar(@NotNull ActionManager actionManager, ActionGroup workflowsActionGroup) {
         super(new BorderLayout());
         ActionToolbar actionToolbar = Objects.requireNonNull(actionManager)
-            .createActionToolbar(ActionPlaces.TOOLBAR, checksActionGroup, false);
+            .createActionToolbar(ActionPlaces.TOOLBAR, workflowsActionGroup, false);
         add(actionToolbar.getComponent(), BorderLayout.PAGE_START);
     }
 }

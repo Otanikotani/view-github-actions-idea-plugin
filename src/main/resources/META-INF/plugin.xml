@@ -38,18 +38,18 @@
 
 
     <extensions defaultExtensionNs="com.intellij">
-        <projectService serviceImplementation="org.github.otanikotani.LazyChecksContext"/>
+        <projectService serviceImplementation="org.github.otanikotani.WorkflowsContext"/>
     </extensions>
 
     <projectListeners>
         <!--suppress PluginXmlValidity -->
-        <listener class="org.github.otanikotani.LazyChecksContext$ChangeListener"
+        <listener class="org.github.otanikotani.WorkflowsContext$ChangeListener"
                   topic="git4idea.repo.GitRepositoryChangeListener"
                   activeInHeadlessMode="false" activeInTestMode="false"/>
     </projectListeners>
 
     <actions>
-        <group id="GHChecks.ActionGroup" popup="false"/>
+        <group id="GHWorkflows.ActionGroup" popup="false"/>
     </actions>
 
 </idea-plugin>

@@ -7,9 +7,9 @@ import git4idea.repo.GitRepository
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
 import spock.lang.Specification
 
-class ChecksRefresherSpec extends Specification {
+class WorkflowsRefresherSpec extends Specification {
 
-    SpyChecksListener spyChecksListener = new SpyChecksListener()
+    SpyWorkflowsListener listener = new SpyWorkflowsListener()
     WorkflowsLocation location
 
     def setup() {
@@ -26,7 +26,7 @@ class ChecksRefresherSpec extends Specification {
 
     def "on account change refresh is triggered"() {
         given:
-        ChecksRefresher refresher = new ChecksRefresher(spyChecksListener, location)
+        WorkflowsRefresher refresher = new WorkflowsRefresher(listener, location)
 
     }
 
@@ -34,12 +34,12 @@ class ChecksRefresherSpec extends Specification {
 
     }
 
-    static class SpyChecksListener implements ChecksListener {
+    static class SpyWorkflowsListener implements WorkflowsListener {
 
         WorkflowsLocation coordinates
 
         @Override
-        void onRefresh(WorkflowsLocation coordinates) {
+        void onLocationChange(WorkflowsLocation coordinates) {
             this.coordinates = coordinates
         }
     }

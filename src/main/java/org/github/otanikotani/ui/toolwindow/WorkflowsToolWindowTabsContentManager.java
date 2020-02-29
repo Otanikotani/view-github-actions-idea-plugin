@@ -23,54 +23,54 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 
-public class ChecksToolWindowTabsContentManager implements ChecksListener {
+public class WorkflowsToolWindowTabsContentManager implements WorkflowsListener {
 
-    static final String REFRESH_ACTION_ID = "GHChecks.Action.Refresh";
-    static final String GHCHECKS_ACTION_GROUP_ID = "GHChecks.ActionGroup";
+    static final String REFRESH_ACTION_ID = "GHWorkflows.Action.Refresh";
+    static final String GHWORKFLOWS_ACTION_GROUP_ID = "GHWorkflows.ActionGroup";
 
-    private static final String CONTENT_TAB_NAME = "Checks";
+    private static final String CONTENT_TAB_NAME = "Workflows";
     WorkflowsLocation location;
-    private ChecksTabContentPanel checksTabContentPanel;
+    private WorkflowsTabContentPanel workflowsTabContentPanel;
 
-    void update() {
+    void updateWorkflows() {
         Application app = ApplicationManager.getApplication();
         if (app.isDispatchThread()) {
-            updateChecksTabContentPanel();
+            updateWorkflowsContentPanel();
         } else {
-            app.invokeLater(this::updateChecksTabContentPanel);
+            app.invokeLater(this::updateWorkflowsContentPanel);
         }
     }
 
-    private void updateChecksTabContentPanel() {
+    private void updateWorkflowsContentPanel() {
         GitRepository repo = location.repository;
 
-        if (isNull(checksTabContentPanel)) {
-            createChecksTabContentPanel(repo.getProject());
+        if (isNull(workflowsTabContentPanel)) {
+            createWorkflowsTabContentPanel(repo.getProject());
         }
         boolean isAuthorized = isAuthorized();
-        checksTabContentPanel.redraw(isAuthorized);
+        workflowsTabContentPanel.redraw(isAuthorized);
         if (!isAuthorized) {
             return;
         }
 
         GithubApiRequestExecutorManager requestExecutorManager = GithubApiRequestExecutorManager.getInstance();
         ofNullable(requestExecutorManager.getExecutor(location.account, repo.getProject()))
-            .map(executor -> new GettingWorkflowRuns(location, checksTabContentPanel.getTable(),
+            .map(executor -> new GettingWorkflowRuns(location, workflowsTabContentPanel.getTable(),
                 executor))
             .ifPresent(Task::queue);
     }
 
-    private void createChecksTabContentPanel(Project project) {
+    private void createWorkflowsTabContentPanel(Project project) {
         JPanel toolbar = ofNullable(ActionManager.getInstance())
             .map(this::createToolbar)
             .orElseGet(this::createEmptyToolbar);
 
-        checksTabContentPanel = new ChecksTabContentPanel(toolbar, isAuthorized());
+        workflowsTabContentPanel = new WorkflowsTabContentPanel(toolbar, isAuthorized());
 
         ContentFactory contentFactory = SERVICE.getInstance();
-        Content content = contentFactory.createContent(checksTabContentPanel, CONTENT_TAB_NAME, false);
+        Content content = contentFactory.createContent(workflowsTabContentPanel, CONTENT_TAB_NAME, false);
         content.setCloseable(false);
-        content.setDescription("GitHub Checks for your builds");
+        content.setDescription("GitHub Workflows for your builds");
         content.putUserData(ChangesViewContentManager.ORDER_WEIGHT_KEY,
             ChangesViewContentManager.TabOrderWeight.OTHER.getWeight());
         ChangesViewContentManager.getInstance(project).addContent(content);
@@ -82,17 +82,17 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
 
     @NotNull
     private JPanel createToolbar(@NotNull ActionManager actionManager) {
-        AnAction actionGroup = actionManager.getAction(GHCHECKS_ACTION_GROUP_ID);
-        if (actionManager.isGroup(GHCHECKS_ACTION_GROUP_ID) && actionGroup != null) {
+        AnAction actionGroup = actionManager.getAction(GHWORKFLOWS_ACTION_GROUP_ID);
+        if (actionManager.isGroup(GHWORKFLOWS_ACTION_GROUP_ID) && actionGroup != null) {
             AnAction refreshAction = actionManager.getAction(REFRESH_ACTION_ID);
             if (refreshAction == null) {
-                refreshAction = new RefreshAction(this::update);
+                refreshAction = new RefreshAction(this::updateWorkflows);
                 actionManager.registerAction(REFRESH_ACTION_ID, refreshAction);
             }
 
-            DefaultActionGroup checksActionGroup = (DefaultActionGroup) actionGroup;
-            checksActionGroup.add(refreshAction);
-            return new ChecksToolbar(actionManager, checksActionGroup);
+            DefaultActionGroup workflowsActionGroup = (DefaultActionGroup) actionGroup;
+            workflowsActionGroup.add(refreshAction);
+            return new WorkflowsToolbar(actionManager, workflowsActionGroup);
         } else {
             return createEmptyToolbar();
         }
@@ -104,8 +104,8 @@ public class ChecksToolWindowTabsContentManager implements ChecksListener {
     }
 
     @Override
-    public void onRefresh(WorkflowsLocation location) {
+    public void onLocationChange(WorkflowsLocation location) {
         this.location = location;
-        update();
+        updateWorkflows();
     }
 }

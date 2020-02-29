@@ -8,8 +8,8 @@ class RefreshActionSpec extends Specification {
     def "refresh action has proper text and description"() {
         expect:
         def action = new RefreshAction({})
-        action.templatePresentation.text == 'Refresh Checks'
-        action.templatePresentation.description == 'Refreshes checks'
+        action.templatePresentation.text == 'Refresh Workflows'
+        action.templatePresentation.description == 'Refreshes workflows'
     }
 
     def "refresh action executes the given runnable on action performed"() {

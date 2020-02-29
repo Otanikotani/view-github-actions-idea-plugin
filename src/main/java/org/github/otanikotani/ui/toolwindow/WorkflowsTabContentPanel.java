@@ -13,15 +13,15 @@ import java.awt.GridLayout;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-public class ChecksTabContentPanel extends JPanel {
+public class WorkflowsTabContentPanel extends JPanel {
 
     private WorkflowsTable table;
     private JPanel stub;
 
-    public ChecksTabContentPanel(@NotNull JComponent checksToolbar, boolean isAuthorized) {
+    public WorkflowsTabContentPanel(@NotNull JComponent workflowsToolbar, boolean isAuthorized) {
         super(new BorderLayout());
         redraw(isAuthorized);
-        add(checksToolbar, BorderLayout.WEST);
+        add(workflowsToolbar, BorderLayout.WEST);
     }
 
     public void redraw(boolean isAuthorized) {
