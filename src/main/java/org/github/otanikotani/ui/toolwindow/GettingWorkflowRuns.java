@@ -23,18 +23,16 @@ public class GettingWorkflowRuns extends Backgroundable {
 
     private static final Pattern DOT_GIT_PATTERN = Pattern.compile("\\.git$");
 
-    private final WorkflowsTable workflowsTable;
     private final WorkflowsLocation location;
     private final GithubApiRequestExecutor.WithTokenAuth executor;
     private String owner;
     private String repo;
     private List<GithubWorkflowRun> workflowRuns;
 
-    GettingWorkflowRuns(WorkflowsLocation location, WorkflowsTable workflowsTable,
+    GettingWorkflowRuns(WorkflowsLocation location,
         GithubApiRequestExecutor.WithTokenAuth executor) {
         super(location.repository.getProject(), "Getting Workflow Runs...");
         this.location = location;
-        this.workflowsTable = workflowsTable;
         this.executor = executor;
     }
 
@@ -70,7 +68,6 @@ public class GettingWorkflowRuns extends Backgroundable {
 
     @Override
     public void onSuccess() {
-        workflowsTable.refresh(workflowRuns);
 //        WorkflowsRefreshedListener publisher = myProject.getMessageBus()
 //            .syncPublisher(WorkflowsRefreshedListener.WORKFLOWS_REFRESHED);
 //        publisher.workflowsRefreshed();

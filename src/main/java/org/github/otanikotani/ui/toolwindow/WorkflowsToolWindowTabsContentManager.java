@@ -55,8 +55,7 @@ public class WorkflowsToolWindowTabsContentManager implements WorkflowsListener 
 
         GithubApiRequestExecutorManager requestExecutorManager = GithubApiRequestExecutorManager.getInstance();
         ofNullable(requestExecutorManager.getExecutor(location.account, repo.getProject()))
-            .map(executor -> new GettingWorkflowRuns(location, workflowsTabContentPanel.getTable(),
-                executor))
+            .map(executor -> new GettingWorkflowRuns(location, executor))
             .ifPresent(Task::queue);
     }
 
