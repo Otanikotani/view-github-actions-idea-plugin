@@ -38,7 +38,7 @@
 
 
     <extensions defaultExtensionNs="com.intellij">
-        <projectService serviceImplementation="org.github.otanikotani.WorkflowsContext"/>
+        <projectService serviceImplementation="org.github.otanikotani.workflow.GitHubWorkflowToolWindowTabsManager"/>
     </extensions>
 
     <projectListeners>
