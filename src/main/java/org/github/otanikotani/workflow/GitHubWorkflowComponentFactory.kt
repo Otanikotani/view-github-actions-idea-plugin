@@ -199,7 +199,6 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
             }
         }.also {
             listReloadAction.registerCustomShortcutSet(it, disposable)
-        }.also {
             Disposer.register(disposable, Disposable {
                 Disposer.dispose(it)
             })
