@@ -1,10 +1,8 @@
 package org.github.otanikotani.workflow.data
 
 import com.intellij.openapi.Disposable
-import org.github.otanikotani.api.GithubWorkflow
 import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.github.pullrequest.data.GHListLoader
-import java.util.concurrent.CompletableFuture
 
 internal interface GitHubWorkflowListLoader : GHListLoader {
     @get:CalledInAwt

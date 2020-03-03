@@ -16,7 +16,7 @@ import com.intellij.openapi.util.registry.Registry
 import com.intellij.ui.*
 import com.intellij.ui.components.JBPanelWithEmptyText
 import com.intellij.util.ui.UIUtil
-import org.github.otanikotani.api.GithubWorkflow
+import org.github.otanikotani.api.GitHubWorkflow
 import org.github.otanikotani.workflow.action.GitHubWorkflowActionKeys
 import org.github.otanikotani.workflow.data.GitHubWorkflowListLoaderImpl
 import org.jetbrains.annotations.CalledInAwt
@@ -171,7 +171,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
                                             disposable: Disposable): JComponent {
 
         val listSelectionHolder = GitHubWorkflowsListSelectionHolderImpl()
-        val listModel = CollectionListModel<GithubWorkflow>()
+        val listModel = CollectionListModel<GitHubWorkflow>()
 
         val list = GitHubWorkflowList(listModel).apply {
             emptyText.clear()

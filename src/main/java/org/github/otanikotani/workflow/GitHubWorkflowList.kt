@@ -11,14 +11,14 @@ import com.intellij.util.ui.UIUtil
 import net.miginfocom.layout.CC
 import net.miginfocom.layout.LC
 import net.miginfocom.swing.MigLayout
-import org.github.otanikotani.api.GithubWorkflow
+import org.github.otanikotani.api.GitHubWorkflow
 import org.github.otanikotani.workflow.action.GitHubWorkflowActionKeys
 import java.awt.Component
 import java.awt.event.MouseEvent
 import javax.swing.*
 
-internal class GitHubWorkflowList(model: ListModel<GithubWorkflow>)
-    : JBList<GithubWorkflow>(model), DataProvider {
+internal class GitHubWorkflowList(model: ListModel<GitHubWorkflow>)
+    : JBList<GitHubWorkflow>(model), DataProvider {
 
     init {
         selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
@@ -42,7 +42,7 @@ internal class GitHubWorkflowList(model: ListModel<GithubWorkflow>)
         else -> null
     }
 
-    private inner class WorkflowsListCellRenderer : ListCellRenderer<GithubWorkflow>, JPanel() {
+    private inner class WorkflowsListCellRenderer : ListCellRenderer<GitHubWorkflow>, JPanel() {
 
         private val title = JLabel()
         private val info = JLabel()
@@ -64,8 +64,8 @@ internal class GitHubWorkflowList(model: ListModel<GithubWorkflow>)
                 .spanX(2))
         }
 
-        override fun getListCellRendererComponent(list: JList<out GithubWorkflow>,
-                                                  value: GithubWorkflow,
+        override fun getListCellRendererComponent(list: JList<out GitHubWorkflow>,
+                                                  value: GitHubWorkflow,
                                                   index: Int,
                                                   isSelected: Boolean,
                                                   cellHasFocus: Boolean): Component {
