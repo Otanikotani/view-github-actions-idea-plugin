@@ -1,5 +1,6 @@
 package org.github.otanikotani.api;
 
+import org.github.otanikotani.workflow.GitHubRepositoryCoordinates;
 import org.jetbrains.plugins.github.api.GHRepositoryPath;
 import org.jetbrains.plugins.github.api.GithubApiRequest;
 import org.jetbrains.plugins.github.api.GithubApiRequest.Get;
@@ -13,16 +14,11 @@ public class Workflows extends Entity {
         super("/repos");
     }
 
-    public GithubApiRequest<GithubWorkflows> getWorkflows(GithubServerPath server, String owner, String repo) {
+    public GithubApiRequest<GithubWorkflows> getWorkflows(GitHubRepositoryCoordinates gitHubRepositoryCoordinates) {
+        String serverUrl = gitHubRepositoryCoordinates.getServerPath().toApiUrl();
+        GHRepositoryPath repoPath = gitHubRepositoryCoordinates.getRepositoryPath();
         String url = String.format("%s%s/%s/%s/actions/workflows",
-            server.toApiUrl(), getUrlSuffix(), owner, repo);
-        return new Get.Json<>(url, GithubWorkflows.class, null)
-            .withOperationName("get workflows");
-    }
-
-    public GithubApiRequest<GithubWorkflows> getWorkflows(GithubServerPath server, GHRepositoryPath repoPath) {
-        String url = String.format("%s%s/%s/%s/actions/workflows",
-            server.toApiUrl(), getUrlSuffix(), repoPath.getOwner(), repoPath.getRepository());
+            serverUrl, getUrlSuffix(), repoPath.getOwner(), repoPath.getRepository());
         return new Get.Json<>(url, GithubWorkflows.class, null)
             .withOperationName("get workflows");
     }

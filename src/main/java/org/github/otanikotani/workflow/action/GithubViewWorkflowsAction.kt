@@ -1,4 +1,4 @@
-package org.github.otanikotani.workflow
+package org.github.otanikotani.workflow.action
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -6,6 +6,7 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import git4idea.repo.GitRemote
 import git4idea.repo.GitRepository
+import org.github.otanikotani.workflow.GitHubWorkflowManager
 import org.jetbrains.plugins.github.AbstractGithubUrlGroupingAction
 import org.jetbrains.plugins.github.util.GitRemoteUrlCoordinates
 

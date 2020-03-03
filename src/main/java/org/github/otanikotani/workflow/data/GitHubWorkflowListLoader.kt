@@ -9,17 +9,12 @@ import java.util.concurrent.CompletableFuture
 internal interface GitHubWorkflowListLoader : GHListLoader {
     @get:CalledInAwt
     val outdated: Boolean
-    @get:CalledInAwt
-    val filterNotEmpty: Boolean
 
     @CalledInAwt
     fun reloadData(request: CompletableFuture<out GithubWorkflow>)
 
     @CalledInAwt
-    fun findData(number: Long): GithubWorkflow?
-
-    @CalledInAwt
-    fun resetFilter()
+    fun findData(id: Long): GithubWorkflow?
 
     @CalledInAwt
     fun addOutdatedStateChangeListener(disposable: Disposable, listener: () -> Unit)

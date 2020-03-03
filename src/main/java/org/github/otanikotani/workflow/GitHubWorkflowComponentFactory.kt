@@ -16,7 +16,9 @@ import com.intellij.openapi.util.registry.Registry
 import com.intellij.ui.*
 import com.intellij.ui.components.JBPanelWithEmptyText
 import com.intellij.util.ui.UIUtil
+import org.github.otanikotani.api.GithubWorkflow
 import org.github.otanikotani.workflow.action.GitHubWorkflowActionKeys
+import org.github.otanikotani.workflow.data.GitHubWorkflowListLoaderImpl
 import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
@@ -52,7 +54,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
         val contextDisposable = Disposer.newDisposable()
         val contextValue = object : LazyCancellableBackgroundProcessValue<GitHubWorkflowDataContext>(progressManager) {
             override fun compute(indicator: ProgressIndicator) =
-                dataContextRepository.getContext(indicator, account, requestExecutor, remoteUrl).also {
+                dataContextRepository.getContext(account, requestExecutor, remoteUrl).also {
                     Disposer.register(contextDisposable, it)
                 }
         }
@@ -105,11 +107,15 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
         return patchedContent
     }
 
-    private fun createContent(dataContext: GitHubWorkflowDataContext, disposable: Disposable): JComponent {
+    private fun createContent(context: GitHubWorkflowDataContext, disposable: Disposable): JComponent {
         val listSelectionHolder = GitHubWorkflowsListSelectionHolderImpl()
-        val actionDataContext = GitHubWorkflowListSelectionActionDataContext(dataContext)
+        val actionDataContext = GitHubWorkflowListSelectionActionDataContext(context)
+        val listModel = CollectionListModel<GithubWorkflow>()
+        val listLoader = GitHubWorkflowListLoaderImpl(ProgressManager.getInstance(), context.requestExecutor,
+            context.gitHubRepositoryCoordinates,
+            listModel)
 
-        val list = createListComponent(dataContext, listSelectionHolder, disposable)
+        val list = createListComponent(listSelectionHolder, listModel, listLoader, disposable)
 
 //        val dataProviderModel = createDataProviderModel(dataContext, listSelectionHolder, disposable)
 //
@@ -166,10 +172,11 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
         }
     }
 
-    private fun createListComponent(dataContext: GitHubWorkflowDataContext,
-                                    listSelectionHolder: GitHubWorkflowsListSelectionHolder,
+    private fun createListComponent(listSelectionHolder: GitHubWorkflowsListSelectionHolder,
+                                    listModel: CollectionListModel<GithubWorkflow>,
+                                    listLoader: GitHubWorkflowListLoaderImpl,
                                     disposable: Disposable): JComponent {
-        val list = GitHubWorkflowList(copyPasteManager, dataContext.listModel).apply {
+        val list = GitHubWorkflowList(listModel).apply {
             emptyText.clear()
         }.also {
             it.addFocusListener(object : FocusListener {
@@ -181,26 +188,18 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
             })
 
             installSelectionSaver(it, listSelectionHolder)
-
-            ListSpeedSearch(it) { item -> item.name }
-        }
-
-        val search = GitHubWorkflowSearchPanel(project, dataContext.searchHolder).apply {
-            border = IdeBorderFactory.createBorder(SideBorder.BOTTOM)
         }
 
         val listReloadAction = actionManager.getAction("Github.Workflow.List.Reload") as RefreshAction
-        val loaderPanel = GitHubWorkflowListLoaderPanel(dataContext.listLoader, listReloadAction, list, search).apply {
+        val loaderPanel = GitHubWorkflowListLoaderPanel(listLoader, listReloadAction, list).apply {
             errorHandler = GitHubLoadingErrorHandlerImpl {
-                dataContext.listLoader.reset()
+                listLoader.reset()
             }
         }.also {
             listReloadAction.registerCustomShortcutSet(it, disposable)
         }
 
         Disposer.register(disposable, Disposable {
-            Disposer.dispose(list)
-            Disposer.dispose(search)
             Disposer.dispose(loaderPanel)
         })
 
@@ -258,7 +257,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
             if (!e.valueIsAdjusting) {
                 val selectedIndex = list.selectedIndex
                 if (selectedIndex >= 0 && selectedIndex < list.model.size) {
-                    listSelectionHolder.selectionNumber = list.model.getElementAt(selectedIndex).id
+                    listSelectionHolder.selectionId = list.model.getElementAt(selectedIndex).id
                     savedSelectionNumber = null
                 }
             }
@@ -273,7 +272,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
 
             override fun contentsChanged(e: ListDataEvent) {}
             override fun intervalRemoved(e: ListDataEvent) {
-                if (e.type == ListDataEvent.INTERVAL_REMOVED) savedSelectionNumber = listSelectionHolder.selectionNumber
+                if (e.type == ListDataEvent.INTERVAL_REMOVED) savedSelectionNumber = listSelectionHolder.selectionId
             }
         })
     }

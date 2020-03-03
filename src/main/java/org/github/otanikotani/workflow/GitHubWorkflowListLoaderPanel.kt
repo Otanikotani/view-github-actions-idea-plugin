@@ -15,8 +15,7 @@ import javax.swing.JPanel
 
 internal class GitHubWorkflowListLoaderPanel(listLoader: GitHubWorkflowListLoader,
                                              private val listReloadAction: RefreshAction,
-                                             contentComponent: JComponent,
-                                             filterComponent: JComponent)
+                                             contentComponent: JComponent)
     : GitHubListLoaderPanel<GitHubWorkflowListLoader>(listLoader, contentComponent), Disposable {
 
     private lateinit var progressStripe: ProgressStripe
@@ -36,27 +35,13 @@ internal class GitHubWorkflowListLoaderPanel(listLoader: GitHubWorkflowListLoade
         listLoader.addOutdatedStateChangeListener(this) {
             updateInfoPanel()
         }
-
-        addToTop(filterComponent)
-        resetFilter()
     }
 
     override fun displayEmptyStatus(emptyText: StatusText) {
-        if (listLoader.filterNotEmpty) {
-            emptyText.text = "No pull requests matching filters. "
-            emptyText.appendSecondaryText("Reset Filters", SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES) {
-                resetFilter()
-            }
-        } else {
-            emptyText.text = "No pull requests loaded. "
-            emptyText.appendSecondaryText("Refresh", SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES) {
-                listLoader.reset()
-            }
+        emptyText.text = "No workflows loaded. "
+        emptyText.appendSecondaryText("Refresh", SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES) {
+            listLoader.reset()
         }
-    }
-
-    private fun resetFilter() {
-        listLoader.resetFilter()
     }
 
     override fun updateInfoPanel() {

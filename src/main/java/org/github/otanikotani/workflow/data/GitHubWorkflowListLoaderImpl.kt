@@ -7,8 +7,8 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.ui.CollectionListModel
 import com.intellij.util.EventDispatcher
 import org.github.otanikotani.api.GithubWorkflow
-import org.github.otanikotani.api.GithubWorkflows
 import org.github.otanikotani.api.Workflows
+import org.github.otanikotani.workflow.GitHubRepositoryCoordinates
 import org.jetbrains.plugins.github.api.GHRepositoryPath
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.api.GithubServerPath
@@ -20,10 +20,8 @@ import kotlin.properties.Delegates
 
 internal class GitHubWorkflowListLoaderImpl(progressManager: ProgressManager,
                                             private val requestExecutor: GithubApiRequestExecutor,
-                                            private val repoPath: GHRepositoryPath,
-                                            private val serverPath: GithubServerPath,
-                                            private val listModel: CollectionListModel<GithubWorkflow>,
-                                            private val searchQueryHolder: GitHubWorkflowSearchQueryHolder)
+                                            private val gitHubRepositoryCoordinates: GitHubRepositoryCoordinates,
+                                            private val listModel: CollectionListModel<GithubWorkflow>)
     : GHListLoaderBase<GithubWorkflow>(progressManager),
     GitHubWorkflowListLoader {
 
@@ -40,17 +38,9 @@ internal class GitHubWorkflowListLoaderImpl(progressManager: ProgressManager,
 
     init {
         requestExecutor.addListener(this) { reset() }
-        searchQueryHolder.addQueryChangeListener(this) { reset() }
 
         resetDisposable = Disposer.newDisposable()
         Disposer.register(this, resetDisposable)
-    }
-
-    override val filterNotEmpty: Boolean
-        get() = !searchQueryHolder.query.isEmpty()
-
-    override fun resetFilter() {
-        searchQueryHolder.query = GitHubWorkflowSearchQuery.parseFromString("")
     }
 
     override fun handleResult(list: List<GithubWorkflow>) {
@@ -90,7 +80,7 @@ internal class GitHubWorkflowListLoaderImpl(progressManager: ProgressManager,
     override fun canLoadMore() = !loading
 
     override fun doLoadMore(indicator: ProgressIndicator): List<GithubWorkflow>? {
-        val request = Workflows().getWorkflows(serverPath, repoPath)
+        val request = Workflows().getWorkflows(gitHubRepositoryCoordinates)
         return requestExecutor.execute(request)?.workflows
     }
 }

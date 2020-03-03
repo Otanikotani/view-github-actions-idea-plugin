@@ -6,7 +6,7 @@ import org.jetbrains.annotations.CalledInAwt
 internal interface GitHubWorkflowsListSelectionHolder {
     @get:CalledInAwt
     @set:CalledInAwt
-    var selectionNumber: Long?
+    var selectionId: Long?
 
     @CalledInAwt
     fun addSelectionChangeListener(disposable: Disposable, listener: () -> Unit)
