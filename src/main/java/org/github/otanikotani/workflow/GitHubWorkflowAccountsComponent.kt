@@ -68,8 +68,8 @@ internal class GitHubWorkflowAccountsComponent(private val authManager: GithubAu
 
     private fun showLoginPanel() {
         setCenteredContent(GithubUIUtil.createNoteWithAction(::update).apply {
-            append("Open Pull Requests tab to Log in", SimpleTextAttributes.GRAYED_ATTRIBUTES)
-            append("Then refresh", SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES, Runnable { update() })
+            append("Open Pull Requests tab to Log in and then ", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+            append("refresh", SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES, Runnable { update() })
         })
     }
 
