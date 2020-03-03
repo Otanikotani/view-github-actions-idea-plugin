@@ -24,6 +24,8 @@ internal class GitHubWorkflowListLoaderImpl(progressManager: ProgressManager,
     override val hasLoadedItems: Boolean
         get() = !listModel.isEmpty
 
+    var loaded: Boolean = false
+
     private val outdatedStateEventDispatcher = EventDispatcher.create(SimpleEventListener::class.java)
 
     override var outdated: Boolean by Delegates.observable(false) { _, _, newValue ->
@@ -60,10 +62,12 @@ internal class GitHubWorkflowListLoaderImpl(progressManager: ProgressManager,
 
 
     //This should not be needed, it is weird that originally it requires error != null to be able to load data
-    override fun canLoadMore() = !loading && (error == null)
+    override fun canLoadMore() = !loading && !loaded
 
     override fun doLoadMore(indicator: ProgressIndicator): List<GitHubWorkflow>? {
         val request = Workflows.getWorkflows(gitHubRepositoryCoordinates)
-        return requestExecutor.execute(request).workflows
+        val result = requestExecutor.execute(request).workflows
+        loaded = true
+        return result
     }
 }
