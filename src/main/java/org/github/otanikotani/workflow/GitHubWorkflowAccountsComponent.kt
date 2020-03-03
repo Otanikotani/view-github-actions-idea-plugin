@@ -30,14 +30,16 @@ internal class GitHubWorkflowAccountsComponent(private val authManager: GithubAu
     init {
         background = UIUtil.getListBackground()
 
-        ApplicationManager.getApplication().messageBus.connect(parentDisposable)
-            .subscribe(Topic.create("GITHUB_ACCOUNT_TOKEN_CHANGED", AccountTokenChangedListener::class.java),
-                object : AccountTokenChangedListener {
-                    override fun tokenChanged(account: GithubAccount) {
-                        update()
-                    }
-                })
-        //TODO: listen to default account changes?
+        val busConnection = ApplicationManager.getApplication().messageBus.connect(parentDisposable)
+
+        val topicClone = Topic.create("GITHUB_ACCOUNT_TOKEN_CHANGED", AccountTokenChangedListener::class.java)
+        busConnection.subscribe(topicClone, object : AccountTokenChangedListener {
+            override fun tokenChanged(account: GithubAccount) {
+                //This update is never triggered because the topic is not the original one (and it looks like message
+                // bus compares topics by ref
+                update()
+            }
+        })
         update()
     }
 
@@ -65,21 +67,16 @@ internal class GitHubWorkflowAccountsComponent(private val authManager: GithubAu
     }
 
     private fun showLoginPanel() {
-        setCenteredContent(GithubUIUtil.createNoteWithAction(::requestNewAccount).apply {
-            append("Log in", SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES, Runnable { requestNewAccount() })
-            append(" to GitHub to view pull requests", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+        setCenteredContent(GithubUIUtil.createNoteWithAction(::update).apply {
+            append("Open Pull Requests tab to Log in", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+            append("Then refresh", SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES, Runnable { update() })
         })
-    }
-
-    private fun requestNewAccount() {
-        authManager.requestNewAccount(project)
-        IdeFocusManager.getInstance(project).requestFocusInProject(this@GitHubWorkflowAccountsComponent, project)
     }
 
     private fun showChooseAccountPanel(accounts: List<GithubAccount>) {
         setCenteredContent(GithubUIUtil.createNoteWithAction { chooseAccount(accounts) }.apply {
             append("Select", SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES, Runnable { chooseAccount(accounts) })
-            append(" GitHub account to view pull requests", SimpleTextAttributes.GRAYED_ATTRIBUTES)
+            append(" GitHub account to view workflows", SimpleTextAttributes.GRAYED_ATTRIBUTES)
         })
     }
 

@@ -32,6 +32,12 @@ class GitHubWorkflowToolWindowsTabsContentManager(private val project: Project,
         }
     }
 
+    @CalledInAwt
+    internal fun removeTab(remoteUrl: GitRemoteUrlCoordinates) {
+        val content = viewContentManager.findContents { it.remoteUrl == remoteUrl }.firstOrNull() ?: return
+        viewContentManager.removeContent(content)
+    }
+
     private fun createContent(remoteUrl: GitRemoteUrlCoordinates, onDispose: Disposable): Content {
         val disposable = Disposer.newDisposable()
         Disposer.register(disposable, onDispose)
@@ -39,7 +45,7 @@ class GitHubWorkflowToolWindowsTabsContentManager(private val project: Project,
         val content = ContentFactory.SERVICE.getInstance().createContent(JPanel(null), GROUP_PREFIX, false)
         content.isCloseable = true
         content.disposer = disposable
-        content.description = remoteUrl.url
+        content.description = GROUP_PREFIX
         content.remoteUrl = remoteUrl
         content.putUserData(ChangesViewContentManager.ORDER_WEIGHT_KEY, ChangesViewContentManager.TabOrderWeight.LAST.weight)
         content.putUserData(ChangesViewContentManager.CONTENT_PROVIDER_SUPPLIER_KEY) {
@@ -64,6 +70,6 @@ class GitHubWorkflowToolWindowsTabsContentManager(private val project: Project,
         @Nls
         private const val GROUP_PREFIX = "Workflows"
 
-        private val REMOTE_URL = Key<GitRemoteUrlCoordinates>("GHPR_REMOTE_URL")
+        private val REMOTE_URL = Key<GitRemoteUrlCoordinates>("GHWORKFLOW_REMOTE_URL")
     }
 }

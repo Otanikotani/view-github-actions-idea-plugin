@@ -70,6 +70,10 @@
 
     <actions>
         <group id="GHWorkflows.ActionGroup" popup="false"/>
+
+        <action id="Github.View.Workflow" class="org.github.otanikotani.workflow.GithubViewWorkflowsAction">
+            <add-to-group group-id="Git.Menu"/>
+        </action>
     </actions>
 
 </idea-plugin>

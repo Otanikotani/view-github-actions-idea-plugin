@@ -32,11 +32,11 @@ internal class GitHubWorkflowToolWindowTabsManager(private val project: Project)
 
     private var remoteUrls by observable(setOf<GitRemoteUrlCoordinates>()) { _, oldValue, newValue ->
         val delta = CollectionDelta(oldValue, newValue)
-
+        for (item in delta.removedItems) {
+            contentManager.removeTab(item)
+        }
         for (item in delta.newItems) {
             contentManager.addTab(item, Disposable {
-                //means that tab closed by user
-                if (gitHelper.getPossibleRemoteUrlCoordinates(project).contains(item)) settings.addHiddenUrl(item.url)
                 ApplicationManager.getApplication().invokeLater(::updateRemoteUrls) { project.isDisposed }
             })
         }
@@ -44,7 +44,6 @@ internal class GitHubWorkflowToolWindowTabsManager(private val project: Project)
 
     @CalledInAwt
     fun showTab(remoteUrl: GitRemoteUrlCoordinates) {
-        settings.removeHiddenUrl(remoteUrl.url)
         updateRemoteUrls()
 
         contentManager.focusTab(remoteUrl)
