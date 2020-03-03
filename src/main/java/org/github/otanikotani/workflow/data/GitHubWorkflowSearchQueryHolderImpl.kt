@@ -1,10 +1,10 @@
-package org.github.otanikotani.workflow
+package org.github.otanikotani.workflow.data
 
 import com.intellij.openapi.Disposable
 import org.jetbrains.plugins.github.ui.util.SingleValueModel
 
 internal class GitHubWorkflowSearchQueryHolderImpl : GitHubWorkflowSearchQueryHolder {
-    private val delegate = SingleValueModel(GitHubWorkflowSearchQuery.parseFromString("state:open"))
+    private val delegate = SingleValueModel(GitHubWorkflowSearchQuery.parseFromString(""))
 
     override var query: GitHubWorkflowSearchQuery
         get() = delegate.value

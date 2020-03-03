@@ -1,4 +1,4 @@
-package org.github.otanikotani.workflow
+package org.github.otanikotani.workflow.data
 
 import com.google.common.cache.CacheBuilder
 import com.intellij.openapi.Disposable

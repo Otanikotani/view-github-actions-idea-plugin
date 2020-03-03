@@ -4,9 +4,6 @@ import com.intellij.ide.DataManager
 import com.intellij.ide.actions.RefreshAction
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.CommonShortcuts
-import com.intellij.openapi.actionSystem.CompositeShortcutSet
-import com.intellij.openapi.actionSystem.EmptyAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.ide.CopyPasteManager
@@ -19,6 +16,7 @@ import com.intellij.openapi.util.registry.Registry
 import com.intellij.ui.*
 import com.intellij.ui.components.JBPanelWithEmptyText
 import com.intellij.util.ui.UIUtil
+import org.github.otanikotani.workflow.action.GitHubWorkflowActionKeys
 import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
@@ -29,6 +27,7 @@ import org.jetbrains.plugins.github.pullrequest.ui.GHLoadingPanel
 import org.jetbrains.plugins.github.util.GitRemoteUrlCoordinates
 import org.jetbrains.plugins.github.util.LazyCancellableBackgroundProcessValue
 import java.awt.BorderLayout
+import java.awt.event.ActionListener
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import javax.swing.JComponent
@@ -89,6 +88,10 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
 
         return GHLoadingPanel(loadingModel, contentContainer, uiDisposable,
             GHLoadingPanel.EmptyTextBundle.Simple("", "Can't load data from GitHub")).apply {
+            resetHandler = ActionListener {
+                contextValue.drop()
+                loadingModel.future = contextValue.value
+            }
         }
     }
 
@@ -134,16 +137,21 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
 //            errorHandler = GHLoadingErrorHandlerImpl() { dataProviderModel.value?.reloadChanges() }
 //        }
 
-        return OnePixelSplitter("Github.PullRequests.Component", 0.33f).apply {
+        return OnePixelSplitter("GitHub.Workflows.Component", 0.33f).apply {
             background = UIUtil.getListBackground()
             isOpaque = true
             isFocusCycleRoot = true
             firstComponent = list
-//            secondComponent = OnePixelSplitter("Github.PullRequest.Preview.Component", 0.5f).apply {
-//                firstComponent = detailsLoadingPanel
-//                secondComponent = changesLoadingPanel
-//            }.also {
-//                (actionManager.getAction("Github.PullRequest.Details.Reload") as RefreshAction).registerCustomShortcutSet(it, disposable)
+            secondComponent = OnePixelSplitter("GitHub.Workflows.Preview.Component", 0.5f).apply {
+                firstComponent = JBPanelWithEmptyText(null).apply {
+                    background = UIUtil.getListBackground()
+                }
+                secondComponent = JBPanelWithEmptyText(null).apply {
+                    background = UIUtil.getListBackground()
+                }
+            }
+//                .also {
+//                (actionManager.getAction("GitHub.Workflow.Details.Reload") as RefreshAction).registerCustomShortcutSet(it, disposable)
 //            }
         }.also {
             //            changesBrowser.diffAction.registerCustomShortcutSet(it, disposable)
@@ -172,10 +180,8 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
                 override fun focusLost(e: FocusEvent?) {}
             })
 
-//            installPopup(it)
             installSelectionSaver(it, listSelectionHolder)
-            val shortcuts = CompositeShortcutSet(CommonShortcuts.ENTER, CommonShortcuts.DOUBLE_CLICK_1)
-            EmptyAction.registerWithShortcutSet("Github.PullRequest.Timeline.Show", shortcuts, it)
+
             ListSpeedSearch(it) { item -> item.name }
         }
 
@@ -183,9 +189,9 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
             border = IdeBorderFactory.createBorder(SideBorder.BOTTOM)
         }
 
-        val listReloadAction = actionManager.getAction("Github.PullRequest.List.Reload") as RefreshAction
+        val listReloadAction = actionManager.getAction("Github.Workflow.List.Reload") as RefreshAction
         val loaderPanel = GitHubWorkflowListLoaderPanel(dataContext.listLoader, listReloadAction, list, search).apply {
-            errorHandler = GitHubLoadingErrorHandlerImpl() {
+            errorHandler = GitHubLoadingErrorHandlerImpl {
                 dataContext.listLoader.reset()
             }
         }.also {
@@ -194,7 +200,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
 
         Disposer.register(disposable, Disposable {
             Disposer.dispose(list)
-//            Disposer.dispose(search)
+            Disposer.dispose(search)
             Disposer.dispose(loaderPanel)
         })
 

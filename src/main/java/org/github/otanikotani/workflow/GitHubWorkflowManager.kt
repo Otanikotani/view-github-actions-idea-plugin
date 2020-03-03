@@ -22,12 +22,12 @@ import org.jetbrains.plugins.github.util.GithubGitHelper
 import kotlin.properties.Delegates.observable
 
 @Service
-internal class GitHubWorkflowToolWindowTabsManager(private val project: Project) {
+internal class GitHubWorkflowManager(private val project: Project) {
     private val gitHelper = GithubGitHelper.getInstance()
     private val settings = GithubPullRequestsProjectUISettings.getInstance(project)
 
     private val contentManager by lazy(LazyThreadSafetyMode.NONE) {
-        GitHubWorkflowToolWindowsTabsContentManager(project, ChangesViewContentManager.getInstance(project))
+        GitHubWorkflowToolTabsContentManager(project, ChangesViewContentManager.getInstance(project))
     }
 
     private var remoteUrls by observable(setOf<GitRemoteUrlCoordinates>()) { _, oldValue, newValue ->
@@ -80,6 +80,6 @@ internal class GitHubWorkflowToolWindowTabsManager(private val project: Project)
             else application.invokeLater({ runnable() }) { project.isDisposed }
         }
 
-        private fun updateRemotes(project: Project) = project.service<GitHubWorkflowToolWindowTabsManager>().updateRemoteUrls()
+        private fun updateRemotes(project: Project) = project.service<GitHubWorkflowManager>().updateRemoteUrls()
     }
 }

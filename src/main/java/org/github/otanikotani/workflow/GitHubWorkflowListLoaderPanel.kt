@@ -8,6 +8,7 @@ import com.intellij.openapi.progress.util.ProgressWindow
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.util.ui.StatusText
 import com.intellij.vcs.log.ui.frame.ProgressStripe
+import org.github.otanikotani.workflow.data.GitHubWorkflowListLoader
 import org.jetbrains.plugins.github.ui.HtmlInfoPanel
 import javax.swing.JComponent
 import javax.swing.JPanel

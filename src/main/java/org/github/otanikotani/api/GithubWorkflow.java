@@ -10,8 +10,8 @@ public class GithubWorkflow {
     String name;
     String path;
     String state;
-    Date completed_at;
-    Date updated_at;
+    String completed_at;
+    String updated_at;
     String url;
     String html_url;
     String badge_url;
@@ -56,19 +56,19 @@ public class GithubWorkflow {
         this.state = state;
     }
 
-    public Date getCompleted_at() {
+    public String getCompleted_at() {
         return completed_at;
     }
 
-    public void setCompleted_at(Date completed_at) {
+    public void setCompleted_at(String completed_at) {
         this.completed_at = completed_at;
     }
 
-    public Date getUpdated_at() {
+    public String getUpdated_at() {
         return updated_at;
     }
 
-    public void setUpdated_at(Date updated_at) {
+    public void setUpdated_at(String updated_at) {
         this.updated_at = updated_at;
     }
 

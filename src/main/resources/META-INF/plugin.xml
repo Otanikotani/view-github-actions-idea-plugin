@@ -38,30 +38,23 @@
 
 
     <extensions defaultExtensionNs="com.intellij">
-        <projectService serviceImplementation="org.github.otanikotani.workflow.GitHubWorkflowToolWindowTabsManager"/>
+        <projectService serviceImplementation="org.github.otanikotani.workflow.GitHubWorkflowManager"/>
     </extensions>
 
-    <projectListeners>
-        <!--suppress PluginXmlValidity -->
-        <listener class="org.github.otanikotani.WorkflowsContext$ChangeListener"
-                  topic="git4idea.repo.GitRepositoryChangeListener"
-                  activeInHeadlessMode="false" activeInTestMode="false"/>
-    </projectListeners>
-
     <applicationListeners>
-        <listener class="org.github.otanikotani.workflow.GitHubWorkflowToolWindowTabsManager$AccountsListener"
+        <listener class="org.github.otanikotani.workflow.GitHubWorkflowManager$AccountsListener"
                   topic="org.jetbrains.plugins.github.authentication.accounts.AccountRemovedListener"
                   activeInHeadlessMode="false" activeInTestMode="false"/>
-        <listener class="org.github.otanikotani.workflow.GitHubWorkflowToolWindowTabsManager$AccountsListener"
+        <listener class="org.github.otanikotani.workflow.GitHubWorkflowManager$AccountsListener"
                   topic="org.jetbrains.plugins.github.authentication.accounts.AccountTokenChangedListener"
                   activeInHeadlessMode="false" activeInTestMode="false"/>
     </applicationListeners>                                                                                      >
 
     <projectListeners>
-        <listener class="org.github.otanikotani.workflow.GitHubWorkflowToolWindowTabsManager$RemoteUrlsListener"
+        <listener class="org.github.otanikotani.workflow.GitHubWorkflowManager$RemoteUrlsListener"
                   topic="com.intellij.dvcs.repo.VcsRepositoryMappingListener"
                   activeInHeadlessMode="false" activeInTestMode="false"/>
-        <listener class="org.github.otanikotani.workflow.GitHubWorkflowToolWindowTabsManager$RemoteUrlsListener"
+        <listener class="org.github.otanikotani.workflow.GitHubWorkflowManager$RemoteUrlsListener"
                   topic="git4idea.repo.GitRepositoryChangeListener"
                   activeInHeadlessMode="false" activeInTestMode="false"/>
 
@@ -69,7 +62,15 @@
 
 
     <actions>
-        <group id="GHWorkflows.ActionGroup" popup="false"/>
+        <group id="GHWorkflows.ActionGroup" popup="false">
+<!--            <action id="Github.Workflow.Timeline.Show"-->
+<!--                    class="org.jetbrains.plugins.github.pullrequest.action.GHPRShowTimelineAction"/>-->
+<!--            <reference id="Github.Open.In.Browser"/>-->
+
+            <action id="Github.Workflow.List.Reload"
+                    class="org.github.otanikotani.workflow.action.GitHubWorkflowReloadListAction"
+                    use-shortcut-of="Refresh"/>
+        </group>
 
         <action id="Github.View.Workflow" class="org.github.otanikotani.workflow.GithubViewWorkflowsAction">
             <add-to-group group-id="Git.Menu"/>

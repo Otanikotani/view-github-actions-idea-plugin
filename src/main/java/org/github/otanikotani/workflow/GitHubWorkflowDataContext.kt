@@ -2,6 +2,8 @@ package org.github.otanikotani.workflow
 
 import com.intellij.openapi.Disposable
 import org.github.otanikotani.api.GithubWorkflow
+import org.github.otanikotani.workflow.data.GitHubWorkflowListLoader
+import org.github.otanikotani.workflow.data.GitHubWorkflowSearchQueryHolder
 import org.jetbrains.plugins.github.api.GHRepositoryCoordinates
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount

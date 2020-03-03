@@ -1,4 +1,4 @@
-package org.github.otanikotani.workflow
+package org.github.otanikotani.workflow.data
 
 import org.jetbrains.plugins.github.api.data.GithubIssueState
 import org.jetbrains.plugins.github.api.data.request.search.GithubIssueSearchSort

@@ -13,6 +13,6 @@ class GithubViewWorkflowsAction :
   AbstractGithubUrlGroupingAction("View Pull Requests", null, AllIcons.Vcs.Vendors.Github) {
   override fun actionPerformed(e: AnActionEvent, project: Project, repository: GitRepository, remote: GitRemote, remoteUrl: String) {
     val remoteCoordinates = GitRemoteUrlCoordinates(remoteUrl, remote, repository)
-    project.service<GitHubWorkflowToolWindowTabsManager>().showTab(remoteCoordinates)
+    project.service<GitHubWorkflowManager>().showTab(remoteCoordinates)
   }
 }

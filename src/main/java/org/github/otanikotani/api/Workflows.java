@@ -1,5 +1,6 @@
 package org.github.otanikotani.api;
 
+import org.jetbrains.plugins.github.api.GHRepositoryPath;
 import org.jetbrains.plugins.github.api.GithubApiRequest;
 import org.jetbrains.plugins.github.api.GithubApiRequest.Get;
 import org.jetbrains.plugins.github.api.GithubApiRequests.Entity;
@@ -15,6 +16,13 @@ public class Workflows extends Entity {
     public GithubApiRequest<GithubWorkflows> getWorkflows(GithubServerPath server, String owner, String repo) {
         String url = String.format("%s%s/%s/%s/actions/workflows",
             server.toApiUrl(), getUrlSuffix(), owner, repo);
+        return new Get.Json<>(url, GithubWorkflows.class, null)
+            .withOperationName("get workflows");
+    }
+
+    public GithubApiRequest<GithubWorkflows> getWorkflows(GithubServerPath server, GHRepositoryPath repoPath) {
+        String url = String.format("%s%s/%s/%s/actions/workflows",
+            server.toApiUrl(), getUrlSuffix(), repoPath.getOwner(), repoPath.getRepository());
         return new Get.Json<>(url, GithubWorkflows.class, null)
             .withOperationName("get workflows");
     }

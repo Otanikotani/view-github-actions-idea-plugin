@@ -1,4 +1,4 @@
-package org.github.otanikotani.workflow
+package org.github.otanikotani.workflow.data
 
 import com.intellij.openapi.Disposable
 import org.github.otanikotani.api.GithubWorkflow

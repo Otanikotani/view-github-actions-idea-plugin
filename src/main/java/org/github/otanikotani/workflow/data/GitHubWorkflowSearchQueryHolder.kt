@@ -1,6 +1,7 @@
-package org.github.otanikotani.workflow
+package org.github.otanikotani.workflow.data
 
 import com.intellij.openapi.Disposable
+import org.github.otanikotani.workflow.data.GitHubWorkflowSearchQuery
 import org.jetbrains.annotations.CalledInAwt
 
 internal interface GitHubWorkflowSearchQueryHolder {

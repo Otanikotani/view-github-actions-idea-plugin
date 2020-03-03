@@ -17,6 +17,8 @@ import com.intellij.util.textCompletion.TextFieldWithCompletion
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
+import org.github.otanikotani.workflow.data.GitHubWorkflowSearchQuery
+import org.github.otanikotani.workflow.data.GitHubWorkflowSearchQueryHolder
 import org.jetbrains.plugins.github.api.data.GithubIssueState
 import org.jetbrains.plugins.github.api.data.request.search.GithubIssueSearchSort
 import org.jetbrains.plugins.github.util.GithubUIUtil

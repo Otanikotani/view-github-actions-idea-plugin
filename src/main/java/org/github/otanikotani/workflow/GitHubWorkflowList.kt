@@ -16,6 +16,7 @@ import com.intellij.util.ui.UIUtil
 import net.miginfocom.layout.CC
 import net.miginfocom.layout.LC
 import net.miginfocom.swing.MigLayout
+import org.github.otanikotani.workflow.action.GitHubWorkflowActionKeys
 import org.github.otanikotani.api.GithubWorkflow
 import java.awt.Component
 import java.awt.datatransfer.StringSelection
@@ -54,7 +55,7 @@ internal class GitHubWorkflowList(private val copyPasteManager: CopyPasteManager
 
     override fun getData(dataId: String): Any? = when {
         PlatformDataKeys.COPY_PROVIDER.`is`(dataId) -> this
-        GitHubWorkflowActionKeys.SELECTED_PULL_REQUEST.`is`(dataId) -> selectedValue
+        GitHubWorkflowActionKeys.SELECTED_WORKFLOW.`is`(dataId) -> selectedValue
         else -> null
     }
 
@@ -96,7 +97,7 @@ internal class GitHubWorkflowList(private val copyPasteManager: CopyPasteManager
                 foreground = primaryTextColor
             }
             info.apply {
-                text = "#${value.state} ${value.path} on ${DateFormatUtil.formatDate(value.updated_at)}"
+                text = "#${value.state} ${value.path}"
                 foreground = secondaryTextColor
             }
             return this

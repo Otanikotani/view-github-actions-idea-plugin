@@ -7,6 +7,8 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.ui.CollectionListModel
 import org.github.otanikotani.api.GithubWorkflow
+import org.github.otanikotani.workflow.data.GitHubWorkflowListLoaderImpl
+import org.github.otanikotani.workflow.data.GitHubWorkflowSearchQueryHolderImpl
 import org.jetbrains.annotations.CalledInBackground
 import org.jetbrains.plugins.github.api.GHRepositoryCoordinates
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
@@ -48,8 +50,7 @@ internal class GitHubWorkflowDataContextRepository(private val project: Project)
 
         val listModel = CollectionListModel<GithubWorkflow>()
         val searchHolder = GitHubWorkflowSearchQueryHolderImpl()
-        val listLoader = GitHubWorkflowListLoaderImpl(ProgressManager.getInstance(), requestExecutor, account.server, fullPath, listModel,
-            searchHolder)
+        val listLoader = GitHubWorkflowListLoaderImpl(ProgressManager.getInstance(), requestExecutor, fullPath, account.server, listModel, searchHolder)
 
 //        val dataLoader = GHWorkflowDataLoaderImpl {
 //            GHWorkflowDataProviderImpl(project, ProgressManager.getInstance(), Git.getInstance(), requestExecutor, gitRemoteCoordinates,

@@ -1,6 +1,6 @@
 package org.github.otanikotani.workflow
 
-class GitHubWorkflowListSelectionActionDataContext internal constructor(private val dataContext: GitHubWorkflowDataContext)
+class GitHubWorkflowListSelectionActionDataContext internal constructor(dataContext: GitHubWorkflowDataContext)
     : GitHubWorkflowActionDataContext {
 
     override val account = dataContext.account
