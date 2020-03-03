@@ -9,5 +9,11 @@ object GitHubWorkflowActionKeys {
     val ACTION_DATA_CONTEXT = DataKey.create<GitHubWorkflowActionDataContext>("org.github.otanikotani.workflow.action.datacontext")
 
     @JvmStatic
+    val RUN_ACTION_DATA_CONTEXT = DataKey.create<GitHubWorkflowActionDataContext>("org.github.otanikotani.workflowrun.action.datacontext")
+
+    @JvmStatic
     internal val SELECTED_WORKFLOW = DataKey.create<GitHubWorkflow>("org.github.otanikotani.workflow.action.list.selected")
+
+    @JvmStatic
+    internal val SELECTED_WORKFLOW_RUN = DataKey.create<GitHubWorkflow>("org.github.otanikotani.workflowrun.action.list.selected")
 }

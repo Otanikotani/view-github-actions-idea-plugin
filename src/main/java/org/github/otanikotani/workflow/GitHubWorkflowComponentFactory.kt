@@ -17,8 +17,10 @@ import com.intellij.ui.*
 import com.intellij.ui.components.JBPanelWithEmptyText
 import com.intellij.util.ui.UIUtil
 import org.github.otanikotani.api.GitHubWorkflow
+import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.workflow.action.GitHubWorkflowActionKeys
 import org.github.otanikotani.workflow.data.GitHubWorkflowListLoaderImpl
+import org.github.otanikotani.workflow.data.GitHubWorkflowRunListLoaderImpl
 import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
@@ -108,7 +110,9 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
     }
 
     private fun createContent(context: GitHubWorkflowDataContext, disposable: Disposable): JComponent {
-        val list = createWorkflowListComponent(context, disposable)
+        val workflowsList = createWorkflowListComponent(context, disposable)
+
+        val workflowRunsList = createWorkflowRunsListComponent(context, disposable)
 
 //        val dataProviderModel = createDataProviderModel(dataContext, listSelectionHolder, disposable)
 //
@@ -142,11 +146,9 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
             background = UIUtil.getListBackground()
             isOpaque = true
             isFocusCycleRoot = true
-            firstComponent = list
+            firstComponent = workflowsList
             secondComponent = OnePixelSplitter("GitHub.Workflows.Preview.Component", 0.5f).apply {
-                firstComponent = JBPanelWithEmptyText(null).apply {
-                    background = UIUtil.getListBackground()
-                }
+                firstComponent = workflowRunsList
                 secondComponent = JBPanelWithEmptyText(null).apply {
                     background = UIUtil.getListBackground()
                 }
@@ -170,7 +172,6 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
     private fun createWorkflowListComponent(context: GitHubWorkflowDataContext,
                                             disposable: Disposable): JComponent {
 
-        val listSelectionHolder = GitHubWorkflowsListSelectionHolderImpl()
         val listModel = CollectionListModel<GitHubWorkflow>()
 
         val list = GitHubWorkflowList(listModel).apply {
@@ -184,14 +185,53 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
                 override fun focusLost(e: FocusEvent?) {}
             })
 
-            installSelectionSaver(it, listSelectionHolder)
+            installWorkflowSelectionSaver(it)
         }
 
         val listLoader = GitHubWorkflowListLoaderImpl(ProgressManager.getInstance(), context.requestExecutor,
             context.gitHubRepositoryCoordinates,
             listModel)
 
+        //Cannot seem to have context menu, when right click, why?
         val listReloadAction = actionManager.getAction("Github.Workflow.List.Reload") as RefreshAction
+
+        return GitHubWorkflowListLoaderPanel(listLoader, listReloadAction, list).apply {
+            errorHandler = GitHubLoadingErrorHandlerImpl {
+                listLoader.reset()
+            }
+        }.also {
+            listReloadAction.registerCustomShortcutSet(it, disposable)
+            Disposer.register(disposable, Disposable {
+                Disposer.dispose(it)
+            })
+        }
+    }
+
+    private fun createWorkflowRunsListComponent(context: GitHubWorkflowDataContext,
+                                            disposable: Disposable): JComponent {
+
+        val listModel = CollectionListModel<GitHubWorkflowRun>()
+
+        val list = GitHubWorkflowRunList(listModel).apply {
+            emptyText.clear()
+        }.also {
+            it.addFocusListener(object : FocusListener {
+                override fun focusGained(e: FocusEvent?) {
+                    if (it.selectedIndex < 0 && !it.isEmpty) it.selectedIndex = 0
+                }
+
+                override fun focusLost(e: FocusEvent?) {}
+            })
+
+            installWorkflowRunSelectionSaver(it)
+        }
+
+        val listLoader = GitHubWorkflowRunListLoaderImpl(ProgressManager.getInstance(), context.requestExecutor,
+            context.gitHubRepositoryCoordinates,
+            listModel)
+
+        //Cannot seem to have context menu, when right click, why?
+        val listReloadAction = actionManager.getAction("Github.Workflow.Run.List.Reload") as RefreshAction
 
         return GitHubWorkflowListLoaderPanel(listLoader, listReloadAction, list).apply {
             errorHandler = GitHubLoadingErrorHandlerImpl {
@@ -249,7 +289,38 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
 //        }
 //    }
 
-    private fun installSelectionSaver(list: GitHubWorkflowList, listSelectionHolder: GitHubWorkflowsListSelectionHolder) {
+    private fun installWorkflowSelectionSaver(list: GitHubWorkflowList) {
+        val listSelectionHolder = GitHubWorkflowsListSelectionHolderImpl()
+
+        var savedSelectionNumber: Long? = null
+
+        list.selectionModel.addListSelectionListener { e: ListSelectionEvent ->
+            if (!e.valueIsAdjusting) {
+                val selectedIndex = list.selectedIndex
+                if (selectedIndex >= 0 && selectedIndex < list.model.size) {
+                    listSelectionHolder.selectionId = list.model.getElementAt(selectedIndex).id
+                    savedSelectionNumber = null
+                }
+            }
+        }
+
+        list.model.addListDataListener(object : ListDataListener {
+            override fun intervalAdded(e: ListDataEvent) {
+                if (e.type == ListDataEvent.INTERVAL_ADDED)
+                    (e.index0..e.index1).find { list.model.getElementAt(it).id == savedSelectionNumber }
+                        ?.run { ApplicationManager.getApplication().invokeLater { ScrollingUtil.selectItem(list, this) } }
+            }
+
+            override fun contentsChanged(e: ListDataEvent) {}
+            override fun intervalRemoved(e: ListDataEvent) {
+                if (e.type == ListDataEvent.INTERVAL_REMOVED) savedSelectionNumber = listSelectionHolder.selectionId
+            }
+        })
+    }
+
+    private fun installWorkflowRunSelectionSaver(list: GitHubWorkflowRunList) {
+        val listSelectionHolder = GitHubWorkflowsListSelectionHolderImpl()
+
         var savedSelectionNumber: Long? = null
 
         list.selectionModel.addListSelectionListener { e: ListSelectionEvent ->

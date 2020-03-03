@@ -38,7 +38,7 @@ internal class GitHubWorkflowListLoaderPanel(listLoader: GitHubWorkflowListLoade
     }
 
     override fun displayEmptyStatus(emptyText: StatusText) {
-        emptyText.text = "No workflows loaded. "
+        emptyText.text = "Nothing loaded. "
         emptyText.appendSecondaryText("Refresh", SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES) {
             listLoader.reset()
         }

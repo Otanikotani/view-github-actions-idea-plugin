@@ -4,6 +4,7 @@ import org.github.otanikotani.workflow.GitHubRepositoryCoordinates
 import org.jetbrains.plugins.github.api.GithubApiRequest
 import org.jetbrains.plugins.github.api.GithubApiRequests
 import org.jetbrains.plugins.github.api.GithubServerPath
+import org.jetbrains.plugins.github.api.data.GithubResponsePage
 import org.jetbrains.plugins.github.api.data.request.GithubRequestPagination
 import org.jetbrains.plugins.github.api.util.GithubApiPagesLoader
 import org.jetbrains.plugins.github.api.util.GithubApiSearchQueryBuilder
@@ -32,25 +33,25 @@ data class GitHubWorkflowRuns(
 )
 
 data class GitHubWorkflowRun(
-    var id: Long,
-    var node_id: String,
-    var head_branch: String,
-    var head_sha: String,
-    var run_number: Int,
-    var event: String,
-    var status: String,
-    var conclusion: String,
-    var url: String,
-    var html_url: String,
-    var created_at: String?,
-    var updated_at: String?,
-    var jobs_url: String,
-    var logs_url: String,
-    var check_suite_url: String,
-    var artifacts_url: String,
-    var cancel_url: String,
-    var rerun_url: String,
-    var workflow_url: String
+    val id: Long,
+    val node_id: String,
+    val head_branch: String,
+    val head_sha: String,
+    val run_number: Int,
+    val event: String,
+    val status: String,
+    val conclusion: String,
+    val url: String,
+    val html_url: String,
+    val created_at: String?,
+    val updated_at: String?,
+    val jobs_url: String,
+    val logs_url: String,
+    val check_suite_url: String,
+    val artifacts_url: String,
+    val cancel_url: String,
+    val rerun_url: String,
+    val workflow_url: String
 )
 
 
@@ -67,24 +68,16 @@ object Workflows : GithubApiRequests.Entity("/repos") {
 
     @JvmStatic
     fun getWorkflowRuns(coordinates: GitHubRepositoryCoordinates,
-                        event: String?,
-                        status: String?,
-                        branch: String?,
-                        actor: String?) =
-        GithubApiPagesLoader.Request(get(coordinates, event, status, branch, actor), ::get)
-
-    @JvmStatic
-    fun get(coordinates: GitHubRepositoryCoordinates,
-            event: String?,
-            status: String?,
-            branch: String?,
-            actor: String?,
-            pagination: GithubRequestPagination? = null) =
-        get(GithubApiRequests.getUrl(coordinates.serverPath,
+            event: String? = null,
+            status: String? = null,
+            branch: String? = null,
+            actor: String? = null,
+            pagination: GithubRequestPagination? = null): GithubApiRequest<GitHubWorkflowRuns> {
+        val url = GithubApiRequests.getUrl(coordinates.serverPath,
             urlSuffix,
-            coordinates.repositoryPath.toString(),
-            "actions",
-            "runs",
+            "/" + coordinates.repositoryPath.toString(),
+            "/actions",
+            "/runs",
             GithubApiUrlQueryBuilder.urlQuery {
                 param("q", GithubApiSearchQueryBuilder.searchQuery {
                     qualifier("event", event)
@@ -93,18 +86,11 @@ object Workflows : GithubApiRequests.Entity("/repos") {
                     qualifier("actor", actor)
                 })
                 param(pagination)
-            }))
+            })
+        return get(url)
+    }
 
     @JvmStatic
-    fun get(server: GithubServerPath, query: String, pagination: GithubRequestPagination? = null) =
-        get(GithubApiRequests.getUrl(server, GithubApiRequests.Search.urlSuffix, GithubApiRequests.Search.Issues.urlSuffix,
-            GithubApiUrlQueryBuilder.urlQuery {
-                param("q", query)
-                param(pagination)
-            }))
-
-
-    @JvmStatic
-    fun get(url: String) = GithubApiRequest.Get.jsonSearchPage<GitHubWorkflowRun>(url)
+    fun get(url: String) = GithubApiRequest.Get.json<GitHubWorkflowRuns>(url)
         .withOperationName("search workflow runs")
 }

@@ -7,18 +7,20 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.ui.CollectionListModel
 import com.intellij.util.EventDispatcher
 import org.github.otanikotani.api.GitHubWorkflow
+import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.api.Workflows
 import org.github.otanikotani.workflow.GitHubRepositoryCoordinates
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
+import org.jetbrains.plugins.github.api.util.GithubApiPagesLoader
 import org.jetbrains.plugins.github.pullrequest.data.GHListLoaderBase
 import org.jetbrains.plugins.github.pullrequest.ui.SimpleEventListener
 import kotlin.properties.Delegates
 
-internal class GitHubWorkflowListLoaderImpl(progressManager: ProgressManager,
+internal class GitHubWorkflowRunListLoaderImpl(progressManager: ProgressManager,
                                             private val requestExecutor: GithubApiRequestExecutor,
                                             private val gitHubRepositoryCoordinates: GitHubRepositoryCoordinates,
-                                            private val listModel: CollectionListModel<GitHubWorkflow>)
-    : GHListLoaderBase<GitHubWorkflow>(progressManager),
+                                            private val listModel: CollectionListModel<GitHubWorkflowRun>)
+    : GHListLoaderBase<GitHubWorkflowRun>(progressManager),
     GitHubWorkflowListLoader {
 
     override val hasLoadedItems: Boolean
@@ -41,13 +43,14 @@ internal class GitHubWorkflowListLoaderImpl(progressManager: ProgressManager,
         Disposer.register(this, resetDisposable)
     }
 
-    override fun handleResult(list: List<GitHubWorkflow>) {
+    override fun handleResult(list: List<GitHubWorkflowRun>) {
         listModel.add(list)
     }
 
     override fun reset() {
         listModel.removeAll()
         loaded = false
+
         outdated = false
 
         Disposer.dispose(resetDisposable)
@@ -64,9 +67,9 @@ internal class GitHubWorkflowListLoaderImpl(progressManager: ProgressManager,
     //This should not be needed, it is weird that originally it requires error != null to be able to load data
     override fun canLoadMore() = !loading && !loaded
 
-    override fun doLoadMore(indicator: ProgressIndicator): List<GitHubWorkflow>? {
-        val request = Workflows.getWorkflows(gitHubRepositoryCoordinates)
-        val result = requestExecutor.execute(request).workflows
+    override fun doLoadMore(indicator: ProgressIndicator): List<GitHubWorkflowRun>? {
+        val request = Workflows.getWorkflowRuns(gitHubRepositoryCoordinates)
+        val result = requestExecutor.execute(indicator, request).workflow_runs
         loaded = true
         return result
     }
