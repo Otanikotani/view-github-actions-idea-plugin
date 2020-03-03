@@ -108,14 +108,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
     }
 
     private fun createContent(context: GitHubWorkflowDataContext, disposable: Disposable): JComponent {
-        val listSelectionHolder = GitHubWorkflowsListSelectionHolderImpl()
-        val actionDataContext = GitHubWorkflowListSelectionActionDataContext(context)
-        val listModel = CollectionListModel<GithubWorkflow>()
-        val listLoader = GitHubWorkflowListLoaderImpl(ProgressManager.getInstance(), context.requestExecutor,
-            context.gitHubRepositoryCoordinates,
-            listModel)
-
-        val list = createListComponent(listSelectionHolder, listModel, listLoader, disposable)
+        val list = createListComponent(context, disposable)
 
 //        val dataProviderModel = createDataProviderModel(dataContext, listSelectionHolder, disposable)
 //
@@ -142,6 +135,8 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
 //                "Pull request does not contain any changes")).apply {
 //            errorHandler = GHLoadingErrorHandlerImpl() { dataProviderModel.value?.reloadChanges() }
 //        }
+
+        val actionDataContext = GitHubWorkflowListSelectionActionDataContext(context)
 
         return OnePixelSplitter("GitHub.Workflows.Component", 0.33f).apply {
             background = UIUtil.getListBackground()
@@ -172,10 +167,12 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
         }
     }
 
-    private fun createListComponent(listSelectionHolder: GitHubWorkflowsListSelectionHolder,
-                                    listModel: CollectionListModel<GithubWorkflow>,
-                                    listLoader: GitHubWorkflowListLoaderImpl,
+    private fun createListComponent(context: GitHubWorkflowDataContext,
                                     disposable: Disposable): JComponent {
+
+        val listSelectionHolder = GitHubWorkflowsListSelectionHolderImpl()
+        val listModel = CollectionListModel<GithubWorkflow>()
+
         val list = GitHubWorkflowList(listModel).apply {
             emptyText.clear()
         }.also {
@@ -190,20 +187,23 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
             installSelectionSaver(it, listSelectionHolder)
         }
 
+        val listLoader = GitHubWorkflowListLoaderImpl(ProgressManager.getInstance(), context.requestExecutor,
+            context.gitHubRepositoryCoordinates,
+            listModel)
+
         val listReloadAction = actionManager.getAction("Github.Workflow.List.Reload") as RefreshAction
-        val loaderPanel = GitHubWorkflowListLoaderPanel(listLoader, listReloadAction, list).apply {
+
+        return GitHubWorkflowListLoaderPanel(listLoader, listReloadAction, list).apply {
             errorHandler = GitHubLoadingErrorHandlerImpl {
                 listLoader.reset()
             }
         }.also {
             listReloadAction.registerCustomShortcutSet(it, disposable)
+        }.also {
+            Disposer.register(disposable, Disposable {
+                Disposer.dispose(it)
+            })
         }
-
-        Disposer.register(disposable, Disposable {
-            Disposer.dispose(loaderPanel)
-        })
-
-        return loaderPanel
     }
 
 //    private fun createDetailsPanel(dataContext: GHWorkflowDataContext,
