@@ -11,11 +11,5 @@ internal interface GitHubWorkflowListLoader : GHListLoader {
     val outdated: Boolean
 
     @CalledInAwt
-    fun reloadData(request: CompletableFuture<out GithubWorkflow>)
-
-    @CalledInAwt
-    fun findData(id: Long): GithubWorkflow?
-
-    @CalledInAwt
     fun addOutdatedStateChangeListener(disposable: Disposable, listener: () -> Unit)
 }

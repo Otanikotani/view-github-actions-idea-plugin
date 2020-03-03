@@ -108,7 +108,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
     }
 
     private fun createContent(context: GitHubWorkflowDataContext, disposable: Disposable): JComponent {
-        val list = createListComponent(context, disposable)
+        val list = createWorkflowListComponent(context, disposable)
 
 //        val dataProviderModel = createDataProviderModel(dataContext, listSelectionHolder, disposable)
 //
@@ -167,8 +167,8 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
         }
     }
 
-    private fun createListComponent(context: GitHubWorkflowDataContext,
-                                    disposable: Disposable): JComponent {
+    private fun createWorkflowListComponent(context: GitHubWorkflowDataContext,
+                                            disposable: Disposable): JComponent {
 
         val listSelectionHolder = GitHubWorkflowsListSelectionHolderImpl()
         val listModel = CollectionListModel<GithubWorkflow>()

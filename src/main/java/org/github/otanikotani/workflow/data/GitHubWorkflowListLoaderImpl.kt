@@ -59,25 +59,12 @@ internal class GitHubWorkflowListLoaderImpl(progressManager: ProgressManager,
         loadMore()
     }
 
-    override fun reloadData(request: CompletableFuture<out GithubWorkflow>) {
-        request.handleOnEdt(resetDisposable) { result, error ->
-            if (error == null && result != null) updateData(result)
-        }
-    }
-
-    override fun findData(id: Long) = listModel.items.find { it.id == id }
-
-    private fun updateData(workflow: GithubWorkflow) {
-        val index = listModel.items.indexOfFirst { it.id == workflow.id }
-        listModel.setElementAt(workflow, index)
-    }
-
     override fun addOutdatedStateChangeListener(disposable: Disposable, listener: () -> Unit) =
         SimpleEventListener.addDisposableListener(outdatedStateEventDispatcher, disposable, listener)
 
 
     //This should not be needed, it is weird that originally it requires error != null to be able to load data
-    override fun canLoadMore() = !loading
+    override fun canLoadMore() = !loading && (error == null)
 
     override fun doLoadMore(indicator: ProgressIndicator): List<GithubWorkflow>? {
         val request = Workflows().getWorkflows(gitHubRepositoryCoordinates)
