@@ -11,7 +11,7 @@ import org.jetbrains.plugins.github.AbstractGithubUrlGroupingAction
 import org.jetbrains.plugins.github.util.GitRemoteUrlCoordinates
 
 class GithubViewWorkflowsAction :
-  AbstractGithubUrlGroupingAction("View Pull Requests", null, AllIcons.Vcs.Vendors.Github) {
+  AbstractGithubUrlGroupingAction("View Workflows", null, AllIcons.Vcs.Vendors.Github) {
   override fun actionPerformed(e: AnActionEvent, project: Project, repository: GitRepository, remote: GitRemote, remoteUrl: String) {
     val remoteCoordinates = GitRemoteUrlCoordinates(remoteUrl, remote, repository)
     project.service<GitHubWorkflowManager>().showTab(remoteCoordinates)
