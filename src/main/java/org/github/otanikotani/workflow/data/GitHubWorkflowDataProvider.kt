@@ -1,17 +1,10 @@
 package org.github.otanikotani.workflow.data
 
-import org.jetbrains.annotations.CalledInAwt
+import org.github.otanikotani.api.GitHubWorkflow
+import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 
 interface GitHubWorkflowDataProvider {
-    val number: Long
+    val url: String
 
-    @CalledInAwt
-    fun reloadDetails()
-
-    @CalledInAwt
-    fun reloadChanges()
-
-    @CalledInAwt
-    fun reloadReviewThreads()
-
+    fun getWorkflow(requestExecutor: GithubApiRequestExecutor): GitHubWorkflow
 }

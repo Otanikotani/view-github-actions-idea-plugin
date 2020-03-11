@@ -75,11 +75,11 @@ class GitHubWorkflowRunList(model: ListModel<GitHubWorkflowRun>)
             val secondaryTextColor = ListUiUtil.WithTallRow.secondaryForeground(list, isSelected)
 
             title.apply {
-                text = value.workflow_url
+                text = value.workflowName
                 foreground = primaryTextColor
             }
             info.apply {
-                text = "#${value.status} ${value.html_url}"
+                text = value.status
                 foreground = secondaryTextColor
             }
             return this

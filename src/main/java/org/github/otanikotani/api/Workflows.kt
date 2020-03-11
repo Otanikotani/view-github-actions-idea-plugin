@@ -3,10 +3,7 @@ package org.github.otanikotani.api
 import org.github.otanikotani.workflow.GitHubRepositoryCoordinates
 import org.jetbrains.plugins.github.api.GithubApiRequest
 import org.jetbrains.plugins.github.api.GithubApiRequests
-import org.jetbrains.plugins.github.api.GithubServerPath
-import org.jetbrains.plugins.github.api.data.GithubResponsePage
 import org.jetbrains.plugins.github.api.data.request.GithubRequestPagination
-import org.jetbrains.plugins.github.api.util.GithubApiPagesLoader
 import org.jetbrains.plugins.github.api.util.GithubApiSearchQueryBuilder
 import org.jetbrains.plugins.github.api.util.GithubApiUrlQueryBuilder
 
@@ -51,7 +48,8 @@ data class GitHubWorkflowRun(
     val artifacts_url: String,
     val cancel_url: String,
     val rerun_url: String,
-    val workflow_url: String
+    val workflow_url: String,
+    var workflowName: String?
 )
 
 
@@ -64,6 +62,12 @@ object Workflows : GithubApiRequests.Entity("/repos") {
             serverUrl, urlSuffix, repoPath.owner, repoPath.repository)
         return GithubApiRequest.Get.Json(url, GitHubWorkflows::class.java, null)
             .withOperationName("get workflows")
+    }
+
+    @JvmStatic
+    fun getWorkflowByUrl(url: String): GithubApiRequest<GitHubWorkflow> {
+        return GithubApiRequest.Get.Json(url, GitHubWorkflow::class.java, null)
+            .withOperationName("get workflow")
     }
 
     @JvmStatic

@@ -3,6 +3,7 @@ package org.github.otanikotani.workflow
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
+import org.github.otanikotani.workflow.data.GitHubWorkflowDataLoaderImpl
 import org.jetbrains.annotations.CalledInBackground
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
@@ -22,17 +23,15 @@ internal class GitHubWorkflowDataContextRepository {
 
         val repositoryCoordinates = GitHubRepositoryCoordinates(account.server, fullPath)
 
-//        val dataLoader = GHWorkflowDataLoaderImpl {
-//            GHWorkflowDataProviderImpl(project, ProgressManager.getInstance(), Git.getInstance(), requestExecutor, gitRemoteCoordinates,
-//                repositoryCoordinates, it)
-//        }
-//        requestExecutor.addListener(dataLoader) {
-//            dataLoader.invalidateAllData()
-//        }
+        val githubWorkflowDataLoader = GitHubWorkflowDataLoaderImpl(requestExecutor)
+        requestExecutor.addListener(githubWorkflowDataLoader) {
+            githubWorkflowDataLoader.invalidateAllData()
+        }
 
         return GitHubWorkflowDataContext(
             gitRemoteCoordinates,
             repositoryCoordinates,
+            githubWorkflowDataLoader,
             account,
             requestExecutor)
     }

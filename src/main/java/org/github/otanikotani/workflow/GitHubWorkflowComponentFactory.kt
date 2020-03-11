@@ -110,8 +110,6 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
     }
 
     private fun createContent(context: GitHubWorkflowDataContext, disposable: Disposable): JComponent {
-        val workflowsList = createWorkflowListComponent(context, disposable)
-
         val workflowRunsList = createWorkflowRunsListComponent(context, disposable)
 
 //        val dataProviderModel = createDataProviderModel(dataContext, listSelectionHolder, disposable)
@@ -142,16 +140,13 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
 
         val actionDataContext = GitHubWorkflowListSelectionActionDataContext(context)
 
-        return OnePixelSplitter("GitHub.Workflows.Component", 0.33f).apply {
+        return OnePixelSplitter("GitHub.Workflows.Component", 0.5f).apply {
             background = UIUtil.getListBackground()
             isOpaque = true
             isFocusCycleRoot = true
-            firstComponent = workflowsList
-            secondComponent = OnePixelSplitter("GitHub.Workflows.Preview.Component", 0.5f).apply {
-                firstComponent = workflowRunsList
-                secondComponent = JBPanelWithEmptyText(null).apply {
-                    background = UIUtil.getListBackground()
-                }
+            firstComponent = workflowRunsList
+            secondComponent = JBPanelWithEmptyText(null).apply {
+                background = UIUtil.getListBackground()
             }
 //                .also {
 //                (actionManager.getAction("GitHub.Workflow.Details.Reload") as RefreshAction).registerCustomShortcutSet(it, disposable)
@@ -166,44 +161,6 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
                 }
 
             }
-        }
-    }
-
-    private fun createWorkflowListComponent(context: GitHubWorkflowDataContext,
-                                            disposable: Disposable): JComponent {
-
-        val listModel = CollectionListModel<GitHubWorkflow>()
-
-        val list = GitHubWorkflowList(listModel).apply {
-            emptyText.clear()
-        }.also {
-            it.addFocusListener(object : FocusListener {
-                override fun focusGained(e: FocusEvent?) {
-                    if (it.selectedIndex < 0 && !it.isEmpty) it.selectedIndex = 0
-                }
-
-                override fun focusLost(e: FocusEvent?) {}
-            })
-
-            installWorkflowSelectionSaver(it)
-        }
-
-        val listLoader = GitHubWorkflowListLoaderImpl(ProgressManager.getInstance(), context.requestExecutor,
-            context.gitHubRepositoryCoordinates,
-            listModel)
-
-        //Cannot seem to have context menu, when right click, why?
-        val listReloadAction = actionManager.getAction("Github.Workflow.List.Reload") as RefreshAction
-
-        return GitHubWorkflowListLoaderPanel(listLoader, listReloadAction, list).apply {
-            errorHandler = GitHubLoadingErrorHandlerImpl {
-                listLoader.reset()
-            }
-        }.also {
-            listReloadAction.registerCustomShortcutSet(it, disposable)
-            Disposer.register(disposable, Disposable {
-                Disposer.dispose(it)
-            })
         }
     }
 
@@ -228,6 +185,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
 
         val listLoader = GitHubWorkflowRunListLoaderImpl(ProgressManager.getInstance(), context.requestExecutor,
             context.gitHubRepositoryCoordinates,
+            context.gitHubWorkflowDataLoader,
             listModel)
 
         //Cannot seem to have context menu, when right click, why?

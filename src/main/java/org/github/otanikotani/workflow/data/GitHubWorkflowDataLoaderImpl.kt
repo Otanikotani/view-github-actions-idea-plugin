@@ -4,19 +4,22 @@ import com.google.common.cache.CacheBuilder
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.runInEdt
 import com.intellij.util.EventDispatcher
+import org.github.otanikotani.api.GitHubWorkflow
+import org.github.otanikotani.api.Workflows
 import org.jetbrains.annotations.CalledInAwt
+import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import java.util.*
 
-internal class GitHubWorkflowDataLoaderImpl(private val dataProviderFactory: (Long) -> GitHubWorkflowDataProvider)
+internal class GitHubWorkflowDataLoaderImpl(private val requestExecutor: GithubApiRequestExecutor)
     : GitHubWorkflowDataLoader {
 
     private var isDisposed = false
     private val cache = CacheBuilder.newBuilder()
-        .removalListener<Long, GitHubWorkflowDataProvider> {
+        .removalListener<String, GitHubWorkflow> {
             runInEdt { invalidationEventDispatcher.multicaster.providerChanged(it.key) }
         }
-        .maximumSize(5)
-        .build<Long, GitHubWorkflowDataProvider>()
+        .maximumSize(200)
+        .build<String, GitHubWorkflow>()
 
     private val invalidationEventDispatcher = EventDispatcher.create(DataInvalidatedListener::class.java)
 
@@ -25,24 +28,20 @@ internal class GitHubWorkflowDataLoaderImpl(private val dataProviderFactory: (Lo
         cache.invalidateAll()
     }
 
-    @CalledInAwt
-    override fun getDataProvider(number: Long): GitHubWorkflowDataProvider {
-        if (isDisposed) throw IllegalStateException("Already disposed")
-
-        return cache.get(number) {
-            dataProviderFactory(number)
-        }
-    }
-
-    @CalledInAwt
-    override fun findDataProvider(number: Long): GitHubWorkflowDataProvider? = cache.getIfPresent(number)
-
-    override fun addInvalidationListener(disposable: Disposable, listener: (Long) -> Unit) =
+    override fun addInvalidationListener(disposable: Disposable, listener: (String) -> Unit) =
         invalidationEventDispatcher.addListener(object : DataInvalidatedListener {
-            override fun providerChanged(pullRequestNumber: Long) {
-                listener(pullRequestNumber)
+            override fun providerChanged(workflowUrl: String) {
+                listener(workflowUrl)
             }
         }, disposable)
+
+    override fun getWorkflow(url: String): GitHubWorkflow {
+        if (isDisposed) throw IllegalStateException("Already disposed")
+        return cache.get(url) {
+            val request = Workflows.getWorkflowByUrl(url)
+            requestExecutor.execute(request)
+        }
+    }
 
     override fun dispose() {
         invalidateAllData()
@@ -50,6 +49,6 @@ internal class GitHubWorkflowDataLoaderImpl(private val dataProviderFactory: (Lo
     }
 
     private interface DataInvalidatedListener : EventListener {
-        fun providerChanged(pullRequestNumber: Long)
+        fun providerChanged(workflowUrl: String)
     }
 }

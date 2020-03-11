@@ -6,20 +6,19 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.CollectionListModel
 import com.intellij.util.EventDispatcher
-import org.github.otanikotani.api.GitHubWorkflow
 import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.api.Workflows
 import org.github.otanikotani.workflow.GitHubRepositoryCoordinates
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
-import org.jetbrains.plugins.github.api.util.GithubApiPagesLoader
 import org.jetbrains.plugins.github.pullrequest.data.GHListLoaderBase
 import org.jetbrains.plugins.github.pullrequest.ui.SimpleEventListener
 import kotlin.properties.Delegates
 
 internal class GitHubWorkflowRunListLoaderImpl(progressManager: ProgressManager,
-                                            private val requestExecutor: GithubApiRequestExecutor,
-                                            private val gitHubRepositoryCoordinates: GitHubRepositoryCoordinates,
-                                            private val listModel: CollectionListModel<GitHubWorkflowRun>)
+                                               private val requestExecutor: GithubApiRequestExecutor,
+                                               private val gitHubRepositoryCoordinates: GitHubRepositoryCoordinates,
+                                               private val gitHubWorkflowDataLoader: GitHubWorkflowDataLoader,
+                                               private val listModel: CollectionListModel<GitHubWorkflowRun>)
     : GHListLoaderBase<GitHubWorkflowRun>(progressManager),
     GitHubWorkflowListLoader {
 
@@ -70,6 +69,10 @@ internal class GitHubWorkflowRunListLoaderImpl(progressManager: ProgressManager,
     override fun doLoadMore(indicator: ProgressIndicator): List<GitHubWorkflowRun>? {
         val request = Workflows.getWorkflowRuns(gitHubRepositoryCoordinates)
         val result = requestExecutor.execute(indicator, request).workflow_runs
+
+        result.forEach {
+            it.workflowName = gitHubWorkflowDataLoader.getWorkflow(it.workflow_url).name
+        }
         loaded = true
         return result
     }
