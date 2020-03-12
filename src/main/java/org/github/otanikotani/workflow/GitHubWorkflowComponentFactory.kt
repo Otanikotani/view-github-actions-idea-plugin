@@ -247,34 +247,34 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
 //        }
 //    }
 
-    private fun installWorkflowSelectionSaver(list: GitHubWorkflowList) {
-        val listSelectionHolder = GitHubWorkflowsListSelectionHolderImpl()
-
-        var savedSelectionNumber: Long? = null
-
-        list.selectionModel.addListSelectionListener { e: ListSelectionEvent ->
-            if (!e.valueIsAdjusting) {
-                val selectedIndex = list.selectedIndex
-                if (selectedIndex >= 0 && selectedIndex < list.model.size) {
-                    listSelectionHolder.selectionId = list.model.getElementAt(selectedIndex).id
-                    savedSelectionNumber = null
-                }
-            }
-        }
-
-        list.model.addListDataListener(object : ListDataListener {
-            override fun intervalAdded(e: ListDataEvent) {
-                if (e.type == ListDataEvent.INTERVAL_ADDED)
-                    (e.index0..e.index1).find { list.model.getElementAt(it).id == savedSelectionNumber }
-                        ?.run { ApplicationManager.getApplication().invokeLater { ScrollingUtil.selectItem(list, this) } }
-            }
-
-            override fun contentsChanged(e: ListDataEvent) {}
-            override fun intervalRemoved(e: ListDataEvent) {
-                if (e.type == ListDataEvent.INTERVAL_REMOVED) savedSelectionNumber = listSelectionHolder.selectionId
-            }
-        })
-    }
+//    private fun installWorkflowSelectionSaver(list: GitHubWorkflowList) {
+//        val listSelectionHolder = GitHubWorkflowsListSelectionHolderImpl()
+//
+//        var savedSelectionNumber: Long? = null
+//
+//        list.selectionModel.addListSelectionListener { e: ListSelectionEvent ->
+//            if (!e.valueIsAdjusting) {
+//                val selectedIndex = list.selectedIndex
+//                if (selectedIndex >= 0 && selectedIndex < list.model.size) {
+//                    listSelectionHolder.selectionId = list.model.getElementAt(selectedIndex).id
+//                    savedSelectionNumber = null
+//                }
+//            }
+//        }
+//
+//        list.model.addListDataListener(object : ListDataListener {
+//            override fun intervalAdded(e: ListDataEvent) {
+//                if (e.type == ListDataEvent.INTERVAL_ADDED)
+//                    (e.index0..e.index1).find { list.model.getElementAt(it).id == savedSelectionNumber }
+//                        ?.run { ApplicationManager.getApplication().invokeLater { ScrollingUtil.selectItem(list, this) } }
+//            }
+//
+//            override fun contentsChanged(e: ListDataEvent) {}
+//            override fun intervalRemoved(e: ListDataEvent) {
+//                if (e.type == ListDataEvent.INTERVAL_REMOVED) savedSelectionNumber = listSelectionHolder.selectionId
+//            }
+//        })
+//    }
 
     private fun installWorkflowRunSelectionSaver(list: GitHubWorkflowRunList) {
         val listSelectionHolder = GitHubWorkflowsListSelectionHolderImpl()
