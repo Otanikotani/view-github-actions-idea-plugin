@@ -3,24 +3,26 @@ package org.github.otanikotani.workflow
 import com.intellij.ide.DataManager
 import com.intellij.ide.actions.RefreshAction
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ui.componentsList.components.ScrollablePanel
 import com.intellij.openapi.ui.Splitter
+import com.intellij.openapi.ui.VerticalFlowLayout
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.ui.*
 import com.intellij.ui.components.JBPanelWithEmptyText
+import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
-import org.github.otanikotani.api.GitHubWorkflow
-import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.workflow.action.GitHubWorkflowActionKeys
-import org.github.otanikotani.workflow.data.GitHubWorkflowListLoaderImpl
-import org.github.otanikotani.workflow.data.GitHubWorkflowRunListLoaderImpl
+import org.github.otanikotani.workflow.data.GitHubWorkflowRunDataProvider
 import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
@@ -28,6 +30,7 @@ import org.jetbrains.plugins.github.pullrequest.config.GithubPullRequestsProject
 import org.jetbrains.plugins.github.pullrequest.ui.GHCompletableFutureLoadingModel
 import org.jetbrains.plugins.github.pullrequest.ui.GHLoadingModel
 import org.jetbrains.plugins.github.pullrequest.ui.GHLoadingPanel
+import org.jetbrains.plugins.github.ui.util.SingleValueModel
 import org.jetbrains.plugins.github.util.GitRemoteUrlCoordinates
 import org.jetbrains.plugins.github.util.LazyCancellableBackgroundProcessValue
 import java.awt.BorderLayout
@@ -110,44 +113,29 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
     }
 
     private fun createContent(context: GitHubWorkflowDataContext, disposable: Disposable): JComponent {
-        val workflowRunsList = createWorkflowRunsListComponent(context, disposable)
+        val listSelectionHolder = GitHubWorkflowRunListSelectionHolderImpl()
+        val workflowRunsList = createWorkflowRunsListComponent(context, listSelectionHolder, disposable)
 
-//        val dataProviderModel = createDataProviderModel(dataContext, listSelectionHolder, disposable)
-//
-//        val detailsLoadingModel = createDetailsLoadingModel(dataProviderModel, disposable)
-//        val detailsModel = createValueModel(detailsLoadingModel)
-//
-//        val detailsPanel = createDetailsPanel(dataContext, detailsModel, avatarIconsProviderFactory, disposable)
-//        val detailsLoadingPanel = GHLoadingPanel(detailsLoadingModel, detailsPanel, disposable,
-//            GHLoadingPanel.EmptyTextBundle.Simple("Select pull request to view details",
-//                "Can't load details")).apply {
-//            errorHandler = GHLoadingErrorHandlerImpl() { dataProviderModel.value?.reloadDetails() }
-//        }
-//
-//        val changesModel = GHPRChangesModelImpl(project)
-//        val diffHelper = GHPRChangesDiffHelperImpl(project, dataContext.reviewService,
-//            avatarIconsProviderFactory, dataContext.securityService.currentUser)
-//        val changesLoadingModel = createChangesLoadingModel(changesModel, diffHelper,
-//            dataProviderModel, projectUiSettings, disposable)
-//        val changesBrowser = GHPRChangesBrowser(changesModel, diffHelper, project)
-//
-//        val changesLoadingPanel = GHLoadingPanel(changesLoadingModel, changesBrowser, disposable,
-//            GHLoadingPanel.EmptyTextBundle.Simple("Select pull request to view changes",
-//                "Can't load changes",
-//                "Pull request does not contain any changes")).apply {
-//            errorHandler = GHLoadingErrorHandlerImpl() { dataProviderModel.value?.reloadChanges() }
-//        }
+        val dataProviderModel = createDataProviderModel(context, listSelectionHolder, disposable)
 
-        val actionDataContext = GitHubWorkflowListSelectionActionDataContext(context)
+        val logLoadingModel = createLogLoadingModel(dataProviderModel, disposable)
+        val logModel = createValueModel(logLoadingModel)
+
+        val logPanel = createLogPanel(context, logModel, disposable)
+        val logLoadingPanel = GHLoadingPanel(logLoadingModel, logPanel, disposable,
+            GHLoadingPanel.EmptyTextBundle.Simple("Select workflow run to see the log",
+                "Can't load log")).apply {
+//            errorHandler = GHLoadingErrorHandlerImpl() { dataProviderModel.value?.reloadWorkflowRun() }
+        }
+
+        val selectionDataContext = GitHubWorkflowSelectionContext(context, listSelectionHolder)
 
         return OnePixelSplitter("GitHub.Workflows.Component", 0.5f).apply {
             background = UIUtil.getListBackground()
             isOpaque = true
             isFocusCycleRoot = true
             firstComponent = workflowRunsList
-            secondComponent = JBPanelWithEmptyText(null).apply {
-                background = UIUtil.getListBackground()
-            }
+            secondComponent = logLoadingPanel
 //                .also {
 //                (actionManager.getAction("GitHub.Workflow.Details.Reload") as RefreshAction).registerCustomShortcutSet(it, disposable)
 //            }
@@ -156,7 +144,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
             DataManager.registerDataProvider(it) { dataId ->
                 if (Disposer.isDisposed(disposable)) null
                 else when {
-                    GitHubWorkflowActionKeys.ACTION_DATA_CONTEXT.`is`(dataId) -> actionDataContext
+                    GitHubWorkflowActionKeys.ACTION_DATA_CONTEXT.`is`(dataId) -> selectionDataContext
                     else -> null
                 }
 
@@ -164,12 +152,45 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
         }
     }
 
+    private fun createLogPanel(context: GitHubWorkflowDataContext, logModel: SingleValueModel<String?>, disposable: Disposable): JBPanelWithEmptyText {
+        val logPanel = GitHubWorkflowLogPanel(logModel).apply {
+            border = JBUI.Borders.empty(4, 8, 4, 8)
+        }
+
+        val scrollablePanel = ScrollablePanel(VerticalFlowLayout(0, 0)).apply {
+            isOpaque = false
+            add(logPanel)
+        }
+        val scrollPane = ScrollPaneFactory.createScrollPane(scrollablePanel, true).apply {
+            viewport.isOpaque = false
+            isOpaque = false
+        }.also {
+//            val actionGroup = actionManager.getAction("Github.PullRequest.Details.Popup") as ActionGroup
+//            PopupHandler.installPopupHandler(it, actionGroup, ActionPlaces.UNKNOWN, actionManager)
+        }
+
+        scrollPane.isVisible = logModel.value != null
+
+        logModel.addValueChangedListener {
+            scrollPane.isVisible = logModel.value != null
+        }
+
+        val panel = JBPanelWithEmptyText(BorderLayout()).apply {
+            isOpaque = false
+
+            add(scrollPane, BorderLayout.CENTER)
+        }
+        logModel.addValueChangedListener {
+            panel.validate()
+        }
+        return panel
+    }
+
     private fun createWorkflowRunsListComponent(context: GitHubWorkflowDataContext,
-                                            disposable: Disposable): JComponent {
+                                                listSelectionHolder: GitHubWorkflowRunListSelectionHolder,
+                                                disposable: Disposable): JComponent {
 
-        val listModel = CollectionListModel<GitHubWorkflowRun>()
-
-        val list = GitHubWorkflowRunList(listModel).apply {
+        val list = GitHubWorkflowRunList(context.listModel).apply {
             emptyText.clear()
         }.also {
             it.addFocusListener(object : FocusListener {
@@ -180,20 +201,15 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
                 override fun focusLost(e: FocusEvent?) {}
             })
 
-            installWorkflowRunSelectionSaver(it)
+            installWorkflowRunSelectionSaver(it, listSelectionHolder)
         }
-
-        val listLoader = GitHubWorkflowRunListLoaderImpl(ProgressManager.getInstance(), context.requestExecutor,
-            context.gitHubRepositoryCoordinates,
-            context.gitHubWorkflowDataLoader,
-            listModel)
 
         //Cannot seem to have context menu, when right click, why?
         val listReloadAction = actionManager.getAction("Github.Workflow.Run.List.Reload") as RefreshAction
 
-        return GitHubWorkflowListLoaderPanel(listLoader, listReloadAction, list).apply {
+        return GitHubWorkflowRunListLoaderPanel(context.listLoader, listReloadAction, list).apply {
             errorHandler = GitHubLoadingErrorHandlerImpl {
-                listLoader.reset()
+                context.listLoader.reset()
             }
         }.also {
             listReloadAction.registerCustomShortcutSet(it, disposable)
@@ -247,38 +263,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
 //        }
 //    }
 
-//    private fun installWorkflowSelectionSaver(list: GitHubWorkflowList) {
-//        val listSelectionHolder = GitHubWorkflowsListSelectionHolderImpl()
-//
-//        var savedSelectionNumber: Long? = null
-//
-//        list.selectionModel.addListSelectionListener { e: ListSelectionEvent ->
-//            if (!e.valueIsAdjusting) {
-//                val selectedIndex = list.selectedIndex
-//                if (selectedIndex >= 0 && selectedIndex < list.model.size) {
-//                    listSelectionHolder.selectionId = list.model.getElementAt(selectedIndex).id
-//                    savedSelectionNumber = null
-//                }
-//            }
-//        }
-//
-//        list.model.addListDataListener(object : ListDataListener {
-//            override fun intervalAdded(e: ListDataEvent) {
-//                if (e.type == ListDataEvent.INTERVAL_ADDED)
-//                    (e.index0..e.index1).find { list.model.getElementAt(it).id == savedSelectionNumber }
-//                        ?.run { ApplicationManager.getApplication().invokeLater { ScrollingUtil.selectItem(list, this) } }
-//            }
-//
-//            override fun contentsChanged(e: ListDataEvent) {}
-//            override fun intervalRemoved(e: ListDataEvent) {
-//                if (e.type == ListDataEvent.INTERVAL_REMOVED) savedSelectionNumber = listSelectionHolder.selectionId
-//            }
-//        })
-//    }
-
-    private fun installWorkflowRunSelectionSaver(list: GitHubWorkflowRunList) {
-        val listSelectionHolder = GitHubWorkflowsListSelectionHolderImpl()
-
+    private fun installWorkflowRunSelectionSaver(list: GitHubWorkflowRunList, listSelectionHolder: GitHubWorkflowRunListSelectionHolder) {
         var savedSelectionNumber: Long? = null
 
         list.selectionModel.addListSelectionListener { e: ListSelectionEvent ->
@@ -305,101 +290,81 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
         })
     }
 
-//    private fun createChangesLoadingModel(changesModel: GHPRChangesModel,
-//                                          diffHelper: GHPRChangesDiffHelper,
-//                                          dataProviderModel: SingleValueModel<GHPRDataProvider?>,
-//                                          uiSettings: GithubPullRequestsProjectUISettings,
-//                                          disposable: Disposable): GHPRChangesLoadingModel {
-//        val model = GHPRChangesLoadingModel(changesModel, diffHelper, uiSettings.zipChanges)
-//        projectUiSettings.addChangesListener(disposable) { model.zipChanges = projectUiSettings.zipChanges }
-//
-//        val requestChangesListener = object : GHPRDataProvider.RequestsChangedListener {
-//            override fun commitsRequestChanged() {
-//                model.dataProvider = model.dataProvider
-//            }
-//        }
-//        dataProviderModel.addValueChangedListener {
-//            model.dataProvider?.removeRequestsChangesListener(requestChangesListener)
-//            model.dataProvider = dataProviderModel.value?.apply {
-//                addRequestsChangesListener(disposable, requestChangesListener)
-//            }
-//        }
-//        return model
-//    }
+    private fun createDataProviderModel(context: GitHubWorkflowDataContext,
+                                        listSelectionHolder: GitHubWorkflowRunListSelectionHolder,
+                                        parentDisposable: Disposable): SingleValueModel<GitHubWorkflowRunDataProvider?> {
+        val model: SingleValueModel<GitHubWorkflowRunDataProvider?> = SingleValueModel(null)
 
-//    private fun createDetailsLoadingModel(dataProviderModel: SingleValueModel<GHPRDataProvider?>,
-//                                          parentDisposable: Disposable): GHCompletableFutureLoadingModel<GHPullRequest> {
-//        val model = GHCompletableFutureLoadingModel<GHPullRequest>()
-//
-//        var listenerDisposable: Disposable? = null
-//
-//        dataProviderModel.addValueChangedListener {
-//            val provider = dataProviderModel.value
-//            model.future = provider?.detailsRequest
-//
-//            listenerDisposable = listenerDisposable?.let {
-//                Disposer.dispose(it)
-//                null
-//            }
-//
-//            if (provider != null) {
-//                val disposable = Disposer.newDisposable().apply {
-//                    Disposer.register(parentDisposable, this)
-//                }
-//                provider.addRequestsChangesListener(disposable, object : GHPRDataProvider.RequestsChangedListener {
-//                    override fun detailsRequestChanged() {
-//                        model.future = provider.detailsRequest
-//                    }
-//                })
-//
-//                listenerDisposable = disposable
-//            }
-//        }
-//
-//        return model
-//    }
+        fun setNewProvider(provider: GitHubWorkflowRunDataProvider?) {
+            val oldValue = model.value
+            if (oldValue != null && provider != null && oldValue.id != provider.id) {
+                model.value = null
+            }
+            model.value = provider
+        }
+        Disposer.register(parentDisposable, Disposable {
+            model.value = null
+        })
 
-//    private fun <T> createValueModel(loadingModel: GHSimpleLoadingModel<T>): SingleValueModel<T?> {
-//        val model = SingleValueModel<T?>(null)
-//        loadingModel.addStateChangeListener(object : GHLoadingModel.StateChangeListener {
-//            override fun onLoadingCompleted() {
-//                model.value = loadingModel.result
-//            }
-//
-//            override fun onReset() {
-//                model.value = loadingModel.result
-//            }
-//        })
-//        return model
-//    }
+        listSelectionHolder.addSelectionChangeListener(parentDisposable) {
+            setNewProvider(listSelectionHolder.selectionId?.let(context.dataLoader::getDataProvider))
+        }
 
-//    private fun createDataProviderModel(dataContext: GHWorkflowDataContext,
-//                                        listSelectionHolder: GithubWorkflowsListSelectionHolder,
-//                                        parentDisposable: Disposable): SingleValueModel<GHWorkflowDataProvider?> {
-//        val model: SingleValueModel<GHWorkflowDataProvider?> = SingleValueModel(null)
-//
-//        fun setNewProvider(provider: GHWorkflowDataProvider?) {
-//            val oldValue = model.value
-//            if (oldValue != null && provider != null && oldValue.number != provider.number) {
-//                model.value = null
-//            }
-//            model.value = provider
-//        }
-//        Disposer.register(parentDisposable, Disposable {
-//            model.value = null
-//        })
-//
-//        listSelectionHolder.addSelectionChangeListener(parentDisposable) {
-//            setNewProvider(listSelectionHolder.selectionNumber?.let(dataContext.dataLoader::getDataProvider))
-//        }
-//
-//        dataContext.dataLoader.addInvalidationListener(parentDisposable) {
-//            val selection = listSelectionHolder.selectionNumber
-//            if (selection != null && selection == it) {
-//                setNewProvider(dataContext.dataLoader.getDataProvider(selection))
-//            }
-//        }
-//
-//        return model
-//    }
+        context.dataLoader.addInvalidationListener(parentDisposable) {
+            val selection = listSelectionHolder.selectionId
+            if (selection != null && selection == it) {
+                setNewProvider(context.dataLoader.getDataProvider(selection))
+            }
+        }
+
+        return model
+    }
+
+    private fun createLogLoadingModel(dataProviderModel: SingleValueModel<GitHubWorkflowRunDataProvider?>,
+                                      parentDisposable: Disposable): GHCompletableFutureLoadingModel<String> {
+        val model = GHCompletableFutureLoadingModel<String>()
+
+        var listenerDisposable: Disposable? = null
+
+        dataProviderModel.addValueChangedListener {
+            val provider = dataProviderModel.value
+            model.future = provider?.logRequest
+
+            listenerDisposable = listenerDisposable?.let {
+                Disposer.dispose(it)
+                null
+            }
+
+            if (provider != null) {
+                val disposable = Disposer.newDisposable().apply {
+                    Disposer.register(parentDisposable, this)
+                }
+                provider.addRequestsChangesListener(disposable, object : GitHubWorkflowRunDataProvider.WorkflowRunChangedListener {
+                    override fun logChanged() {
+                        model.future = provider.logRequest
+                    }
+                })
+
+                listenerDisposable = disposable
+            }
+        }
+        return model
+    }
+
+    private fun <T> createValueModel(loadingModel: GHCompletableFutureLoadingModel<T>): SingleValueModel<T?> {
+        val model = SingleValueModel<T?>(null)
+        loadingModel.addStateChangeListener(object : GHLoadingModel.StateChangeListener {
+            override fun onLoadingCompleted() {
+                model.value = loadingModel.result
+            }
+
+            override fun onReset() {
+                model.value = loadingModel.result
+            }
+        })
+        return model
+    }
+
+
+
 }

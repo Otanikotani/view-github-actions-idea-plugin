@@ -142,9 +142,4 @@ class GitHubWorkflowRunList(model: ListModel<GitHubWorkflowRun>)
             return this
         }
     }
-
-    fun getBranchBackground(): JBColor {
-        return JBColor(ColorUtil.softer(Color.blue), ColorUtil.darker(Color.blue, 3))
-    }
-
 }

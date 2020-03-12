@@ -8,15 +8,15 @@ import com.intellij.openapi.progress.util.ProgressWindow
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.util.ui.StatusText
 import com.intellij.vcs.log.ui.frame.ProgressStripe
-import org.github.otanikotani.workflow.data.GitHubWorkflowListLoader
+import org.github.otanikotani.workflow.data.GitHubWorkflowRunListLoader
 import org.jetbrains.plugins.github.ui.HtmlInfoPanel
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-internal class GitHubWorkflowListLoaderPanel(listLoader: GitHubWorkflowListLoader,
-                                             private val listReloadAction: RefreshAction,
-                                             contentComponent: JComponent)
-    : GitHubListLoaderPanel<GitHubWorkflowListLoader>(listLoader, contentComponent), Disposable {
+internal class GitHubWorkflowRunListLoaderPanel(runListLoader: GitHubWorkflowRunListLoader,
+                                                private val listReloadAction: RefreshAction,
+                                                contentComponent: JComponent)
+    : GitHubListLoaderPanel<GitHubWorkflowRunListLoader>(runListLoader, contentComponent), Disposable {
 
     private lateinit var progressStripe: ProgressStripe
 
@@ -32,7 +32,7 @@ internal class GitHubWorkflowListLoaderPanel(listLoader: GitHubWorkflowListLoade
     }
 
     init {
-        listLoader.addOutdatedStateChangeListener(this) {
+        runListLoader.addOutdatedStateChangeListener(this) {
             updateInfoPanel()
         }
     }

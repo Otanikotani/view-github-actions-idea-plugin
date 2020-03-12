@@ -12,15 +12,16 @@ import org.github.otanikotani.workflow.GitHubRepositoryCoordinates
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.pullrequest.data.GHListLoaderBase
 import org.jetbrains.plugins.github.pullrequest.ui.SimpleEventListener
+import org.jetbrains.plugins.github.util.handleOnEdt
+import java.util.concurrent.CompletableFuture
 import kotlin.properties.Delegates
 
 internal class GitHubWorkflowRunListLoaderImpl(progressManager: ProgressManager,
                                                private val requestExecutor: GithubApiRequestExecutor,
                                                private val gitHubRepositoryCoordinates: GitHubRepositoryCoordinates,
-                                               private val gitHubWorkflowDataLoader: GitHubWorkflowDataLoader,
                                                private val listModel: CollectionListModel<GitHubWorkflowRun>)
     : GHListLoaderBase<GitHubWorkflowRun>(progressManager),
-    GitHubWorkflowListLoader {
+    GitHubWorkflowRunListLoader {
 
     override val hasLoadedItems: Boolean
         get() = !listModel.isEmpty
@@ -70,10 +71,24 @@ internal class GitHubWorkflowRunListLoaderImpl(progressManager: ProgressManager,
         val request = Workflows.getWorkflowRuns(gitHubRepositoryCoordinates)
         val result = requestExecutor.execute(indicator, request).workflow_runs
 
-        result.forEach {
-            it.workflowName = gitHubWorkflowDataLoader.getWorkflow(it.workflow_url).name
-        }
+//        result.forEach {
+//            it.workflowName = gitHubWorkflowDataLoader.getWorkflow(it.workflow_url).name
+//        }
         loaded = true
         return result
     }
+
+    override fun reloadData(request: CompletableFuture<out GitHubWorkflowRun>) {
+        request.handleOnEdt(resetDisposable) { result, error ->
+            if (error == null && result != null) updateData(result)
+        }
+    }
+
+    override fun findData(id: Long) = listModel.items.find { it.id == id }
+
+    private fun updateData(workflowRun: GitHubWorkflowRun) {
+        val index = listModel.items.indexOfFirst { it.id == workflowRun.id }
+        listModel.setElementAt(workflowRun, index)
+    }
+
 }

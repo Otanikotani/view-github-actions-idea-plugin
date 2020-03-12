@@ -108,6 +108,19 @@ object Workflows : GithubApiRequests.Entity("/repos") {
     }
 
     @JvmStatic
+    fun getWorkflowRun(coordinates: GitHubRepositoryCoordinates, id: Long): GithubApiRequest<GitHubWorkflowRun> {
+        val url = GithubApiRequests.getUrl(coordinates.serverPath,
+            urlSuffix,
+            "/${coordinates.repositoryPath}",
+            "/actions",
+            "/runs/$id")
+
+        return GithubApiRequest.Get.json<GitHubWorkflowRun>(url)
+            .withOperationName("search workflow run")
+    }
+
+    @JvmStatic
     fun get(url: String) = GithubApiRequest.Get.json<GitHubWorkflowRuns>(url)
         .withOperationName("search workflow runs")
+
 }

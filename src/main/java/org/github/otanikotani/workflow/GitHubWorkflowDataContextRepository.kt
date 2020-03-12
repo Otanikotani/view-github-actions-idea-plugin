@@ -2,8 +2,13 @@ package org.github.otanikotani.workflow
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
-import org.github.otanikotani.workflow.data.GitHubWorkflowDataLoaderImpl
+import com.intellij.ui.CollectionListModel
+import org.github.otanikotani.api.GitHubWorkflowRun
+import org.github.otanikotani.workflow.data.GitHubWorkflowDataLoader
+import org.github.otanikotani.workflow.data.GitHubWorkflowRunDataProviderImpl
+import org.github.otanikotani.workflow.data.GitHubWorkflowRunListLoaderImpl
 import org.jetbrains.annotations.CalledInBackground
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
@@ -23,15 +28,25 @@ internal class GitHubWorkflowDataContextRepository {
 
         val repositoryCoordinates = GitHubRepositoryCoordinates(account.server, fullPath)
 
-        val githubWorkflowDataLoader = GitHubWorkflowDataLoaderImpl(requestExecutor)
+        val githubWorkflowDataLoader = GitHubWorkflowDataLoader {
+            GitHubWorkflowRunDataProviderImpl(ProgressManager.getInstance(), requestExecutor, repositoryCoordinates, it)
+        }
+
         requestExecutor.addListener(githubWorkflowDataLoader) {
             githubWorkflowDataLoader.invalidateAllData()
         }
 
+        val listModel = CollectionListModel<GitHubWorkflowRun>()
+        val listLoader = GitHubWorkflowRunListLoaderImpl(ProgressManager.getInstance(), requestExecutor,
+            repositoryCoordinates,
+            listModel)
+
         return GitHubWorkflowDataContext(
             gitRemoteCoordinates,
             repositoryCoordinates,
+            listModel,
             githubWorkflowDataLoader,
+            listLoader,
             account,
             requestExecutor)
     }

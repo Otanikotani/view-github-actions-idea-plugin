@@ -5,7 +5,7 @@ import com.intellij.util.EventDispatcher
 import org.jetbrains.plugins.github.pullrequest.ui.SimpleEventListener
 import kotlin.properties.Delegates
 
-internal class GitHubWorkflowsListSelectionHolderImpl : GitHubWorkflowsListSelectionHolder {
+internal class GitHubWorkflowRunListSelectionHolderImpl : GitHubWorkflowRunListSelectionHolder {
 
     override var selectionId: Long? by Delegates.observable<Long?>(null) { _, _, _ ->
         selectionChangeEventDispatcher.multicaster.eventOccurred()
