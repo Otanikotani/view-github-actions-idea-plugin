@@ -1,4 +1,4 @@
-package org.github.otanikotani.workflow
+package org.github.otanikotani.workflow.ui
 
 import com.intellij.ui.components.JBTextArea
 import net.miginfocom.layout.CC

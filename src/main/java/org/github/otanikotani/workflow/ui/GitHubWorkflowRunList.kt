@@ -1,4 +1,4 @@
-package org.github.otanikotani.workflow
+package org.github.otanikotani.workflow.ui
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.DataProvider

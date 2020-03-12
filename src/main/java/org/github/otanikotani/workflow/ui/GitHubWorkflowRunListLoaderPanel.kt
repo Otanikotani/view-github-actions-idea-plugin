@@ -1,4 +1,4 @@
-package org.github.otanikotani.workflow
+package org.github.otanikotani.workflow.ui
 
 import com.intellij.ide.actions.RefreshAction
 import com.intellij.openapi.Disposable

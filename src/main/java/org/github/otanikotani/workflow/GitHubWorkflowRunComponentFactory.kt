@@ -22,6 +22,9 @@ import com.intellij.util.ui.UIUtil
 import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.workflow.action.GitHubWorkflowRunActionKeys
 import org.github.otanikotani.workflow.data.GitHubWorkflowRunDataProvider
+import org.github.otanikotani.workflow.ui.GitHubWorkflowLogPanel
+import org.github.otanikotani.workflow.ui.GitHubWorkflowRunList
+import org.github.otanikotani.workflow.ui.GitHubWorkflowRunListLoaderPanel
 import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
@@ -112,7 +115,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
     }
 
     private fun createContent(context: GitHubWorkflowRunDataContext, disposable: Disposable): JComponent {
-        val listSelectionHolder = GitHubWorkflowRunListSelectionHolderImpl()
+        val listSelectionHolder = GitHubWorkflowRunListSelectionHolder()
         val workflowRunsList = createWorkflowRunsListComponent(context, listSelectionHolder, disposable)
 
         val dataProviderModel = createDataProviderModel(context, listSelectionHolder, disposable)
@@ -127,7 +130,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
 //            errorHandler = GHLoadingErrorHandlerImpl() { dataProviderModel.value?.reloadWorkflowRun() }
         }
 
-        val selectionDataContext = GitHubWorkflowSelectionContext(context, listSelectionHolder)
+        val selectionDataContext = GitHubWorkflowRunSelectionContext(context, listSelectionHolder)
 
         return OnePixelSplitter("GitHub.Workflows.Component", 0.5f).apply {
             background = UIUtil.getListBackground()
@@ -207,7 +210,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
         val listReloadAction = actionManager.getAction("Github.Workflow.Run.List.Reload") as RefreshAction
 
         return GitHubWorkflowRunListLoaderPanel(context.listLoader, listReloadAction, list).apply {
-            errorHandler = GitHubLoadingErrorHandlerImpl {
+            errorHandler = GitHubLoadingErrorHandler {
                 context.listLoader.reset()
             }
         }.also {
