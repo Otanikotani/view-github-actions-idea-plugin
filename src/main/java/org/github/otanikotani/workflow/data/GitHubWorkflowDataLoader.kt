@@ -7,29 +7,25 @@ import com.intellij.util.EventDispatcher
 import org.jetbrains.annotations.CalledInAwt
 import java.util.*
 
-class GitHubWorkflowDataLoader(private val dataProviderFactory: (Long) -> GitHubWorkflowRunDataProvider) : Disposable {
+class GitHubWorkflowDataLoader(private val dataProviderFactory: (String) -> GitHubWorkflowRunDataProvider) : Disposable {
 
     private var isDisposed = false
     private val cache = CacheBuilder.newBuilder()
-        .removalListener<Long, GitHubWorkflowRunDataProvider> {
+        .removalListener<String, GitHubWorkflowRunDataProvider> {
             runInEdt { invalidationEventDispatcher.multicaster.providerChanged(it.key) }
         }
         .maximumSize(200)
-        .build<Long, GitHubWorkflowRunDataProvider>()
+        .build<String, GitHubWorkflowRunDataProvider>()
 
     private val invalidationEventDispatcher = EventDispatcher.create(DataInvalidatedListener::class.java)
 
-    fun getDataProvider(id: Long): GitHubWorkflowRunDataProvider {
-
+    fun getDataProvider(url: String): GitHubWorkflowRunDataProvider {
         if (isDisposed) throw IllegalStateException("Already disposed")
 
-        return cache.get(id) {
-            dataProviderFactory(id)
+        return cache.get(url) {
+            dataProviderFactory(url)
         }
     }
-
-    fun findDataProvider(id: Long): GitHubWorkflowRunDataProvider? = cache.getIfPresent(id)
-
 
     @CalledInAwt
     fun invalidateAllData() {
@@ -37,13 +33,13 @@ class GitHubWorkflowDataLoader(private val dataProviderFactory: (Long) -> GitHub
     }
 
     private interface DataInvalidatedListener : EventListener {
-        fun providerChanged(id: Long)
+        fun providerChanged(url: String)
     }
 
-    fun addInvalidationListener(disposable: Disposable, listener: (Long) -> Unit) =
+    fun addInvalidationListener(disposable: Disposable, listener: (String) -> Unit) =
         invalidationEventDispatcher.addListener(object : DataInvalidatedListener {
-            override fun providerChanged(id: Long) {
-                listener(id)
+            override fun providerChanged(url: String) {
+                listener(url)
             }
         }, disposable)
 

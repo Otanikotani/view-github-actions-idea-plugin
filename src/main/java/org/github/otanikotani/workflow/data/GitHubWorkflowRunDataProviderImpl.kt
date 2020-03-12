@@ -5,45 +5,30 @@ import com.intellij.openapi.application.invokeAndWaitIfNeeded
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.util.EventDispatcher
-import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.api.Workflows
-import org.github.otanikotani.workflow.GitHubRepositoryCoordinates
 import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.util.GithubAsyncUtil
 import org.jetbrains.plugins.github.util.LazyCancellableBackgroundProcessValue
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-class GitHubWorkflowRunDataProviderImpl(private val progressManager: ProgressManager,
-                                        private val requestExecutor: GithubApiRequestExecutor,
-                                        private val coordinates: GitHubRepositoryCoordinates,
-                                        override val id: Long)
-    : GitHubWorkflowRunDataProvider {
+class GitHubWorkflowRunDataProvider(private val progressManager: ProgressManager,
+                                    private val requestExecutor: GithubApiRequestExecutor,
+                                    val url: String) {
 
-    private val requestsChangesEventDispatcher = EventDispatcher.create(GitHubWorkflowRunDataProvider.WorkflowRunChangedListener::class.java)
-
-    private val workflowRunValue: LazyCancellableBackgroundProcessValue<GitHubWorkflowRun> = backingValue {
-        requestExecutor.execute(it, Workflows.getWorkflowRun(coordinates, id))
-    }
-
-    override val workflowRunRequest by backgroundProcessValue(workflowRunValue)
+    private val requestsChangesEventDispatcher = EventDispatcher.create(WorkflowRunChangedListener::class.java)
 
     private val logValue: LazyCancellableBackgroundProcessValue<String> = backingValue {
-       requestExecutor.execute(it, Workflows.getWorkflowLog("https://api.github.com/repos/otanikotani/single-action-run/actions/runs/54299372/logs"))
+        requestExecutor.execute(it, Workflows.getWorkflowLog(url))
     }
 
-    override val logRequest by backgroundProcessValue(logValue)
+    val logRequest by backgroundProcessValue(logValue)
 
     @CalledInAwt
-    override fun reloadWorkflowRun() {
-        workflowRunValue.drop()
-        requestsChangesEventDispatcher.multicaster.workflowRunChanged()
-    }
-
-    @CalledInAwt
-    override fun reloadLog() {
+    fun reloadLog() {
         requestsChangesEventDispatcher.multicaster.logChanged()
     }
 
@@ -59,12 +44,16 @@ class GitHubWorkflowRunDataProviderImpl(private val progressManager: ProgressMan
         }
 
 
-    override fun addRequestsChangesListener(listener: GitHubWorkflowRunDataProvider.WorkflowRunChangedListener) =
+    fun addRequestsChangesListener(listener: WorkflowRunChangedListener) =
         requestsChangesEventDispatcher.addListener(listener)
 
-    override fun addRequestsChangesListener(disposable: Disposable, listener: GitHubWorkflowRunDataProvider.WorkflowRunChangedListener) =
+    fun addRequestsChangesListener(disposable: Disposable, listener: WorkflowRunChangedListener) =
         requestsChangesEventDispatcher.addListener(listener, disposable)
 
-    override fun removeRequestsChangesListener(listener: GitHubWorkflowRunDataProvider.WorkflowRunChangedListener) =
+    fun removeRequestsChangesListener(listener: WorkflowRunChangedListener) =
         requestsChangesEventDispatcher.removeListener(listener)
+
+    interface WorkflowRunChangedListener : EventListener {
+        fun logChanged() {}
+    }
 }

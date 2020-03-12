@@ -3,9 +3,7 @@ package org.github.otanikotani.workflow
 import com.intellij.ide.DataManager
 import com.intellij.ide.actions.RefreshAction
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.ide.CopyPasteManager
@@ -21,6 +19,7 @@ import com.intellij.ui.*
 import com.intellij.ui.components.JBPanelWithEmptyText
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
+import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.workflow.action.GitHubWorkflowActionKeys
 import org.github.otanikotani.workflow.data.GitHubWorkflowRunDataProvider
 import org.jetbrains.annotations.CalledInAwt
@@ -264,14 +263,14 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
 //    }
 
     private fun installWorkflowRunSelectionSaver(list: GitHubWorkflowRunList, listSelectionHolder: GitHubWorkflowRunListSelectionHolder) {
-        var savedSelectionNumber: Long? = null
+        var savedSelection: GitHubWorkflowRun? = null
 
         list.selectionModel.addListSelectionListener { e: ListSelectionEvent ->
             if (!e.valueIsAdjusting) {
                 val selectedIndex = list.selectedIndex
                 if (selectedIndex >= 0 && selectedIndex < list.model.size) {
-                    listSelectionHolder.selectionId = list.model.getElementAt(selectedIndex).id
-                    savedSelectionNumber = null
+                    listSelectionHolder.selection = list.model.getElementAt(selectedIndex)
+                    savedSelection = null
                 }
             }
         }
@@ -279,13 +278,13 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
         list.model.addListDataListener(object : ListDataListener {
             override fun intervalAdded(e: ListDataEvent) {
                 if (e.type == ListDataEvent.INTERVAL_ADDED)
-                    (e.index0..e.index1).find { list.model.getElementAt(it).id == savedSelectionNumber }
+                    (e.index0..e.index1).find { list.model.getElementAt(it) == savedSelection }
                         ?.run { ApplicationManager.getApplication().invokeLater { ScrollingUtil.selectItem(list, this) } }
             }
 
             override fun contentsChanged(e: ListDataEvent) {}
             override fun intervalRemoved(e: ListDataEvent) {
-                if (e.type == ListDataEvent.INTERVAL_REMOVED) savedSelectionNumber = listSelectionHolder.selectionId
+                if (e.type == ListDataEvent.INTERVAL_REMOVED) savedSelection = listSelectionHolder.selection
             }
         })
     }
@@ -297,7 +296,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
 
         fun setNewProvider(provider: GitHubWorkflowRunDataProvider?) {
             val oldValue = model.value
-            if (oldValue != null && provider != null && oldValue.id != provider.id) {
+            if (oldValue != null && provider != null && oldValue.url != provider.url) {
                 model.value = null
             }
             model.value = provider
@@ -307,13 +306,14 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
         })
 
         listSelectionHolder.addSelectionChangeListener(parentDisposable) {
-            setNewProvider(listSelectionHolder.selectionId?.let(context.dataLoader::getDataProvider))
+            val provider = listSelectionHolder.selection?.let { context.dataLoader.getDataProvider(it.logs_url) }
+            setNewProvider(provider)
         }
 
         context.dataLoader.addInvalidationListener(parentDisposable) {
-            val selection = listSelectionHolder.selectionId
-            if (selection != null && selection == it) {
-                setNewProvider(context.dataLoader.getDataProvider(selection))
+            val selection = listSelectionHolder.selection
+            if (selection != null && selection.logs_url == it) {
+                setNewProvider(context.dataLoader.getDataProvider(selection.logs_url))
             }
         }
 

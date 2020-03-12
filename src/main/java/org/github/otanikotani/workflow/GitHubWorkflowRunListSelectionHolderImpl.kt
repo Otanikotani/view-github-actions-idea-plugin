@@ -2,12 +2,13 @@ package org.github.otanikotani.workflow
 
 import com.intellij.openapi.Disposable
 import com.intellij.util.EventDispatcher
+import org.github.otanikotani.api.GitHubWorkflowRun
 import org.jetbrains.plugins.github.pullrequest.ui.SimpleEventListener
 import kotlin.properties.Delegates
 
 internal class GitHubWorkflowRunListSelectionHolderImpl : GitHubWorkflowRunListSelectionHolder {
 
-    override var selectionId: Long? by Delegates.observable<Long?>(null) { _, _, _ ->
+    override var selection: GitHubWorkflowRun? by Delegates.observable<GitHubWorkflowRun?>(null) { _, _, _ ->
         selectionChangeEventDispatcher.multicaster.eventOccurred()
     }
 
