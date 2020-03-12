@@ -6,7 +6,7 @@ import org.jetbrains.plugins.github.api.util.GithubApiSearchQueryBuilder
 import java.text.ParseException
 import java.text.SimpleDateFormat
 
-internal class GitHubWorkflowSearchQuery(private val terms: List<Term<*>>) {
+internal class GitHubWorkflowRunSearchQuery(private val terms: List<Term<*>>) {
     fun buildApiSearchQuery(searchQueryBuilder: GithubApiSearchQueryBuilder) {
         for (term in terms) {
             when (term) {
@@ -34,7 +34,7 @@ internal class GitHubWorkflowSearchQuery(private val terms: List<Term<*>>) {
     companion object {
         private val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
 
-        fun parseFromString(string: String): GitHubWorkflowSearchQuery {
+        fun parseFromString(string: String): GitHubWorkflowRunSearchQuery {
             val result = mutableListOf<Term<*>>()
             val terms = string.split(' ')
             for (term in terms) {
@@ -51,7 +51,7 @@ internal class GitHubWorkflowSearchQuery(private val terms: List<Term<*>>) {
                     }
                 }
             }
-            return GitHubWorkflowSearchQuery(result)
+            return GitHubWorkflowRunSearchQuery(result)
         }
     }
 

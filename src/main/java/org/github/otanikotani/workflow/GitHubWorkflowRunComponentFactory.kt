@@ -20,7 +20,7 @@ import com.intellij.ui.components.JBPanelWithEmptyText
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import org.github.otanikotani.api.GitHubWorkflowRun
-import org.github.otanikotani.workflow.action.GitHubWorkflowActionKeys
+import org.github.otanikotani.workflow.action.GitHubWorkflowRunActionKeys
 import org.github.otanikotani.workflow.data.GitHubWorkflowRunDataProvider
 import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
@@ -42,7 +42,7 @@ import javax.swing.event.ListDataListener
 import javax.swing.event.ListSelectionEvent
 
 @Service
-internal class GitHubWorkflowComponentFactory(private val project: Project) {
+internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
 
     private val progressManager = ProgressManager.getInstance()
     private val actionManager = ActionManager.getInstance()
@@ -56,7 +56,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
                         parentDisposable: Disposable): JComponent {
 
         val contextDisposable = Disposer.newDisposable()
-        val contextValue = object : LazyCancellableBackgroundProcessValue<GitHubWorkflowDataContext>(progressManager) {
+        val contextValue = object : LazyCancellableBackgroundProcessValue<GitHubWorkflowRunDataContext>(progressManager) {
             override fun compute(indicator: ProgressIndicator) =
                 dataContextRepository.getContext(account, requestExecutor, remoteUrl).also {
                     Disposer.register(contextDisposable, it)
@@ -68,7 +68,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
         val uiDisposable = Disposer.newDisposable()
         Disposer.register(parentDisposable, uiDisposable)
 
-        val loadingModel = GHCompletableFutureLoadingModel<GitHubWorkflowDataContext>()
+        val loadingModel = GHCompletableFutureLoadingModel<GitHubWorkflowRunDataContext>()
         val contentContainer = JBPanelWithEmptyText(null).apply {
             background = UIUtil.getListBackground()
         }
@@ -111,7 +111,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
         return patchedContent
     }
 
-    private fun createContent(context: GitHubWorkflowDataContext, disposable: Disposable): JComponent {
+    private fun createContent(context: GitHubWorkflowRunDataContext, disposable: Disposable): JComponent {
         val listSelectionHolder = GitHubWorkflowRunListSelectionHolderImpl()
         val workflowRunsList = createWorkflowRunsListComponent(context, listSelectionHolder, disposable)
 
@@ -143,7 +143,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
             DataManager.registerDataProvider(it) { dataId ->
                 if (Disposer.isDisposed(disposable)) null
                 else when {
-                    GitHubWorkflowActionKeys.ACTION_DATA_CONTEXT.`is`(dataId) -> selectionDataContext
+                    GitHubWorkflowRunActionKeys.ACTION_DATA_CONTEXT.`is`(dataId) -> selectionDataContext
                     else -> null
                 }
 
@@ -151,7 +151,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
         }
     }
 
-    private fun createLogPanel(context: GitHubWorkflowDataContext, logModel: SingleValueModel<String?>, disposable: Disposable): JBPanelWithEmptyText {
+    private fun createLogPanel(context: GitHubWorkflowRunDataContext, logModel: SingleValueModel<String?>, disposable: Disposable): JBPanelWithEmptyText {
         val logPanel = GitHubWorkflowLogPanel(logModel).apply {
             border = JBUI.Borders.empty(4, 8, 4, 8)
         }
@@ -185,7 +185,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
         return panel
     }
 
-    private fun createWorkflowRunsListComponent(context: GitHubWorkflowDataContext,
+    private fun createWorkflowRunsListComponent(context: GitHubWorkflowRunDataContext,
                                                 listSelectionHolder: GitHubWorkflowRunListSelectionHolder,
                                                 disposable: Disposable): JComponent {
 
@@ -289,7 +289,7 @@ internal class GitHubWorkflowComponentFactory(private val project: Project) {
         })
     }
 
-    private fun createDataProviderModel(context: GitHubWorkflowDataContext,
+    private fun createDataProviderModel(context: GitHubWorkflowRunDataContext,
                                         listSelectionHolder: GitHubWorkflowRunListSelectionHolder,
                                         parentDisposable: Disposable): SingleValueModel<GitHubWorkflowRunDataProvider?> {
         val model: SingleValueModel<GitHubWorkflowRunDataProvider?> = SingleValueModel(null)

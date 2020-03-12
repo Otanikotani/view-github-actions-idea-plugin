@@ -3,7 +3,7 @@ package org.github.otanikotani.workflow
 import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.workflow.data.GitHubWorkflowRunDataProvider
 
-class GitHubWorkflowSelectionContext internal constructor(private val dataContext: GitHubWorkflowDataContext,
+class GitHubWorkflowSelectionContext internal constructor(private val dataContext: GitHubWorkflowRunDataContext,
                                                           private val selectionHolder: GitHubWorkflowRunListSelectionHolder) {
 
     fun resetAllData() {

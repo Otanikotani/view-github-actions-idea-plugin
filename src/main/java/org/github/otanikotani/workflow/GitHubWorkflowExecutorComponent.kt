@@ -18,7 +18,7 @@ class GitHubWorkflowExecutorComponent(private val requestExecutorManager: Github
                                       parentDisposable: Disposable)
     : DisposingWrapper(parentDisposable) {
 
-    private val componentFactory by lazy(LazyThreadSafetyMode.NONE) { project.service<GitHubWorkflowComponentFactory>() }
+    private val componentFactory by lazy(LazyThreadSafetyMode.NONE) { project.service<GitHubWorkflowRunComponentFactory>() }
 
     private var requestExecutor: GithubApiRequestExecutor? = null
 

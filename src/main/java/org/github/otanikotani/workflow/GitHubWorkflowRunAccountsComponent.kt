@@ -14,10 +14,10 @@ import org.jetbrains.plugins.github.ui.util.DisposingWrapper
 import org.jetbrains.plugins.github.util.GitRemoteUrlCoordinates
 import org.jetbrains.plugins.github.util.GithubUIUtil
 
-internal class GitHubWorkflowAccountsComponent(private val authManager: GithubAuthenticationManager,
-                                               private val project: Project,
-                                               private val remoteUrl: GitRemoteUrlCoordinates,
-                                               parentDisposable: Disposable)
+internal class GitHubWorkflowRunAccountsComponent(private val authManager: GithubAuthenticationManager,
+                                                  private val project: Project,
+                                                  private val remoteUrl: GitRemoteUrlCoordinates,
+                                                  parentDisposable: Disposable)
     : DisposingWrapper(parentDisposable) {
 
     private val requestExecutorManager by lazy(LazyThreadSafetyMode.NONE) { GithubApiRequestExecutorManager.getInstance() }
@@ -69,7 +69,7 @@ internal class GitHubWorkflowAccountsComponent(private val authManager: GithubAu
         val dialog = GithubChooseAccountDialog(project, null, accounts, null, true, true)
         if (dialog.showAndGet()) {
             setActualContent(dialog.account)
-            IdeFocusManager.getInstance(project).requestFocusInProject(this@GitHubWorkflowAccountsComponent, project)
+            IdeFocusManager.getInstance(project).requestFocusInProject(this@GitHubWorkflowRunAccountsComponent, project)
         }
     }
 

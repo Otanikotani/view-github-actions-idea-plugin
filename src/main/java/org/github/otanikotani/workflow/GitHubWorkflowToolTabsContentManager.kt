@@ -50,8 +50,8 @@ class GitHubWorkflowToolTabsContentManager(private val project: Project,
         content.putUserData(ChangesViewContentManager.ORDER_WEIGHT_KEY, ChangesViewContentManager.TabOrderWeight.LAST.weight)
         content.putUserData(ChangesViewContentManager.CONTENT_PROVIDER_SUPPLIER_KEY) {
             object : ChangesViewContentProvider {
-                override fun initContent(): GitHubWorkflowAccountsComponent {
-                    return GitHubWorkflowAccountsComponent(GithubAuthenticationManager.getInstance(), project, remoteUrl, disposable)
+                override fun initContent(): GitHubWorkflowRunAccountsComponent {
+                    return GitHubWorkflowRunAccountsComponent(GithubAuthenticationManager.getInstance(), project, remoteUrl, disposable)
                 }
 
                 override fun disposeContent() = Disposer.dispose(disposable)

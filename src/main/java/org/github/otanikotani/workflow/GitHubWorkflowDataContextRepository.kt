@@ -8,7 +8,7 @@ import com.intellij.ui.CollectionListModel
 import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.workflow.data.GitHubWorkflowDataLoader
 import org.github.otanikotani.workflow.data.GitHubWorkflowRunDataProvider
-import org.github.otanikotani.workflow.data.GitHubWorkflowRunListLoaderImpl
+import org.github.otanikotani.workflow.data.GitHubWorkflowRunListLoader
 import org.jetbrains.annotations.CalledInBackground
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
@@ -21,7 +21,7 @@ internal class GitHubWorkflowDataContextRepository {
     @CalledInBackground
     @Throws(IOException::class)
     fun getContext(account: GithubAccount,
-                   requestExecutor: GithubApiRequestExecutor, gitRemoteCoordinates: GitRemoteUrlCoordinates): GitHubWorkflowDataContext {
+                   requestExecutor: GithubApiRequestExecutor, gitRemoteCoordinates: GitRemoteUrlCoordinates): GitHubWorkflowRunDataContext {
         val fullPath = GithubUrlUtil.getUserAndRepositoryFromRemoteUrl(gitRemoteCoordinates.url)
             ?: throw IllegalArgumentException(
                 "Invalid GitHub Repository URL - ${gitRemoteCoordinates.url} is not a GitHub repository")
@@ -37,11 +37,11 @@ internal class GitHubWorkflowDataContextRepository {
         }
 
         val listModel = CollectionListModel<GitHubWorkflowRun>()
-        val listLoader = GitHubWorkflowRunListLoaderImpl(ProgressManager.getInstance(), requestExecutor,
+        val listLoader = GitHubWorkflowRunListLoader(ProgressManager.getInstance(), requestExecutor,
             repositoryCoordinates,
             listModel)
 
-        return GitHubWorkflowDataContext(
+        return GitHubWorkflowRunDataContext(
             gitRemoteCoordinates,
             repositoryCoordinates,
             listModel,

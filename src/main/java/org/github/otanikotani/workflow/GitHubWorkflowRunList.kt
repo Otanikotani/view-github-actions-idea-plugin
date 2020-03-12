@@ -14,18 +14,11 @@ import com.intellij.util.ui.JBDimension
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.ListUiUtil
 import com.intellij.util.ui.UIUtil
-import com.jetbrains.rd.swing.pressOutside
-import icons.GithubIcons
 import net.miginfocom.layout.CC
 import net.miginfocom.layout.LC
 import net.miginfocom.swing.MigLayout
-import org.github.otanikotani.api.GitHubWorkflow
 import org.github.otanikotani.api.GitHubWorkflowRun
-import org.github.otanikotani.workflow.action.GitHubWorkflowActionKeys
-import org.jetbrains.concurrency.cancelledPromise
-import org.jetbrains.plugins.github.api.data.GHLabel
-import org.jetbrains.plugins.github.api.data.pullrequest.GHPullRequestState
-import org.jetbrains.plugins.github.util.GithubUIUtil
+import org.github.otanikotani.workflow.action.GitHubWorkflowRunActionKeys
 import java.awt.Color
 import java.awt.Component
 import java.awt.event.MouseEvent
@@ -53,7 +46,7 @@ class GitHubWorkflowRunList(model: ListModel<GitHubWorkflowRun>)
 
     override fun getData(dataId: String): Any? = when {
         PlatformDataKeys.COPY_PROVIDER.`is`(dataId) -> this
-        GitHubWorkflowActionKeys.SELECTED_WORKFLOW.`is`(dataId) -> selectedValue
+        GitHubWorkflowRunActionKeys.SELECTED_WORKFLOW_RUN.`is`(dataId) -> selectedValue
         else -> null
     }
 

@@ -38,23 +38,23 @@
 
 
     <extensions defaultExtensionNs="com.intellij">
-        <projectService serviceImplementation="org.github.otanikotani.workflow.GitHubWorkflowManager"/>
+        <projectService serviceImplementation="org.github.otanikotani.workflow.GitHubWorkflowRunManager"/>
     </extensions>
 
     <applicationListeners>
-        <listener class="org.github.otanikotani.workflow.GitHubWorkflowManager$AccountsListener"
+        <listener class="org.github.otanikotani.workflow.GitHubWorkflowRunManager$AccountsListener"
                   topic="org.jetbrains.plugins.github.authentication.accounts.AccountRemovedListener"
                   activeInHeadlessMode="false" activeInTestMode="false"/>
-        <listener class="org.github.otanikotani.workflow.GitHubWorkflowManager$AccountsListener"
+        <listener class="org.github.otanikotani.workflow.GitHubWorkflowRunManager$AccountsListener"
                   topic="org.jetbrains.plugins.github.authentication.accounts.AccountTokenChangedListener"
                   activeInHeadlessMode="false" activeInTestMode="false"/>
     </applicationListeners>                                                                                      >
 
     <projectListeners>
-        <listener class="org.github.otanikotani.workflow.GitHubWorkflowManager$RemoteUrlsListener"
+        <listener class="org.github.otanikotani.workflow.GitHubWorkflowRunManager$RemoteUrlsListener"
                   topic="com.intellij.dvcs.repo.VcsRepositoryMappingListener"
                   activeInHeadlessMode="false" activeInTestMode="false"/>
-        <listener class="org.github.otanikotani.workflow.GitHubWorkflowManager$RemoteUrlsListener"
+        <listener class="org.github.otanikotani.workflow.GitHubWorkflowRunManager$RemoteUrlsListener"
                   topic="git4idea.repo.GitRepositoryChangeListener"
                   activeInHeadlessMode="false" activeInTestMode="false"/>
 
@@ -68,14 +68,14 @@
 <!--            <reference id="Github.Open.In.Browser"/>-->
             <reference id="Github.Open.In.Browser"/>
             <action id="Github.Workflow.List.Reload"
-                    class="org.github.otanikotani.workflow.action.GitHubWorkflowReloadListAction"
+                    class="org.github.otanikotani.workflow.action.GitHubWorkflowRunReloadListAction"
                     use-shortcut-of="Refresh"/>
             <action id="Github.Workflow.Run.List.Reload"
                     class="org.github.otanikotani.workflow.action.GitHubWorkflowRunReloadAction"
                     use-shortcut-of="Refresh"/>
         </group>
 
-        <action id="Github.View.Workflow" class="org.github.otanikotani.workflow.action.GithubViewWorkflowsAction">
+        <action id="Github.View.Workflow" class="org.github.otanikotani.workflow.action.GithubViewWorkflowRunAction">
             <add-to-group group-id="Git.Menu"/>
         </action>
     </actions>

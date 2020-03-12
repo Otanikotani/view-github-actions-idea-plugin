@@ -17,16 +17,16 @@ import com.intellij.util.textCompletion.TextFieldWithCompletion
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
-import org.github.otanikotani.workflow.data.GitHubWorkflowSearchQuery
-import org.github.otanikotani.workflow.data.GitHubWorkflowSearchQueryHolder
+import org.github.otanikotani.workflow.data.GitHubWorkflowRunSearchQuery
+import org.github.otanikotani.workflow.data.GitHubWorkflowRunSearchQueryHolder
 import org.jetbrains.plugins.github.api.data.GithubIssueState
 import org.jetbrains.plugins.github.api.data.request.search.GithubIssueSearchSort
 import org.jetbrains.plugins.github.util.GithubUIUtil
 import java.awt.event.KeyEvent
 import javax.swing.KeyStroke
 
-internal class GitHubWorkflowSearchPanel(project: Project,
-                                         private val holder: GitHubWorkflowSearchQueryHolder)
+internal class GitHubWorkflowRunSearchPanel(project: Project,
+                                            private val holder: GitHubWorkflowRunSearchQueryHolder)
     : BorderLayoutPanel(), Disposable {
 
     private val searchField = object : TextFieldWithCompletion(project, SearchCompletionProvider(), "", true, true, false, false) {
@@ -67,7 +67,7 @@ internal class GitHubWorkflowSearchPanel(project: Project,
     }
 
     private fun updateQuery() {
-        holder.query = GitHubWorkflowSearchQuery.parseFromString(searchField.text)
+        holder.query = GitHubWorkflowRunSearchQuery.parseFromString(searchField.text)
     }
 
     override fun updateUI() {
@@ -98,35 +98,35 @@ internal class GitHubWorkflowSearchPanel(project: Project,
         override fun addCompletionVariants(text: String, offset: Int, prefix: String, result: CompletionResultSet) {
             val qualifierName = getCurrentQualifierName(text, offset)
             if (qualifierName == null) {
-                result.addElement(LookupElementBuilder.create(GitHubWorkflowSearchQuery.QualifierName.state)
+                result.addElement(LookupElementBuilder.create(GitHubWorkflowRunSearchQuery.QualifierName.state)
                     .withTailText(":")
                     .withInsertHandler(addColonInsertHandler))
-                result.addElement(LookupElementBuilder.create(GitHubWorkflowSearchQuery.QualifierName.author)
-                    .withTailText(":")
-                    .withTypeText("username", true)
-                    .withInsertHandler(addColonInsertHandler))
-                result.addElement(LookupElementBuilder.create(GitHubWorkflowSearchQuery.QualifierName.assignee)
+                result.addElement(LookupElementBuilder.create(GitHubWorkflowRunSearchQuery.QualifierName.author)
                     .withTailText(":")
                     .withTypeText("username", true)
                     .withInsertHandler(addColonInsertHandler))
-                result.addElement(LookupElementBuilder.create(GitHubWorkflowSearchQuery.QualifierName.after)
+                result.addElement(LookupElementBuilder.create(GitHubWorkflowRunSearchQuery.QualifierName.assignee)
+                    .withTailText(":")
+                    .withTypeText("username", true)
+                    .withInsertHandler(addColonInsertHandler))
+                result.addElement(LookupElementBuilder.create(GitHubWorkflowRunSearchQuery.QualifierName.after)
                     .withTailText(":")
                     .withTypeText("YYYY-MM-DD", true)
                     .withInsertHandler(addColonInsertHandler))
-                result.addElement(LookupElementBuilder.create(GitHubWorkflowSearchQuery.QualifierName.before)
+                result.addElement(LookupElementBuilder.create(GitHubWorkflowRunSearchQuery.QualifierName.before)
                     .withTailText(":")
                     .withTypeText("YYYY-MM-DD", true)
                     .withInsertHandler(addColonInsertHandler))
-                result.addElement(LookupElementBuilder.create(GitHubWorkflowSearchQuery.QualifierName.sortBy)
+                result.addElement(LookupElementBuilder.create(GitHubWorkflowRunSearchQuery.QualifierName.sortBy)
                     .withTailText(":")
                     .withInsertHandler(addColonInsertHandler))
             } else when {
-                qualifierName.equals(GitHubWorkflowSearchQuery.QualifierName.state.name, true) -> {
+                qualifierName.equals(GitHubWorkflowRunSearchQuery.QualifierName.state.name, true) -> {
                     for (state in GithubIssueState.values()) {
                         result.addElement(LookupElementBuilder.create(state.name))
                     }
                 }
-                qualifierName.equals(GitHubWorkflowSearchQuery.QualifierName.sortBy.name, true) -> {
+                qualifierName.equals(GitHubWorkflowRunSearchQuery.QualifierName.sortBy.name, true) -> {
                     for (sort in GithubIssueSearchSort.values()) {
                         result.addElement(LookupElementBuilder.create(sort.name))
                     }

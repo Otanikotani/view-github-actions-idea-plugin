@@ -22,7 +22,7 @@ import org.jetbrains.plugins.github.util.GithubGitHelper
 import kotlin.properties.Delegates.observable
 
 @Service
-internal class GitHubWorkflowManager(private val project: Project) {
+internal class GitHubWorkflowRunManager(private val project: Project) {
     private val gitHelper = GithubGitHelper.getInstance()
     private val settings = GithubPullRequestsProjectUISettings.getInstance(project)
 
@@ -80,6 +80,6 @@ internal class GitHubWorkflowManager(private val project: Project) {
             else application.invokeLater({ runnable() }) { project.isDisposed }
         }
 
-        private fun updateRemotes(project: Project) = project.service<GitHubWorkflowManager>().updateRemoteUrls()
+        private fun updateRemotes(project: Project) = project.service<GitHubWorkflowRunManager>().updateRemoteUrls()
     }
 }
