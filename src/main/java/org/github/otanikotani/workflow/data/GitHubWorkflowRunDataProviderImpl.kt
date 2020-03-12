@@ -30,11 +30,10 @@ class GitHubWorkflowRunDataProviderImpl(private val progressManager: ProgressMan
 
     override val workflowRunRequest by backgroundProcessValue(workflowRunValue)
 
-    private val logValue = backingValue {
-        """ 
-            Log for ${id}
-        """.trimIndent()
+    private val logValue: LazyCancellableBackgroundProcessValue<String> = backingValue {
+       requestExecutor.execute(it, Workflows.getWorkflowLog("https://api.github.com/repos/otanikotani/single-action-run/actions/runs/54299372/logs"))
     }
+
     override val logRequest by backgroundProcessValue(logValue)
 
     @CalledInAwt

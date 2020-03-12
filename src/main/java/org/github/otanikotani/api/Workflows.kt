@@ -2,11 +2,17 @@ package org.github.otanikotani.api
 
 import org.github.otanikotani.workflow.GitHubRepositoryCoordinates
 import org.jetbrains.plugins.github.api.GithubApiRequest
+import org.jetbrains.plugins.github.api.GithubApiRequest.Get
+import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
+import org.jetbrains.plugins.github.api.GithubApiRequestExecutorManager
 import org.jetbrains.plugins.github.api.GithubApiRequests
 import org.jetbrains.plugins.github.api.data.request.GithubRequestPagination
 import org.jetbrains.plugins.github.api.util.GithubApiSearchQueryBuilder
 import org.jetbrains.plugins.github.api.util.GithubApiUrlQueryBuilder
+import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager
+import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 data class GitHubWorkflows(
     val total_count: Int,
@@ -71,16 +77,20 @@ object Workflows : GithubApiRequests.Entity("/repos") {
     fun getWorkflows(coordinates: GitHubRepositoryCoordinates): GithubApiRequest<GitHubWorkflows> {
         val serverUrl = coordinates.serverPath.toApiUrl()
         val repoPath = coordinates.repositoryPath
-        val url = String.format("%s%s/%s/%s/actions/workflows",
-            serverUrl, urlSuffix, repoPath.owner, repoPath.repository)
-        return GithubApiRequest.Get.Json(url, GitHubWorkflows::class.java, null)
+        val url = String.format("%s%s/%s/%s/actions/workflows",              serverUrl, urlSuffix, repoPath.owner, repoPath.repository)
+        return Get.Json(url, GitHubWorkflows::class.java, null)
             .withOperationName("get workflows")
     }
 
     @JvmStatic
     fun getWorkflowByUrl(url: String): GithubApiRequest<GitHubWorkflow> {
-        return GithubApiRequest.Get.Json(url, GitHubWorkflow::class.java, null)
+        return Get.Json(url, GitHubWorkflow::class.java, null)
             .withOperationName("get workflow")
+    }
+
+    @JvmStatic
+    fun getWorkflowLog(url: String): GithubApiRequest<String> {
+        return WorkflowRunLogGet(url)
     }
 
     @JvmStatic
