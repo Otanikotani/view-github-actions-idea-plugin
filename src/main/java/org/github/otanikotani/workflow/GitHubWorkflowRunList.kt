@@ -3,10 +3,14 @@ package org.github.otanikotani.workflow
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.actionSystem.PlatformDataKeys
+import com.intellij.ui.ColorUtil
+import com.intellij.ui.JBColor
 import com.intellij.ui.ListUtil
 import com.intellij.ui.ScrollingUtil
+import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBList
 import com.intellij.util.text.DateFormatUtil
+import com.intellij.util.ui.JBDimension
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.ListUiUtil
 import com.intellij.util.ui.UIUtil
@@ -19,7 +23,10 @@ import org.github.otanikotani.api.GitHubWorkflow
 import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.workflow.action.GitHubWorkflowActionKeys
 import org.jetbrains.concurrency.cancelledPromise
+import org.jetbrains.plugins.github.api.data.GHLabel
 import org.jetbrains.plugins.github.api.data.pullrequest.GHPullRequestState
+import org.jetbrains.plugins.github.util.GithubUIUtil
+import java.awt.Color
 import java.awt.Component
 import java.awt.event.MouseEvent
 import java.util.*
@@ -76,9 +83,6 @@ class GitHubWorkflowRunList(model: ListModel<GitHubWorkflowRun>)
                 .minWidth("pref/2px")
                 .growX()
                 .pushX())
-            add(date, CC()
-                .minWidth("0px")
-                .spanX(2))
             add(labels, CC()
                 .growX()
                 .pushX()
@@ -128,14 +132,24 @@ class GitHubWorkflowRunList(model: ListModel<GitHubWorkflowRun>)
                 foreground = primaryTextColor
             }
             info.apply {
-                text = "${value.workflowName} #${value.run_number}: pushed by ${value.head_commit.author.name}"
+                text = "${value.workflowName} #${value.run_number}: " +
+                    "pushed by ${value.head_commit.author.name} " +
+                    "on ${DateFormatUtil.formatPrettyDateTime(value.updated_at ?: Date())}"
                 foreground = secondaryTextColor
             }
-            date.apply {
-                text = DateFormatUtil.formatPrettyDateTime(value.updated_at ?: Date())
-                foreground = secondaryTextColor
+            labels.apply {
+                removeAll()
+                add(JBLabel(" ${value.head_branch} ", UIUtil.ComponentStyle.SMALL).apply {
+                    foreground = JBColor(ColorUtil.softer(Color.blue), ColorUtil.darker(Color.blue, 3))
+                })
+                add(Box.createRigidArea(JBDimension(4, 0)))
             }
             return this
         }
     }
+
+    fun getBranchBackground(): JBColor {
+        return JBColor(ColorUtil.softer(Color.blue), ColorUtil.darker(Color.blue, 3))
+    }
+
 }
