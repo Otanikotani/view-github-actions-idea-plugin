@@ -19,10 +19,18 @@ class GitHubWorkflowLogPanel(private val model: SingleValueModel<String?>)
             .gridGap("0", "0")
             .insets("0", "0", "0", "0"))
 
-        log.text = model.value ?: "NO LOG"
+        if (model.value.isNullOrBlank()) {
+            log.text = "NO LOG"
+        } else {
+            log.text = model.value
+        }
 
         model.addValueChangedListener {
-            log.text = model.value ?: "NO LOG"
+            if (model.value.isNullOrBlank()) {
+                log.text = "NO LOG"
+            } else {
+                log.text = model.value
+            }
         }
 
         add(log, CC()

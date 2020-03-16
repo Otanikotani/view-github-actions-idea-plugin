@@ -1,5 +1,8 @@
 package org.github.otanikotani.workflow
 
+import com.intellij.execution.filters.TextConsoleBuilderFactory
+import com.intellij.execution.impl.ConsoleViewImpl
+import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.ide.DataManager
 import com.intellij.ide.actions.RefreshAction
 import com.intellij.openapi.Disposable
@@ -19,10 +22,10 @@ import com.intellij.ui.*
 import com.intellij.ui.components.JBPanelWithEmptyText
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
+import com.jetbrains.rd.util.string.println
 import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.workflow.action.GitHubWorkflowRunActionKeys
 import org.github.otanikotani.workflow.data.GitHubWorkflowRunDataProvider
-import org.github.otanikotani.workflow.ui.GitHubWorkflowLogPanel
 import org.github.otanikotani.workflow.ui.GitHubWorkflowRunList
 import org.github.otanikotani.workflow.ui.GitHubWorkflowRunListLoaderPanel
 import org.jetbrains.annotations.CalledInAwt
@@ -155,32 +158,22 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
     }
 
     private fun createLogPanel(context: GitHubWorkflowRunDataContext, logModel: SingleValueModel<String?>, disposable: Disposable): JBPanelWithEmptyText {
-        val logPanel = GitHubWorkflowLogPanel(logModel).apply {
-            border = JBUI.Borders.empty(4, 8, 4, 8)
-        }
-
-        val scrollablePanel = ScrollablePanel(VerticalFlowLayout(0, 0)).apply {
-            isOpaque = false
-            add(logPanel)
-        }
-        val scrollPane = ScrollPaneFactory.createScrollPane(scrollablePanel, true).apply {
-            viewport.isOpaque = false
-            isOpaque = false
-        }.also {
-//            val actionGroup = actionManager.getAction("Github.PullRequest.Details.Popup") as ActionGroup
-//            PopupHandler.installPopupHandler(it, actionGroup, ActionPlaces.UNKNOWN, actionManager)
-        }
-
-        scrollPane.isVisible = logModel.value != null
-
+        val console = ConsoleViewImpl(project, true)
         logModel.addValueChangedListener {
-            scrollPane.isVisible = logModel.value != null
+            console.clear()
+            if (logModel.value.isNullOrBlank()) {
+                console.print( "NO LOG", ConsoleViewContentType.NORMAL_OUTPUT)
+            } else {
+                console.print(logModel.value!!, ConsoleViewContentType.NORMAL_OUTPUT)
+            }
         }
+        Disposer.register(disposable, Disposable {
+            Disposer.dispose(console)
+        })
 
         val panel = JBPanelWithEmptyText(BorderLayout()).apply {
             isOpaque = false
-
-            add(scrollPane, BorderLayout.CENTER)
+            add(console.component, BorderLayout.CENTER)
         }
         logModel.addValueChangedListener {
             panel.validate()
