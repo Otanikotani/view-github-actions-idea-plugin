@@ -22,6 +22,7 @@ class GitHubWorkflowRunLogConsole(project: Project,
                 myTextAnsiEscapeDecoder.escapeText(logModel.value!!, ProcessOutputTypes.STDOUT, this)
             }
         }
+
         Disposer.register(disposable, Disposable {
             Disposer.dispose(this)
         })

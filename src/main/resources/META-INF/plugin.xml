@@ -78,7 +78,7 @@
         <group id="Github.Workflow.Log.ToolWindow.List.Popup">
             <reference id="Github.Open.In.Browser"/>
             <action id="Github.Workflow.Log.List.Reload"
-                    class="org.github.otanikotani.workflow.action.GitHubWorkflowLogReloadAction" use-shortcut-of="Refresh"/>
+                    class="org.github.otanikotani.workflow.action.GitHubWorkflowLogReloadAction"/>
         </group>
     </actions>
 

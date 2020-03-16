@@ -6,12 +6,15 @@ import com.intellij.ide.actions.RefreshAction
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.editor.event.EditorMouseEvent
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.editor.ex.EditorEx
-import com.intellij.openapi.editor.ex.EditorPopupHandler
 import com.intellij.openapi.editor.impl.ContextMenuPopupHandler
+import com.intellij.openapi.editor.impl.softwrap.SoftWrapAppliancePlaces
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
@@ -128,7 +131,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
         val logLoadingModel = createLogLoadingModel(dataProviderModel, disposable)
         val logModel = createValueModel(logLoadingModel)
 
-        val logPanel = createLogPanel(context, logModel, disposable)
+        val logPanel = createLogPanel(logModel, disposable)
         val logLoadingPanel = GHLoadingPanel(logLoadingModel, logPanel, disposable,
             GHLoadingPanel.EmptyTextBundle.Simple("Select workflow run to see the log",
                 "Can't load log")).apply {
@@ -159,7 +162,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
         }
     }
 
-    private fun createLogPanel(context: GitHubWorkflowRunDataContext, logModel: SingleValueModel<String?>, disposable: Disposable): JBPanelWithEmptyText {
+    private fun createLogPanel(logModel: SingleValueModel<String?>, disposable: Disposable): JBPanelWithEmptyText {
         val console = GitHubWorkflowRunLogConsole(project, logModel, disposable)
 
         val panel = JBPanelWithEmptyText(BorderLayout()).apply {
@@ -168,6 +171,22 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
 
         }
         installLogPopup(console)
+
+        val editor = console.editor
+
+        val consoleActionsGroup = DefaultActionGroup()
+
+        val reloadAction = actionManager.getAction("Github.Workflow.Log.List.Reload")
+        consoleActionsGroup.add(reloadAction)
+        consoleActionsGroup.add(object : ToggleUseSoftWrapsToolbarAction(SoftWrapAppliancePlaces.CONSOLE) {
+            override fun getEditor(e: AnActionEvent): Editor? {
+                return editor
+            }
+        })
+        val toolbar = ActionManager.getInstance().createActionToolbar("WorkflowLogConsole", consoleActionsGroup, false)
+
+        panel.add(toolbar.component, BorderLayout.EAST)
+
         logModel.addValueChangedListener {
             panel.validate()
         }
@@ -202,55 +221,20 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
             }
         }.also {
             listReloadAction.registerCustomShortcutSet(it, disposable)
+
+
+            val logActionsGroup = DefaultActionGroup()
+            logActionsGroup.add(listReloadAction)
+            val toolbar = ActionManager.getInstance().createActionToolbar("WorkflowRuns", logActionsGroup,
+                false)
+
+            it.add(toolbar.component, BorderLayout.WEST)
+
             Disposer.register(disposable, Disposable {
                 Disposer.dispose(it)
             })
         }
     }
-
-//    private fun createDetailsPanel(dataContext: GHWorkflowDataContext,
-//                                   detailsModel: SingleValueModel<GHPullRequest?>,
-//                                   avatarIconsProviderFactory: CachingGithubAvatarIconsProvider.Factory,
-//                                   parentDisposable: Disposable): JBPanelWithEmptyText {
-//        val metaPanel = GHPRMetadataPanel(project, detailsModel,
-//            dataContext.securityService,
-//            dataContext.busyStateTracker,
-//            dataContext.metadataService,
-//            avatarIconsProviderFactory).apply {
-//            border = JBUI.Borders.empty(4, 8, 4, 8)
-//        }.also {
-//            Disposer.register(parentDisposable, it)
-//        }
-//
-//        val descriptionPanel = GHPRDescriptionPanel(detailsModel).apply {
-//            border = JBUI.Borders.empty(4, 8, 8, 8)
-//        }
-//
-//        val scrollablePanel = ScrollablePanel(VerticalFlowLayout(0, 0)).apply {
-//            isOpaque = false
-//            add(metaPanel)
-//            add(descriptionPanel)
-//        }
-//        val scrollPane = ScrollPaneFactory.createScrollPane(scrollablePanel, true).apply {
-//            viewport.isOpaque = false
-//            isOpaque = false
-//        }.also {
-//            val actionGroup = actionManager.getAction("Github.PullRequest.Details.Popup") as ActionGroup
-//            PopupHandler.installPopupHandler(it, actionGroup, ActionPlaces.UNKNOWN, actionManager)
-//        }
-//
-//        scrollPane.isVisible = detailsModel.value != null
-//
-//        detailsModel.addValueChangedListener {
-//            scrollPane.isVisible = detailsModel.value != null
-//        }
-//
-//        return JBPanelWithEmptyText(BorderLayout()).apply {
-//            isOpaque = false
-//
-//            add(scrollPane, BorderLayout.CENTER)
-//        }
-//    }
 
     private fun installWorkflowRunSelectionSaver(list: GitHubWorkflowRunList, listSelectionHolder: GitHubWorkflowRunListSelectionHolder) {
         var savedSelection: GitHubWorkflowRun? = null
