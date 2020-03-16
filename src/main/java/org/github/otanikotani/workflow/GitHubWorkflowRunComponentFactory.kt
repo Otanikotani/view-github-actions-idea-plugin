@@ -194,7 +194,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
         }
 
         //Cannot seem to have context menu, when right click, why?
-        val listReloadAction = actionManager.getAction("Github.Workflow.Run.List.Reload") as RefreshAction
+        val listReloadAction = actionManager.getAction("Github.Workflow.List.Reload") as RefreshAction
 
         return GitHubWorkflowRunListLoaderPanel(context.listLoader, listReloadAction, list).apply {
             errorHandler = GitHubLoadingErrorHandler {
