@@ -11,11 +11,11 @@ import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
 import org.jetbrains.plugins.github.ui.util.DisposingWrapper
 import org.jetbrains.plugins.github.util.GitRemoteUrlCoordinates
 
-class GitHubWorkflowExecutorComponent(private val requestExecutorManager: GithubApiRequestExecutorManager,
-                                      private val project: Project,
-                                      private val remoteUrl: GitRemoteUrlCoordinates,
-                                      val account: GithubAccount,
-                                      parentDisposable: Disposable)
+class GitHubWorkflowRunExecutorComponent(private val requestExecutorManager: GithubApiRequestExecutorManager,
+                                         private val project: Project,
+                                         private val remoteUrl: GitRemoteUrlCoordinates,
+                                         val account: GithubAccount,
+                                         parentDisposable: Disposable)
     : DisposingWrapper(parentDisposable) {
 
     private val componentFactory by lazy(LazyThreadSafetyMode.NONE) { project.service<GitHubWorkflowRunComponentFactory>() }

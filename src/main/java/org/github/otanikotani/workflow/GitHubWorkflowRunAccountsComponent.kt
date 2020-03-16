@@ -76,6 +76,6 @@ internal class GitHubWorkflowRunAccountsComponent(private val authManager: Githu
     private fun setActualContent(account: GithubAccount) {
         selectedAccount = account
         val disposable = Disposer.newDisposable()
-        setContent(GitHubWorkflowExecutorComponent(requestExecutorManager, project, remoteUrl, account, disposable), disposable)
+        setContent(GitHubWorkflowRunExecutorComponent(requestExecutorManager, project, remoteUrl, account, disposable), disposable)
     }
 }
