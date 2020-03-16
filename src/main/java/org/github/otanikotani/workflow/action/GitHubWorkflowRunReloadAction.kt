@@ -4,13 +4,13 @@ import com.intellij.icons.AllIcons
 import com.intellij.ide.actions.RefreshAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 
-class GitHubWorkflowRunReloadAction : RefreshAction("Refresh List", null, AllIcons.Actions.Refresh) {
+class GitHubWorkflowRunReloadAction : RefreshAction("Refresh Workflow Runs List", null, AllIcons.Actions.Refresh) {
     override fun update(e: AnActionEvent) {
-        val context = e.getData(GitHubWorkflowRunActionKeys.RUN_ACTION_DATA_CONTEXT)
+        val context = e.getData(GitHubWorkflowRunActionKeys.ACTION_DATA_CONTEXT)
         e.presentation.isEnabled = context != null
     }
 
     override fun actionPerformed(e: AnActionEvent) {
-        e.getRequiredData(GitHubWorkflowRunActionKeys.RUN_ACTION_DATA_CONTEXT).resetAllData()
+        e.getRequiredData(GitHubWorkflowRunActionKeys.ACTION_DATA_CONTEXT).resetAllData()
     }
 }

@@ -1,8 +1,6 @@
 package org.github.otanikotani.workflow
 
-import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.impl.ConsoleViewImpl
-import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.ide.DataManager
 import com.intellij.ide.actions.RefreshAction
 import com.intellij.openapi.Disposable
@@ -10,20 +8,22 @@ import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.editor.event.EditorMouseEvent
+import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.editor.ex.EditorPopupHandler
+import com.intellij.openapi.editor.impl.ContextMenuPopupHandler
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ui.componentsList.components.ScrollablePanel
 import com.intellij.openapi.ui.Splitter
-import com.intellij.openapi.ui.VerticalFlowLayout
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.registry.Registry
-import com.intellij.ui.*
+import com.intellij.ui.OnePixelSplitter
+import com.intellij.ui.PopupHandler
+import com.intellij.ui.ScrollingUtil
 import com.intellij.ui.components.JBPanelWithEmptyText
-import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
-import com.jetbrains.rd.util.string.println
 import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.workflow.action.GitHubWorkflowRunActionKeys
 import org.github.otanikotani.workflow.data.GitHubWorkflowRunDataProvider
@@ -132,7 +132,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
         val logLoadingPanel = GHLoadingPanel(logLoadingModel, logPanel, disposable,
             GHLoadingPanel.EmptyTextBundle.Simple("Select workflow run to see the log",
                 "Can't load log")).apply {
-//            errorHandler = GHLoadingErrorHandlerImpl() { dataProviderModel.value?.reloadWorkflowRun() }
+            //            errorHandler = GHLoadingErrorHandlerImpl() { dataProviderModel.value?.reloadWorkflowRun() }
         }
 
         val selectionDataContext = GitHubWorkflowRunSelectionContext(context, listSelectionHolder)
@@ -165,7 +165,9 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
         val panel = JBPanelWithEmptyText(BorderLayout()).apply {
             isOpaque = false
             add(console.component, BorderLayout.CENTER)
+
         }
+        installLogPopup(console)
         logModel.addValueChangedListener {
             panel.validate()
         }
@@ -280,14 +282,21 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
     private fun installPopup(list: GitHubWorkflowRunList) {
         val popupHandler = object : PopupHandler() {
             override fun invokePopup(comp: java.awt.Component, x: Int, y: Int) {
-                    val popupMenu = actionManager
-                        .createActionPopupMenu("GithubWorkflowListPopup",
-                            actionManager.getAction("Github.Workflow.ToolWindow.List.Popup") as ActionGroup)
-                    popupMenu.setTargetComponent(list)
-                    popupMenu.component.show(comp, x, y)
+                val popupMenu = actionManager
+                    .createActionPopupMenu("GithubWorkflowListPopup",
+                        actionManager.getAction("Github.Workflow.ToolWindow.List.Popup") as ActionGroup)
+                popupMenu.setTargetComponent(list)
+                popupMenu.component.show(comp, x, y)
             }
         }
         list.addMouseListener(popupHandler)
+    }
+
+    private fun installLogPopup(console: ConsoleViewImpl) {
+        val actionGroup = actionManager.getAction("Github.Workflow.Log.ToolWindow.List.Popup") as ActionGroup
+        val contextMenuPopupHandler = ContextMenuPopupHandler.Simple(actionGroup)
+
+        (console.editor as EditorEx).installPopupHandler(contextMenuPopupHandler)
     }
 
     private fun createDataProviderModel(context: GitHubWorkflowRunDataContext,
@@ -365,7 +374,6 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
         })
         return model
     }
-
 
 
 }

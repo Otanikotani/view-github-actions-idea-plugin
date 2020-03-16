@@ -62,14 +62,25 @@
 
 
     <actions>
+
+        <group id="Github.Workflow.ToolWindow.List.Popup">
+            <reference id="Github.Open.In.Browser"/>
+            <action id="Github.Workflow.List.Reload"
+                    class="org.github.otanikotani.workflow.action.GitHubWorkflowRunReloadListAction" use-shortcut-of="Refresh"/>
+        </group>
+        
+        <group id="Github.Workflow.Log.ToolWindow.List.Popup">
+            <reference id="Github.Open.In.Browser"/>
+            <action id="Github.Workflow.Log.List.Reload"
+                    class="org.github.otanikotani.workflow.action.GitHubWorkflowLogReloadAction" use-shortcut-of="Refresh"/>
+        </group>
+
         <group id="GHWorkflows.ActionGroup" popup="false">
 <!--            <action id="Github.Workflow.Timeline.Show"-->
 <!--                    class="org.jetbrains.plugins.github.pullrequest.action.GHPRShowTimelineAction"/>-->
 <!--            <reference id="Github.Open.In.Browser"/>-->
             <reference id="Github.Open.In.Browser"/>
-            <action id="Github.Workflow.List.Reload"
-                    class="org.github.otanikotani.workflow.action.GitHubWorkflowRunReloadListAction"
-                    use-shortcut-of="Refresh"/>
+            <reference id="Github.Workflow.List.Reload"/>
             <action id="Github.Workflow.Run.List.Reload"
                     class="org.github.otanikotani.workflow.action.GitHubWorkflowRunReloadAction"
                     use-shortcut-of="Refresh"/>
@@ -79,11 +90,6 @@
             <add-to-group group-id="Git.Menu"/>
         </action>
 
-        <group id="Github.Workflow.ToolWindow.List.Popup">
-            <reference id="Github.Open.In.Browser"/>
-            <action id="Github.Workflow.List.Reload"
-                    class="org.github.otanikotani.workflow.action.GitHubWorkflowRunReloadListAction" use-shortcut-of="Refresh"/>
-        </group>
 
     </actions>
 
