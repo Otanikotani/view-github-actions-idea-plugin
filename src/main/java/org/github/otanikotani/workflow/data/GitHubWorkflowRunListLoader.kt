@@ -71,9 +71,9 @@ class GitHubWorkflowRunListLoader(progressManager: ProgressManager,
         val request = Workflows.getWorkflowRuns(gitHubRepositoryCoordinates)
         val result = requestExecutor.execute(indicator, request).workflow_runs
 
-//        result.forEach {
-//            it.workflowName = gitHubWorkflowDataLoader.getWorkflow(it.workflow_url).name
-//        }
+        result.parallelStream().forEach {
+            it.workflowName = requestExecutor.execute(Workflows.getWorkflowByUrl(it.workflow_url)).name
+        }
         loaded = true
         return result
     }

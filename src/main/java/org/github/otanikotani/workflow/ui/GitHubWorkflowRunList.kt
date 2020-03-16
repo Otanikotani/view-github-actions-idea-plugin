@@ -19,11 +19,15 @@ import net.miginfocom.layout.LC
 import net.miginfocom.swing.MigLayout
 import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.workflow.action.GitHubWorkflowRunActionKeys
-import java.awt.Color
+import org.ocpsoft.prettytime.PrettyTime
 import java.awt.Component
 import java.awt.event.MouseEvent
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 import java.util.*
 import javax.swing.*
+
 
 class GitHubWorkflowRunList(model: ListModel<GitHubWorkflowRun>)
     : JBList<GitHubWorkflowRun>(model), DataProvider {
@@ -119,13 +123,16 @@ class GitHubWorkflowRunList(model: ListModel<GitHubWorkflowRun>)
                 text = value.head_commit.message
                 foreground = primaryTextColor
             }
+            var updatedAtLabel = "Unknown"
+            if (value.updated_at != null) {
+             updatedAtLabel = makeTimePretty(value.updated_at)
+            }
             info.apply {
                 text = "${value.workflowName} #${value.run_number}: " +
                     "pushed by ${value.head_commit.author.name} " +
-                    "on ${DateFormatUtil.formatPrettyDateTime(value.updated_at ?: Date())}"
+                    "on $updatedAtLabel"
                 foreground = secondaryTextColor
             }
-//            #F2F2F2
             labels.apply {
                 removeAll()
                 add(JBLabel(" ${value.head_branch} ", UIUtil.ComponentStyle.SMALL).apply {
@@ -134,6 +141,12 @@ class GitHubWorkflowRunList(model: ListModel<GitHubWorkflowRun>)
                 add(Box.createRigidArea(JBDimension(4, 0)))
             }
             return this
+        }
+
+        fun makeTimePretty(date: Date): String {
+            val localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+            val zonedDateTime = localDateTime.atZone(ZoneOffset.UTC)
+            return DateFormatUtil.formatPrettyDateTime(zonedDateTime.toInstant().toEpochMilli())
         }
     }
 }
