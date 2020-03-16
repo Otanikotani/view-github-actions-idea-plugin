@@ -125,10 +125,11 @@ class GitHubWorkflowRunList(model: ListModel<GitHubWorkflowRun>)
                     "on ${DateFormatUtil.formatPrettyDateTime(value.updated_at ?: Date())}"
                 foreground = secondaryTextColor
             }
+//            #F2F2F2
             labels.apply {
                 removeAll()
                 add(JBLabel(" ${value.head_branch} ", UIUtil.ComponentStyle.SMALL).apply {
-                    foreground = JBColor(ColorUtil.softer(Color.blue), ColorUtil.darker(Color.blue, 3))
+                    foreground = JBColor(ColorUtil.softer(secondaryTextColor), ColorUtil.softer(secondaryTextColor))
                 })
                 add(Box.createRigidArea(JBDimension(4, 0)))
             }
