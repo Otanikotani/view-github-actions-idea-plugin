@@ -28,6 +28,7 @@ import org.github.otanikotani.workflow.action.GitHubWorkflowRunActionKeys
 import org.github.otanikotani.workflow.data.GitHubWorkflowRunDataProvider
 import org.github.otanikotani.workflow.ui.GitHubWorkflowRunList
 import org.github.otanikotani.workflow.ui.GitHubWorkflowRunListLoaderPanel
+import org.github.otanikotani.workflow.ui.GitHubWorkflowRunLogConsole
 import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
@@ -158,18 +159,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
     }
 
     private fun createLogPanel(context: GitHubWorkflowRunDataContext, logModel: SingleValueModel<String?>, disposable: Disposable): JBPanelWithEmptyText {
-        val console = ConsoleViewImpl(project, true)
-        logModel.addValueChangedListener {
-            console.clear()
-            if (logModel.value.isNullOrBlank()) {
-                console.print( "NO LOG", ConsoleViewContentType.NORMAL_OUTPUT)
-            } else {
-                console.print(logModel.value!!, ConsoleViewContentType.NORMAL_OUTPUT)
-            }
-        }
-        Disposer.register(disposable, Disposable {
-            Disposer.dispose(console)
-        })
+        val console = GitHubWorkflowRunLogConsole(project, logModel, disposable)
 
         val panel = JBPanelWithEmptyText(BorderLayout()).apply {
             isOpaque = false
