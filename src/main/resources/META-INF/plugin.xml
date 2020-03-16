@@ -78,6 +78,13 @@
         <action id="Github.View.Workflow" class="org.github.otanikotani.workflow.action.GithubViewWorkflowRunAction">
             <add-to-group group-id="Git.Menu"/>
         </action>
+
+        <group id="Github.Workflow.ToolWindow.List.Popup">
+            <reference id="Github.Open.In.Browser"/>
+            <action id="Github.Workflow.List.Reload"
+                    class="org.github.otanikotani.workflow.action.GitHubWorkflowRunReloadListAction" use-shortcut-of="Refresh"/>
+        </group>
+
     </actions>
 
 </idea-plugin>

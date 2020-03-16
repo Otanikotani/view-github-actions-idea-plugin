@@ -18,9 +18,7 @@ class GitHubWorkflowRunLogConsole(project: Project,
         val myTextAnsiEscapeDecoder = AnsiEscapeDecoder()
         logModel.addValueChangedListener {
             this.clear()
-            if (logModel.value.isNullOrBlank()) {
-                this.print("NO LOG", ConsoleViewContentType.NORMAL_OUTPUT)
-            } else {
+            if (!logModel.value.isNullOrBlank()) {
                 myTextAnsiEscapeDecoder.escapeText(logModel.value!!, ProcessOutputTypes.STDOUT, this)
             }
         }

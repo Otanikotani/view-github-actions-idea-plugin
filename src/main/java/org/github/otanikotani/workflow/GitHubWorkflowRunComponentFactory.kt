@@ -6,6 +6,7 @@ import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.ide.DataManager
 import com.intellij.ide.actions.RefreshAction
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
@@ -186,6 +187,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
                 override fun focusLost(e: FocusEvent?) {}
             })
 
+            installPopup(it)
             installWorkflowRunSelectionSaver(it, listSelectionHolder)
         }
 
@@ -273,6 +275,19 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
                 if (e.type == ListDataEvent.INTERVAL_REMOVED) savedSelection = listSelectionHolder.selection
             }
         })
+    }
+
+    private fun installPopup(list: GitHubWorkflowRunList) {
+        val popupHandler = object : PopupHandler() {
+            override fun invokePopup(comp: java.awt.Component, x: Int, y: Int) {
+                    val popupMenu = actionManager
+                        .createActionPopupMenu("GithubWorkflowListPopup",
+                            actionManager.getAction("Github.Workflow.ToolWindow.List.Popup") as ActionGroup)
+                    popupMenu.setTargetComponent(list)
+                    popupMenu.component.show(comp, x, y)
+            }
+        }
+        list.addMouseListener(popupHandler)
     }
 
     private fun createDataProviderModel(context: GitHubWorkflowRunDataContext,
