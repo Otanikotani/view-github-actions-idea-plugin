@@ -11,13 +11,15 @@ import java.util.zip.ZipInputStream
 
 class WorkflowRunLogGet(url: String) : GithubApiRequest.Get<String>(url) {
     override fun extractResult(response: GithubApiResponse): String {
-        return response.handleBody(ThrowableConvertor<InputStream, String, IOException> {
+        return response.handleBody(ThrowableConvertor {
             var result = ""
             ZipInputStream(it).use {
                 while (true) {
                     val entry = it.nextEntry ?: break
-                    if (entry.name == "1_build.txt") {
+                    val name = entry.name
+                    if (name != null && name.startsWith("1_") && name.endsWith(".txt") && !name.contains('(')) {
                         result = IOUtils.toString(it, StandardCharsets.UTF_8.toString())
+                        break
                     }
                 }
             }
