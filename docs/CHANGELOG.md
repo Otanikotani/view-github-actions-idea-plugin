@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.1.0...1.1.1) (2020-03-17)
+
+
+### Bug Fixes
+
+* **log:** Unzip the correct file ([ba9c06f](https://github.com/Otanikotani/view-github-actions-idea-plugin/commit/ba9c06ff096f511aabd89ecece2582224404018b))
+
 # [1.1.0](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.0.0...1.1.0) (2020-03-17)
 
 
