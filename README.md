@@ -1,4 +1,4 @@
-# GitHub Checks 
+# GitHub Actions
 
 ![](https://github.com/otanikotani/view-github-checks-idea-plugin/workflows/Check/badge.svg) [![codecov](https://codecov.io/gh/otanikotani/view-github-checks-idea-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/otanikotani/view-github-checks-idea-plugin) [![GitHub Checks](https://img.shields.io/badge/JB%20Repository-GitHub%20Checks-brightgreen.svg)](https://plugins.jetbrains.com/plugin/13793-github-checks "JetBrains Repo: GitHub Checks Plugin")
 
