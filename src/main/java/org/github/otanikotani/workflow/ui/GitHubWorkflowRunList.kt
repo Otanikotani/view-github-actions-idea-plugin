@@ -128,9 +128,13 @@ class GitHubWorkflowRunList(model: ListModel<GitHubWorkflowRun>)
             if (value.updated_at != null) {
                 updatedAtLabel = makeTimePretty(value.updated_at)
             }
+            var action = "pushed by"
+            if (value.event == "release") {
+                action = "created by"
+            }
             info.apply {
                 text = "${value.workflowName} #${value.run_number}: " +
-                    "pushed by ${value.head_commit.author.name} " +
+                    "$action ${value.head_commit.author.name} " +
                     "on $updatedAtLabel"
                 foreground = secondaryTextColor
             }

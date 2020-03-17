@@ -4,10 +4,7 @@ import com.intellij.execution.impl.ConsoleViewImpl
 import com.intellij.ide.DataManager
 import com.intellij.ide.actions.RefreshAction
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.ActionGroup
-import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Editor
@@ -22,6 +19,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Splitter
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.registry.Registry
+import com.intellij.ui.ListUtil
 import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.PopupHandler
 import com.intellij.ui.ScrollingUtil
@@ -266,9 +264,16 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
     private fun installPopup(list: GitHubWorkflowRunList) {
         val popupHandler = object : PopupHandler() {
             override fun invokePopup(comp: java.awt.Component, x: Int, y: Int) {
-                val popupMenu = actionManager
-                    .createActionPopupMenu("GithubWorkflowListPopup",
-                        actionManager.getAction("Github.Workflow.ToolWindow.List.Popup") as ActionGroup)
+
+                val popupMenu: ActionPopupMenu = if (ListUtil.isPointOnSelection(list, x, y)) {
+                    actionManager
+                        .createActionPopupMenu("GithubWorkflowListPopupSelected",
+                                    actionManager.getAction("Github.Workflow.ToolWindow.List.Popup.Selected") as ActionGroup)
+                } else {
+                    actionManager
+                        .createActionPopupMenu("GithubWorkflowListPopup",
+                                    actionManager.getAction("Github.Workflow.ToolWindow.List.Popup") as ActionGroup)
+                }
                 popupMenu.setTargetComponent(list)
                 popupMenu.component.show(comp, x, y)
             }

@@ -42,13 +42,11 @@ internal class GitHubWorkflowDataContextRepository {
             listModel)
 
         return GitHubWorkflowRunDataContext(
-            gitRemoteCoordinates,
             repositoryCoordinates,
             listModel,
             githubWorkflowDataLoader,
             listLoader,
-            account,
-            requestExecutor)
+            account)
     }
 
     companion object {
