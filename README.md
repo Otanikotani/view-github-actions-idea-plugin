@@ -6,7 +6,7 @@ A plugin for Intellij IDEA to display statuses of GitHub Checks of the current b
 
 [Jetbrains Repository Plugin page](https://plugins.jetbrains.com/plugin/13793-github-checks)
 
-![Checks Plugin](img/checks-plugin-screenshot-2.png)
+![Checks Plugin](img/checks-plugin-screenshot-3.png)
 
 ### Use cases:
 - Imagine having checks on pull requests that must pass before you can merge the pull request. With this plugin you can see whether the checks are passing without switching to GitHub website.
