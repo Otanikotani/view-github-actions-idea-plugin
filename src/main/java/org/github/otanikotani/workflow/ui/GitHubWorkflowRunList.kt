@@ -19,7 +19,6 @@ import net.miginfocom.layout.LC
 import net.miginfocom.swing.MigLayout
 import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.workflow.action.GitHubWorkflowRunActionKeys
-import org.ocpsoft.prettytime.PrettyTime
 import java.awt.Component
 import java.awt.event.MouseEvent
 import java.time.LocalDateTime
@@ -65,6 +64,7 @@ class GitHubWorkflowRunList(model: ListModel<GitHubWorkflowRun>)
         private val assignees = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.X_AXIS)
         }
+
         init {
             border = JBUI.Borders.empty(5, 8)
 
@@ -102,21 +102,22 @@ class GitHubWorkflowRunList(model: ListModel<GitHubWorkflowRun>)
                 icon = when (value.status) {
                     "completed" -> {
                         when (value.conclusion) {
-                            "success" ->  AllIcons.Actions.Checked
-                            else -> AllIcons.Process.Step_mask
+                            "success" -> AllIcons.Actions.Commit
+                            "failure" -> GitHubIcons.X
+                            else -> GitHubIcons.PrimitiveDot
                         }
-                    }//,
-//                    "queued" ->
-//                    "in progress" ->
-//                    "neutral" ->
-//                    "success" ->
-//                    "failure" ->
-//                    "cancelled" ->
-//                    "action required" ->
-//                    "timed out" ->
-//                    "skipped" ->
-//                    "stale" ->
-                        else -> AllIcons.Process.Step_mask
+                    }
+                    "queued" -> GitHubIcons.PrimitiveDot
+                    "in progress" -> GitHubIcons.PrimitiveDot
+                    "neutral" -> GitHubIcons.PrimitiveDot
+                    "success" -> AllIcons.Actions.Commit
+                    "failure" -> GitHubIcons.X
+                    "cancelled" -> GitHubIcons.X
+                    "action required" -> GitHubIcons.Watch
+                    "timed out" -> GitHubIcons.Watch
+                    "skipped" -> GitHubIcons.X
+                    "stale" -> GitHubIcons.Watch
+                    else -> GitHubIcons.PrimitiveDot
                 }
             }
             title.apply {
@@ -125,7 +126,7 @@ class GitHubWorkflowRunList(model: ListModel<GitHubWorkflowRun>)
             }
             var updatedAtLabel = "Unknown"
             if (value.updated_at != null) {
-             updatedAtLabel = makeTimePretty(value.updated_at)
+                updatedAtLabel = makeTimePretty(value.updated_at)
             }
             info.apply {
                 text = "${value.workflowName} #${value.run_number}: " +
