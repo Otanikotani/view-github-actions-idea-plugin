@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>org.github.otanikotani.checks-plugin</id>
-    <name>GitHub Checks</name>
+    <name>GitHub Actions</name>
     <vendor url="https://github.com/Otanikotani/view-github-checks-idea-plugin">
         Otanikotani
     </vendor>
@@ -8,27 +8,21 @@
     <idea-version since-build="193.5662"/>
 
     <description><![CDATA[
-        This plugin displays statuses of GitHub Checks for the current branch.
-        This plugin is a good alternative to alt-tabbing for every time you push some changed to the branch and want to see whether the repository's checks are passing on your changes.
+        This plugin displays statuses of GitHub Actions
+        This plugin is a good alternative to alt-tabbing for every time you push some changes to the branch and want to see whether the repository's checks are passing on your changes.
         Use cases:
-        - Imagine having checks on pull requests that must pass before you can merge the pull request. With this plugin you can see whether the checks are passing without switching to GitHub website.
+        - Imagine having some GitHub Workflows to set up to run on pull requests that must pass before you can merge the pull request. With this plugin you can see the status and the build log of the workflow
         - You did a push into some branch and you want to see how your GitHub Actions that were triggered by that push are doing. You can monitor the status of the actions via this plugin.
         <br>
         <br>
         Features:
         <ul>
-            <li>Adds a new tab - Checks - to the Version control tool window that shows the checks (see
-                https://developer.github.com/v3/checks/) of the currently checked out branch of the GitHub repository.
+            <li>Adds a new tab - Workflows - to the Version control tool window that shows the workflow runs (see
+                https://developer.github.com/v3/actions/) of the GitHub repository.
             </li>
-            <li>The Checks are refreshed periodically</li>
-            <li>The Checks can be refreshed manually</li>
-            <li>Every time a branch is changed in the project - the Checks will be refreshed</li>
         </ul>
         <br>
         <br>
-        <div>Plugin icon made by <a href="https://www.flaticon.com/authors/freepik"
-                                    title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/"
-                                                                        title="Flaticon">www.flaticon.com</a></div>
         ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
@@ -64,19 +58,22 @@
     <actions>
 
         <group id="GHWorkflows.ActionGroup" popup="false">
-            <reference id="Github.Open.In.Browser"/>
             <action id="Github.Workflow.List.Reload"
                     class="org.github.otanikotani.workflow.action.GitHubWorkflowRunReloadListAction"
                     use-shortcut-of="Refresh"/>
         </group>
 
         <group id="Github.Workflow.ToolWindow.List.Popup">
-            <reference id="Github.Open.In.Browser"/>
             <reference id="Github.Workflow.List.Reload"/>
         </group>
         
+        <group id="Github.Workflow.ToolWindow.List.Popup.Selected">
+            <action id="Github.Workflow.Open.In.Browser"
+                    class="org.github.otanikotani.workflow.action.GithubOpenInBrowserAction"/>
+            <reference id="Github.Workflow.List.Reload"/>
+        </group>
+
         <group id="Github.Workflow.Log.ToolWindow.List.Popup">
-            <reference id="Github.Open.In.Browser"/>
             <action id="Github.Workflow.Log.List.Reload"
                     class="org.github.otanikotani.workflow.action.GitHubWorkflowLogReloadAction"/>
         </group>
