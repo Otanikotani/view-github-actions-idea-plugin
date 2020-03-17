@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.0.0...1.1.0) (2020-03-17)
+
+
+### Features
+
+* **workflow:** Add Open In Browser action ([6ea7ebd](https://github.com/Otanikotani/view-github-actions-idea-plugin/commit/6ea7ebd34a8b27e97c7e235bcef4663aadfd54c2))
+
 # [1.0.0](https://github.com/Otanikotani/view-github-checks-idea-plugin/compare/0.1.0...1.0.0) (2020-03-17)
 
 
