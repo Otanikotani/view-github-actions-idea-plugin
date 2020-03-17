@@ -14,7 +14,7 @@ A plugin for Intellij IDEA to display statuses of GitHub Actions of the reposito
 
 ### Features:
 
-- Adds a new tab - Checks - to the Version control tool window that shows the [checks](https://developer.github.com/v3/checks/) of the currently checked out branch of the GitHub repository.
+- Adds a new tab - Workflows - to the Version control tool window that shows the workflow runs (see https://developer.github.com/v3/actions/) of the GitHub repository.
 
 ## Team
 
