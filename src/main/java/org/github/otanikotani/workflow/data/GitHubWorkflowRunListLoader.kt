@@ -71,6 +71,7 @@ class GitHubWorkflowRunListLoader(progressManager: ProgressManager,
         val request = Workflows.getWorkflowRuns(gitHubRepositoryCoordinates)
         val result = requestExecutor.execute(indicator, request).workflow_runs
 
+        //This is quite slow - N+1 requests, but there are no simpler way to get it, at least now.
         result.parallelStream().forEach {
             it.workflowName = requestExecutor.execute(Workflows.getWorkflowByUrl(it.workflow_url)).name
         }

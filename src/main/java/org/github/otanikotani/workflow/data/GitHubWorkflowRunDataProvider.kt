@@ -10,6 +10,7 @@ import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.util.GithubAsyncUtil
 import org.jetbrains.plugins.github.util.LazyCancellableBackgroundProcessValue
+import java.io.IOException
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import kotlin.properties.ReadOnlyProperty
@@ -19,17 +20,22 @@ class GitHubWorkflowRunDataProvider(private val progressManager: ProgressManager
                                     private val requestExecutor: GithubApiRequestExecutor,
                                     val url: String) {
 
-    private val requestsChangesEventDispatcher = EventDispatcher.create(WorkflowRunChangedListener::class.java)
+    private val runChangesEventDispatcher = EventDispatcher.create(WorkflowRunChangedListener::class.java)
 
     private val logValue: LazyCancellableBackgroundProcessValue<String> = backingValue {
-        requestExecutor.execute(it, Workflows.getWorkflowLog(url))
+        try {
+            requestExecutor.execute(it, Workflows.getWorkflowLog(url))
+        } catch (ioe: IOException) {
+            "Logs are unavailable - either the workflow run is not finished (currently GitHub API returns 404 for logs for unfinished runs)" +
+                " or the url is incorrect. The log url: $url "
+        }
     }
 
     val logRequest by backgroundProcessValue(logValue)
 
     @CalledInAwt
     fun reloadLog() {
-        requestsChangesEventDispatcher.multicaster.logChanged()
+        runChangesEventDispatcher.multicaster.logChanged()
     }
 
     private fun <T> backingValue(supplier: (ProgressIndicator) -> T) =
@@ -44,14 +50,8 @@ class GitHubWorkflowRunDataProvider(private val progressManager: ProgressManager
         }
 
 
-    fun addRequestsChangesListener(listener: WorkflowRunChangedListener) =
-        requestsChangesEventDispatcher.addListener(listener)
-
-    fun addRequestsChangesListener(disposable: Disposable, listener: WorkflowRunChangedListener) =
-        requestsChangesEventDispatcher.addListener(listener, disposable)
-
-    fun removeRequestsChangesListener(listener: WorkflowRunChangedListener) =
-        requestsChangesEventDispatcher.removeListener(listener)
+    fun addRunChangesListener(disposable: Disposable, listener: WorkflowRunChangedListener) =
+        runChangesEventDispatcher.addListener(listener, disposable)
 
     interface WorkflowRunChangedListener : EventListener {
         fun logChanged() {}

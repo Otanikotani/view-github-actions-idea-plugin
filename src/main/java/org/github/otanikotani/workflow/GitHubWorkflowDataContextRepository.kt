@@ -21,7 +21,8 @@ internal class GitHubWorkflowDataContextRepository {
     @CalledInBackground
     @Throws(IOException::class)
     fun getContext(account: GithubAccount,
-                   requestExecutor: GithubApiRequestExecutor, gitRemoteCoordinates: GitRemoteUrlCoordinates): GitHubWorkflowRunDataContext {
+                   requestExecutor: GithubApiRequestExecutor,
+                   gitRemoteCoordinates: GitRemoteUrlCoordinates): GitHubWorkflowRunDataContext {
         val fullPath = GithubUrlUtil.getUserAndRepositoryFromRemoteUrl(gitRemoteCoordinates.url)
             ?: throw IllegalArgumentException(
                 "Invalid GitHub Repository URL - ${gitRemoteCoordinates.url} is not a GitHub repository")

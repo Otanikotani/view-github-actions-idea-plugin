@@ -338,7 +338,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
                 val disposable = Disposer.newDisposable().apply {
                     Disposer.register(parentDisposable, this)
                 }
-                provider.addRequestsChangesListener(disposable, object : GitHubWorkflowRunDataProvider.WorkflowRunChangedListener {
+                provider.addRunChangesListener(disposable, object : GitHubWorkflowRunDataProvider.WorkflowRunChangedListener {
                     override fun logChanged() {
                         model.future = provider.logRequest
                     }

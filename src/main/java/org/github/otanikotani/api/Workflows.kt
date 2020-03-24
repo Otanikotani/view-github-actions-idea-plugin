@@ -73,14 +73,6 @@ data class GitHubAuthor(
 
 
 object Workflows : GithubApiRequests.Entity("/repos") {
-    @JvmStatic
-    fun getWorkflows(coordinates: GitHubRepositoryCoordinates): GithubApiRequest<GitHubWorkflows> {
-        val serverUrl = coordinates.serverPath.toApiUrl()
-        val repoPath = coordinates.repositoryPath
-        val url = String.format("%s%s/%s/%s/actions/workflows",              serverUrl, urlSuffix, repoPath.owner, repoPath.repository)
-        return Get.Json(url, GitHubWorkflows::class.java, null)
-            .withOperationName("get workflows")
-    }
 
     @JvmStatic
     fun getWorkflowByUrl(url: String): GithubApiRequest<GitHubWorkflow> {

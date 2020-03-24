@@ -4,15 +4,13 @@ import com.intellij.util.ThrowableConvertor
 import org.apache.commons.io.IOUtils
 import org.jetbrains.plugins.github.api.GithubApiRequest
 import org.jetbrains.plugins.github.api.GithubApiResponse
-import java.io.IOException
-import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import java.util.zip.ZipInputStream
 
 class WorkflowRunLogGet(url: String) : GithubApiRequest.Get<String>(url) {
     override fun extractResult(response: GithubApiResponse): String {
         return response.handleBody(ThrowableConvertor {
-            var result = ""
+            var result = "Logs are unavailable"
             ZipInputStream(it).use {
                 while (true) {
                     val entry = it.nextEntry ?: break
