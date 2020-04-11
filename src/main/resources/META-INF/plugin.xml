@@ -8,12 +8,13 @@
     <idea-version since-build="193.5662"/>
 
     <description><![CDATA[
-        This plugin displays statuses of GitHub Actions
-        This plugin is a good alternative to alt-tabbing for every time you push some changes to the branch and want to see whether the repository's checks are passing on your changes.
-        Use cases:
-        - Imagine having some GitHub Workflows to set up to run on pull requests that must pass before you can merge the pull request. With this plugin you can see the status and the build log of the workflow
-        - You did a push into some branch and you want to see how your GitHub Actions that were triggered by that push are doing. You can monitor the status of the actions via this plugin.
-        <br>
+        This plugin displays statuses of GitHub Actions<br>
+        This plugin is a good alternative to alt-tabbing for every time you push some changes to the branch and want to see whether the repository's checks are passing on your changes.<br>
+        Use cases:<br>
+        <ul>
+            <li>Imagine having some GitHub Workflows to set up to run on pull requests that must pass before you can merge the pull request. With this plugin you can see the status and the build log of the workflow</li>
+            <li>You did a push into some branch and you want to see how your GitHub Actions that were triggered by that push are doing. You can monitor the status of the actions via this plugin.</li>
+        </ul>
         <br>
         Features:
         <ul>
