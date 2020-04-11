@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.1.1...1.1.2) (2020-03-24)
+
+
+### Bug Fixes
+
+* **log:** Add a message about log unavailability ([0c304c1](https://github.com/Otanikotani/view-github-actions-idea-plugin/commit/0c304c1a2b4e8c65ce47c99d87f0f58b3c1bd025))
+
 ## [1.1.1](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.1.0...1.1.1) (2020-03-17)
 
 
