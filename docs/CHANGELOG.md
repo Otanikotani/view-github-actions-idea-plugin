@@ -1,3 +1,11 @@
+## [1.1.3](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.1.2...1.1.3) (2020-04-11)
+
+
+### Bug Fixes
+
+* **doc:** Update plugin xml documentation ([ad3886e](https://github.com/Otanikotani/view-github-actions-idea-plugin/commit/ad3886e8a8d6dac9cb217a7496334a55ea987a52))
+* **plugin:** Bump versions ([fb316e2](https://github.com/Otanikotani/view-github-actions-idea-plugin/commit/fb316e2fa6689b7fd903d5a831d9b826524904d4))
+
 ## [1.1.2](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.1.1...1.1.2) (2020-03-24)
 
 
