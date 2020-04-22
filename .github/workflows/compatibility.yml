@@ -24,12 +24,8 @@ jobs:
         uses: ChrisCarini/intellij-platform-plugin-verifier-action@v0.0.2
         with:
           ide-versions: |
-            ideaIC:2019.3
-            ideaIU:2019.3
-            pycharmPC:2019.3
-            goland:2019.3
-            clion:2019.3
-            ideaIC:LATEST-EAP-SNAPSHOT
+            ideaIC:2020.1
+            ideaIU:2020.1
 
       - name: Get log file path and print contents
         run: |
