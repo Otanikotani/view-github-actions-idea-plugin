@@ -13,7 +13,7 @@ plugins {
     id 'jacoco'
     id 'java-library'
     id 'groovy'
-    id 'org.jetbrains.intellij' version '0.4.18'
+    id 'org.jetbrains.intellij' version '0.4.19'
     id 'org.kordamp.gradle.markdown' version '2.0.0'
 
     id 'com.adarshr.test-logger' version '1.7.0'
@@ -44,7 +44,7 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version '2019.3.1'
+    version '2020.1'
 
     plugins = ['github', 'git4idea']
 }

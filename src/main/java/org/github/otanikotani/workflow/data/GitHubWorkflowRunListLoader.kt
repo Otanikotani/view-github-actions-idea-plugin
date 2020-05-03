@@ -67,7 +67,7 @@ class GitHubWorkflowRunListLoader(progressManager: ProgressManager,
     //This should not be needed, it is weird that originally it requires error != null to be able to load data
     override fun canLoadMore() = !loading && !loaded
 
-    override fun doLoadMore(indicator: ProgressIndicator): List<GitHubWorkflowRun>? {
+    override fun doLoadMore(indicator: ProgressIndicator, update: Boolean): List<GitHubWorkflowRun>? {
         val request = Workflows.getWorkflowRuns(gitHubRepositoryCoordinates)
         val result = requestExecutor.execute(indicator, request).workflow_runs
 

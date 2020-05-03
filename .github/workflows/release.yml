@@ -24,6 +24,22 @@ jobs:
                 run: |
                     ./gradlew test
 
+            -   name: Build the plugin using Gradle
+                    run: ./gradlew buildPlugin
+
+            -   name: Verify Plugin on IntelliJ Platforms
+                id: verify
+                uses: ChrisCarini/intellij-platform-plugin-verifier-action@v0.0.2
+                with:
+                    ide-versions: |
+                        ideaIC:2020.1
+                        ideaIU:2020.1
+
+            -   name: Get log file path and print contents
+                run: |
+                    echo "The verifier log file [${{steps.verify.outputs.verification-output-log-filename}}] contents : " ;
+                    cat ${{steps.verify.outputs.verification-output-log-filename}}
+
     release:
         name: Semantic release
         runs-on: ubuntu-latest

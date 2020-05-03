@@ -44,7 +44,7 @@ class GitHubWorkflowToolTabsContentManager(private val project: Project,
 
         val content = ContentFactory.SERVICE.getInstance().createContent(JPanel(null), GROUP_PREFIX, false)
         content.isCloseable = true
-        content.disposer = disposable
+        content.setDisposer(disposable)
         content.description = GROUP_PREFIX
         content.remoteUrl = remoteUrl
         content.putUserData(ChangesViewContentManager.ORDER_WEIGHT_KEY, ChangesViewContentManager.TabOrderWeight.LAST.weight)

@@ -36,6 +36,7 @@ import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
 import org.jetbrains.plugins.github.pullrequest.config.GithubPullRequestsProjectUISettings
 import org.jetbrains.plugins.github.pullrequest.ui.GHCompletableFutureLoadingModel
+import org.jetbrains.plugins.github.pullrequest.ui.GHLoadingErrorHandlerImpl
 import org.jetbrains.plugins.github.pullrequest.ui.GHLoadingModel
 import org.jetbrains.plugins.github.pullrequest.ui.GHLoadingPanel
 import org.jetbrains.plugins.github.ui.util.SingleValueModel
@@ -103,7 +104,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
 
         return GHLoadingPanel(loadingModel, contentContainer, uiDisposable,
             GHLoadingPanel.EmptyTextBundle.Simple("", "Can't load data from GitHub")).apply {
-            resetHandler = ActionListener {
+            errorHandler = GHLoadingErrorHandlerImpl(project, account) {
                 contextValue.drop()
                 loadingModel.future = contextValue.value
             }
