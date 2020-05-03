@@ -1,3 +1,11 @@
+## [1.1.4](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.1.3...1.1.4) (2020-05-03)
+
+
+### Bug Fixes
+
+* **build:** Fix indentation ([a25a393](https://github.com/Otanikotani/view-github-actions-idea-plugin/commit/a25a39306ca665997a2002f97c768eef8c63b3e0))
+* **feat:** Bump to support 2020.1 ([07f0ac0](https://github.com/Otanikotani/view-github-actions-idea-plugin/commit/07f0ac029246440188c825106281bf59eb86e22d))
+
 ## [1.1.3](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.1.2...1.1.3) (2020-04-11)
 
 
