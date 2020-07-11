@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.1.4...1.1.5) (2020-07-11)
+
+
+### Bug Fixes
+
+* **log:** Add debug logging ([49c998b](https://github.com/Otanikotani/view-github-actions-idea-plugin/commit/49c998bdeeefe4f6d2bebbbb0ce6cc9248575ebb))
+
 ## [1.1.4](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.1.3...1.1.4) (2020-05-03)
 
 
