@@ -2,6 +2,7 @@ package org.github.otanikotani.workflow.data
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.invokeAndWaitIfNeeded
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.util.EventDispatcher
@@ -24,6 +25,7 @@ class GitHubWorkflowRunDataProvider(private val progressManager: ProgressManager
 
     private val logValue: LazyCancellableBackgroundProcessValue<String> = backingValue {
         try {
+            LOG.debug("Get workflow log for $url")
             requestExecutor.execute(it, Workflows.getWorkflowLog(url))
         } catch (ioe: IOException) {
             "Logs are unavailable - either the workflow run is not finished (currently GitHub API returns 404 for logs for unfinished runs)" +
@@ -55,5 +57,9 @@ class GitHubWorkflowRunDataProvider(private val progressManager: ProgressManager
 
     interface WorkflowRunChangedListener : EventListener {
         fun logChanged() {}
+    }
+
+    companion object {
+        private val LOG = logger("org.github.otanikotani")
     }
 }

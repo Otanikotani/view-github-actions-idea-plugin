@@ -4,6 +4,7 @@ import com.intellij.ide.actions.RefreshAction
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.ex.ActionUtil
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.progress.util.ProgressWindow
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.util.ui.StatusText
@@ -21,6 +22,7 @@ internal class GitHubWorkflowRunListLoaderPanel(runListLoader: GitHubWorkflowRun
     private lateinit var progressStripe: ProgressStripe
 
     override fun createCenterPanel(content: JComponent): JPanel {
+        LOG.debug("Create center panel")
         val stripe = ProgressStripe(content, this,
             ProgressWindow.DEFAULT_PROGRESS_DIALOG_POSTPONE_TIME_MILLIS)
         progressStripe = stripe
@@ -33,11 +35,13 @@ internal class GitHubWorkflowRunListLoaderPanel(runListLoader: GitHubWorkflowRun
 
     init {
         runListLoader.addOutdatedStateChangeListener(this) {
+            LOG.debug("Update info panel")
             updateInfoPanel()
         }
     }
 
     override fun displayEmptyStatus(emptyText: StatusText) {
+        LOG.debug("Display empty status")
         emptyText.text = "Nothing loaded. "
         emptyText.appendSecondaryText("Refresh", SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES) {
             listLoader.reset()
@@ -52,5 +56,9 @@ internal class GitHubWorkflowRunListLoaderPanel(runListLoader: GitHubWorkflowRun
                 ActionUtil.invokeAction(listReloadAction, this, ActionPlaces.UNKNOWN, it.inputEvent, null)
             }
         }
+    }
+
+    companion object {
+        private val LOG = logger("org.github.otanikotani")
     }
 }

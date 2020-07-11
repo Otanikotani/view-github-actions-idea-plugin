@@ -1,6 +1,7 @@
 package org.github.otanikotani.workflow
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Key
@@ -21,11 +22,13 @@ class GitHubWorkflowToolTabsContentManager(private val project: Project,
 
     @CalledInAwt
     internal fun addTab(remoteUrl: GitRemoteUrlCoordinates, onDispose: Disposable) {
+        LOG.debug("addTab")
         viewContentManager.addContent(createContent(remoteUrl, onDispose))
     }
 
     @CalledInAwt
     fun focusTab(remoteUrl: GitRemoteUrlCoordinates) {
+        LOG.debug("focusTab")
         val content = viewContentManager.findContents { it.remoteUrl == remoteUrl }.firstOrNull() ?: return
         ToolWindowManager.getInstance(project).getToolWindow(ChangesViewContentManager.TOOLWINDOW_ID)?.show {
             viewContentManager.setSelectedContent(content, true)
@@ -34,11 +37,13 @@ class GitHubWorkflowToolTabsContentManager(private val project: Project,
 
     @CalledInAwt
     internal fun removeTab(remoteUrl: GitRemoteUrlCoordinates) {
+        LOG.debug("removeTab")
         val content = viewContentManager.findContents { it.remoteUrl == remoteUrl }.firstOrNull() ?: return
         viewContentManager.removeContent(content)
     }
 
     private fun createContent(remoteUrl: GitRemoteUrlCoordinates, onDispose: Disposable): Content {
+        LOG.debug("createContent")
         val disposable = Disposer.newDisposable()
         Disposer.register(disposable, onDispose)
 
@@ -51,6 +56,7 @@ class GitHubWorkflowToolTabsContentManager(private val project: Project,
         content.putUserData(ChangesViewContentManager.CONTENT_PROVIDER_SUPPLIER_KEY) {
             object : ChangesViewContentProvider {
                 override fun initContent(): GitHubWorkflowRunAccountsComponent {
+                    LOG.debug("initContent")
                     return GitHubWorkflowRunAccountsComponent(GithubAuthenticationManager.getInstance(), project, remoteUrl, disposable)
                 }
 
@@ -70,6 +76,7 @@ class GitHubWorkflowToolTabsContentManager(private val project: Project,
         @Nls
         private const val GROUP_PREFIX = "Workflows"
 
+        private val LOG = logger("org.github.otanikotani")
         private val REMOTE_URL = Key<GitRemoteUrlCoordinates>("GHWORKFLOW_REMOTE_URL")
     }
 }

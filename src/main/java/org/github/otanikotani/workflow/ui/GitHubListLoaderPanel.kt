@@ -1,6 +1,7 @@
 package org.github.otanikotani.workflow.ui
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.util.ui.ComponentWithEmptyText
@@ -41,6 +42,7 @@ internal abstract class GitHubListLoaderPanel<L : GHListLoader>(protected val li
     var errorHandler: GitHubLoadingErrorHandler? = null
 
     init {
+        LOG.debug("Initialize GitHubListLoaderPanel")
         addToCenter(createCenterPanel(simplePanel(scrollPane).addToTop(infoPanel).apply {
             isOpaque = false
         }))
@@ -80,6 +82,7 @@ internal abstract class GitHubListLoaderPanel<L : GHListLoader>(protected val li
     }
 
     private fun displayErrorStatus(emptyText: StatusText, error: Throwable) {
+        LOG.debug("Display error status")
         emptyText.appendText(getErrorPrefix(!listLoader.hasLoadedItems), SimpleTextAttributes.ERROR_ATTRIBUTES)
             .appendSecondaryText(getLoadingErrorText(error), SimpleTextAttributes.ERROR_ATTRIBUTES, null)
 
@@ -89,6 +92,7 @@ internal abstract class GitHubListLoaderPanel<L : GHListLoader>(protected val li
     }
 
     protected open fun displayEmptyStatus(emptyText: StatusText) {
+        LOG.debug("Display empty status")
         emptyText.text = "List is empty "
         emptyText.appendSecondaryText("Refresh", SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES) {
             listLoader.reset()
@@ -119,7 +123,9 @@ internal abstract class GitHubListLoaderPanel<L : GHListLoader>(protected val li
     protected open fun getErrorPrefix(listEmpty: Boolean) = if (listEmpty) "Can't load list" else "Can't load full list"
 
     private fun potentiallyLoadMore() {
+        LOG.debug("Potentially loading more")
         if (listLoader.canLoadMore() && ((userScrolled && loadAllAfterFirstScroll) || isScrollAtThreshold())) {
+            LOG.debug("Load more")
             listLoader.loadMore()
         }
     }
@@ -138,6 +144,8 @@ internal abstract class GitHubListLoaderPanel<L : GHListLoader>(protected val li
     override fun dispose() {}
 
     companion object {
+        private val LOG = logger("org.github.otanikotani")
+
         private fun getLoadingErrorText(error: Throwable, newLineSeparator: String = "\n"): String {
             if (error is GithubStatusCodeException && error.error != null) {
                 val githubError = error.error!!

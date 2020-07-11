@@ -14,11 +14,6 @@ import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
-data class GitHubWorkflows(
-    val total_count: Int,
-    val workflows: List<GitHubWorkflow> = emptyList()
-)
-
 data class GitHubWorkflow(
     val id: Long,
     val node_id: String,
@@ -107,18 +102,6 @@ object Workflows : GithubApiRequests.Entity("/repos") {
                 param(pagination)
             })
         return get(url)
-    }
-
-    @JvmStatic
-    fun getWorkflowRun(coordinates: GitHubRepositoryCoordinates, id: Long): GithubApiRequest<GitHubWorkflowRun> {
-        val url = GithubApiRequests.getUrl(coordinates.serverPath,
-            urlSuffix,
-            "/${coordinates.repositoryPath}",
-            "/actions",
-            "/runs/$id")
-
-        return GithubApiRequest.Get.json<GitHubWorkflowRun>(url)
-            .withOperationName("search workflow run")
     }
 
     @JvmStatic

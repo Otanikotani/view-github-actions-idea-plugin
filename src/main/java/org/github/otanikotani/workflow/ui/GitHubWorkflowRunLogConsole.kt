@@ -5,6 +5,7 @@ import com.intellij.execution.process.AnsiEscapeDecoder
 import com.intellij.execution.process.ProcessOutputTypes
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Key
@@ -15,6 +16,7 @@ class GitHubWorkflowRunLogConsole(project: Project,
                                   disposable: Disposable) : ConsoleViewImpl(project, true), AnsiEscapeDecoder.ColoredTextAcceptor {
 
     init {
+        LOG.debug("Create console")
         val myTextAnsiEscapeDecoder = AnsiEscapeDecoder()
         logModel.addValueChangedListener {
             this.clear()
@@ -30,5 +32,9 @@ class GitHubWorkflowRunLogConsole(project: Project,
 
     override fun coloredTextAvailable(text: String, attributes: Key<*>) {
         this.print(text, ConsoleViewContentType.getConsoleViewType(attributes))
+    }
+
+    companion object {
+        private val LOG = logger("org.github.otanikotani")
     }
 }

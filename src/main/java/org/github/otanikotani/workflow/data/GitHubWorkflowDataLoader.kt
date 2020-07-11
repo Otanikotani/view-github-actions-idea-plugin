@@ -3,6 +3,7 @@ package org.github.otanikotani.workflow.data
 import com.google.common.cache.CacheBuilder
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.runInEdt
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.util.EventDispatcher
 import org.jetbrains.annotations.CalledInAwt
 import java.util.*
@@ -29,6 +30,7 @@ class GitHubWorkflowDataLoader(private val dataProviderFactory: (String) -> GitH
 
     @CalledInAwt
     fun invalidateAllData() {
+        LOG.debug("All cache invalidated")
         cache.invalidateAll()
     }
 
@@ -44,8 +46,12 @@ class GitHubWorkflowDataLoader(private val dataProviderFactory: (String) -> GitH
         }, disposable)
 
     override fun dispose() {
+        LOG.debug("Disposing...")
         invalidateAllData()
         isDisposed = true
     }
 
+    companion object {
+        private val LOG = logger("org.github.otanikotani")
+    }
 }

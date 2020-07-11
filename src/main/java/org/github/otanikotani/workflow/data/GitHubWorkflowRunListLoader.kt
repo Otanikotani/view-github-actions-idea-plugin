@@ -1,6 +1,7 @@
 package org.github.otanikotani.workflow.data
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Disposer
@@ -31,6 +32,7 @@ class GitHubWorkflowRunListLoader(progressManager: ProgressManager,
     private val outdatedStateEventDispatcher = EventDispatcher.create(SimpleEventListener::class.java)
 
     var outdated: Boolean by Delegates.observable(false) { _, _, newValue ->
+        LOG.debug("Outdated event occurred")
         outdatedStateEventDispatcher.multicaster.eventOccurred()
     }
 
@@ -44,10 +46,12 @@ class GitHubWorkflowRunListLoader(progressManager: ProgressManager,
     }
 
     override fun handleResult(list: List<GitHubWorkflowRun>) {
+        LOG.debug("Add new list of workflow runs to the model")
         listModel.add(list)
     }
 
     override fun reset() {
+        LOG.debug("Removing all from the list model")
         listModel.removeAll()
         loaded = false
 
@@ -68,28 +72,22 @@ class GitHubWorkflowRunListLoader(progressManager: ProgressManager,
     override fun canLoadMore() = !loading && !loaded
 
     override fun doLoadMore(indicator: ProgressIndicator, update: Boolean): List<GitHubWorkflowRun>? {
+        LOG.debug("Do load more update: $update, indicator: $indicator")
+
+        LOG.debug("Get workflow runs")
         val request = Workflows.getWorkflowRuns(gitHubRepositoryCoordinates)
         val result = requestExecutor.execute(indicator, request).workflow_runs
 
         //This is quite slow - N+1 requests, but there are no simpler way to get it, at least now.
         result.parallelStream().forEach {
+            LOG.debug("Get workflow by url ${it.workflow_url}")
             it.workflowName = requestExecutor.execute(Workflows.getWorkflowByUrl(it.workflow_url)).name
         }
         loaded = true
         return result
     }
 
-    fun reloadData(request: CompletableFuture<out GitHubWorkflowRun>) {
-        request.handleOnEdt(resetDisposable) { result, error ->
-            if (error == null && result != null) updateData(result)
-        }
+    companion object {
+        private val LOG = logger("org.github.otanikotani")
     }
-
-    fun findData(id: Long) = listModel.items.find { it.id == id }
-
-    private fun updateData(workflowRun: GitHubWorkflowRun) {
-        val index = listModel.items.indexOfFirst { it.id == workflowRun.id }
-        listModel.setElementAt(workflowRun, index)
-    }
-
 }

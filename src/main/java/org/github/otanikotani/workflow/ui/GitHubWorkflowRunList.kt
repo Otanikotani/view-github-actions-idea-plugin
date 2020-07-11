@@ -3,6 +3,7 @@ package org.github.otanikotani.workflow.ui
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.actionSystem.PlatformDataKeys
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.ui.ColorUtil
 import com.intellij.ui.JBColor
 import com.intellij.ui.ListUtil
@@ -153,5 +154,9 @@ class GitHubWorkflowRunList(model: ListModel<GitHubWorkflowRun>)
             val zonedDateTime = localDateTime.atZone(ZoneOffset.UTC)
             return DateFormatUtil.formatPrettyDateTime(zonedDateTime.toInstant().toEpochMilli())
         }
+    }
+
+    companion object {
+        private val LOG = logger("org.github.otanikotani")
     }
 }

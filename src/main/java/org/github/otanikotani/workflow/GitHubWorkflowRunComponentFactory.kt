@@ -7,12 +7,12 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.impl.ContextMenuPopupHandler
 import com.intellij.openapi.editor.impl.softwrap.SoftWrapAppliancePlaces
-import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
@@ -34,7 +34,6 @@ import org.github.otanikotani.workflow.ui.GitHubWorkflowRunLogConsole
 import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
-import org.jetbrains.plugins.github.pullrequest.config.GithubPullRequestsProjectUISettings
 import org.jetbrains.plugins.github.pullrequest.ui.GHCompletableFutureLoadingModel
 import org.jetbrains.plugins.github.pullrequest.ui.GHLoadingErrorHandlerImpl
 import org.jetbrains.plugins.github.pullrequest.ui.GHLoadingModel
@@ -43,7 +42,6 @@ import org.jetbrains.plugins.github.ui.util.SingleValueModel
 import org.jetbrains.plugins.github.util.GitRemoteUrlCoordinates
 import org.jetbrains.plugins.github.util.LazyCancellableBackgroundProcessValue
 import java.awt.BorderLayout
-import java.awt.event.ActionListener
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import javax.swing.JComponent
@@ -56,21 +54,21 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
 
     private val progressManager = ProgressManager.getInstance()
     private val actionManager = ActionManager.getInstance()
-    private val copyPasteManager = CopyPasteManager.getInstance()
-
-    private val projectUiSettings = GithubPullRequestsProjectUISettings.getInstance(project)
     private val dataContextRepository = GitHubWorkflowDataContextRepository.getInstance(project)
 
     @CalledInAwt
     fun createComponent(remoteUrl: GitRemoteUrlCoordinates, account: GithubAccount, requestExecutor: GithubApiRequestExecutor,
                         parentDisposable: Disposable): JComponent {
+        LOG.debug("createComponent")
 
         val contextDisposable = Disposer.newDisposable()
         val contextValue = object : LazyCancellableBackgroundProcessValue<GitHubWorkflowRunDataContext>(progressManager) {
-            override fun compute(indicator: ProgressIndicator) =
-                dataContextRepository.getContext(account, requestExecutor, remoteUrl).also {
+            override fun compute(indicator: ProgressIndicator): GitHubWorkflowRunDataContext {
+                LOG.debug("getting context")
+                return dataContextRepository.getContext(account, requestExecutor, remoteUrl).also {
                     Disposer.register(contextDisposable, it)
                 }
+            }
         }
         Disposer.register(parentDisposable, contextDisposable)
         Disposer.register(parentDisposable, Disposable { contextValue.drop() })
@@ -86,8 +84,11 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
             override fun onLoadingCompleted() {
                 val dataContext = loadingModel.result
                 if (dataContext != null) {
+                    LOG.debug("create content")
                     var content = createContent(dataContext, uiDisposable)
+                    LOG.debug("done creating content")
                     if (Registry.`is`("show.log.as.editor.tab")) {
+                        LOG.debug("patch content")
                         content = patchContent(content)
                     }
 
@@ -98,6 +99,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
                         repaint()
                     }
                 }
+                LOG.debug("done on Loading completed")
             }
         })
         loadingModel.future = contextValue.value
@@ -105,7 +107,9 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
         return GHLoadingPanel(loadingModel, contentContainer, uiDisposable,
             GHLoadingPanel.EmptyTextBundle.Simple("", "Can't load data from GitHub")).apply {
             errorHandler = GHLoadingErrorHandlerImpl(project, account) {
+                LOG.debug("Dropping current context value")
                 contextValue.drop()
+                LOG.debug("Setting loading model future to context value")
                 loadingModel.future = contextValue.value
             }
         }
@@ -162,6 +166,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
     }
 
     private fun createLogPanel(logModel: SingleValueModel<String?>, disposable: Disposable): JBPanelWithEmptyText {
+        LOG.debug("Create log panel")
         val console = GitHubWorkflowRunLogConsole(project, logModel, disposable)
 
         val panel = JBPanelWithEmptyText(BorderLayout()).apply {
@@ -187,6 +192,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
         panel.add(toolbar.component, BorderLayout.EAST)
 
         logModel.addValueChangedListener {
+            LOG.debug("Log model changed - call panel.validate()")
             panel.validate()
         }
         return panel
@@ -216,6 +222,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
 
         return GitHubWorkflowRunListLoaderPanel(context.listLoader, listReloadAction, list).apply {
             errorHandler = GitHubLoadingErrorHandler {
+                LOG.debug("Error on GitHub Workflow Run list loading, resetting the loader")
                 context.listLoader.reset()
             }
         }.also {
@@ -295,6 +302,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
         val model: SingleValueModel<GitHubWorkflowRunDataProvider?> = SingleValueModel(null)
 
         fun setNewProvider(provider: GitHubWorkflowRunDataProvider?) {
+            LOG.debug("setNewProvider")
             val oldValue = model.value
             if (oldValue != null && provider != null && oldValue.url != provider.url) {
                 model.value = null
@@ -306,11 +314,13 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
         })
 
         listSelectionHolder.addSelectionChangeListener(parentDisposable) {
+            LOG.debug("selection change listener")
             val provider = listSelectionHolder.selection?.let { context.dataLoader.getDataProvider(it.logs_url) }
             setNewProvider(provider)
         }
 
         context.dataLoader.addInvalidationListener(parentDisposable) {
+            LOG.debug("invalidation listener")
             val selection = listSelectionHolder.selection
             if (selection != null && selection.logs_url == it) {
                 setNewProvider(context.dataLoader.getDataProvider(selection.logs_url))
@@ -322,11 +332,13 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
 
     private fun createLogLoadingModel(dataProviderModel: SingleValueModel<GitHubWorkflowRunDataProvider?>,
                                       parentDisposable: Disposable): GHCompletableFutureLoadingModel<String> {
+        LOG.debug("Create log loading model")
         val model = GHCompletableFutureLoadingModel<String>()
 
         var listenerDisposable: Disposable? = null
 
         dataProviderModel.addValueChangedListener {
+            LOG.debug("Value changed")
             val provider = dataProviderModel.value
             model.future = provider?.logRequest
 
@@ -341,6 +353,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
                 }
                 provider.addRunChangesListener(disposable, object : GitHubWorkflowRunDataProvider.WorkflowRunChangedListener {
                     override fun logChanged() {
+                        LOG.debug("Log changed")
                         model.future = provider.logRequest
                     }
                 })
@@ -355,15 +368,19 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
         val model = SingleValueModel<T?>(null)
         loadingModel.addStateChangeListener(object : GHLoadingModel.StateChangeListener {
             override fun onLoadingCompleted() {
+                LOG.debug("onLoadingCompleted")
                 model.value = loadingModel.result
             }
 
             override fun onReset() {
+                LOG.debug("onReset")
                 model.value = loadingModel.result
             }
         })
         return model
     }
 
-
+    companion object {
+        private val LOG = logger("org.github.otanikotani")
+    }
 }

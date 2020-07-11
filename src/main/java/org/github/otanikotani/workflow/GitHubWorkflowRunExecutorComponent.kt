@@ -2,6 +2,7 @@ package org.github.otanikotani.workflow
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.ui.UIUtil
@@ -28,10 +29,15 @@ class GitHubWorkflowRunExecutorComponent(private val requestExecutorManager: Git
     }
 
     private fun update() {
+        LOG.debug("Update")
         if (requestExecutor != null) return
         val executor = requestExecutorManager.getExecutor(account)
         requestExecutor = executor
         val disposable = Disposer.newDisposable()
         setContent(componentFactory.createComponent(remoteUrl, account, executor, disposable), disposable)
+    }
+
+    companion object {
+        private val LOG = logger("org.github.otanikotani")
     }
 }

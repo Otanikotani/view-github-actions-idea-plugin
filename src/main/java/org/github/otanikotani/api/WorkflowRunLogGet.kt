@@ -1,5 +1,6 @@
 package org.github.otanikotani.api
 
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.util.ThrowableConvertor
 import org.apache.commons.io.IOUtils
 import org.jetbrains.plugins.github.api.GithubApiRequest
@@ -20,9 +21,16 @@ class WorkflowRunLogGet(url: String) : GithubApiRequest.Get<String>(url) {
                         break
                     }
                 }
+                if (result == "Logs are unavailable") {
+                    LOG.debug("Failed to extract results from the response to: $url")
+                }
             }
 
             result
         })
+    }
+
+    companion object {
+        private val LOG = logger("org.github.otanikotani")
     }
 }

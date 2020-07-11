@@ -1,5 +1,6 @@
 package org.github.otanikotani.workflow
 
+import com.intellij.openapi.diagnostic.logger
 import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.workflow.data.GitHubWorkflowRunDataProvider
 
@@ -7,6 +8,7 @@ class GitHubWorkflowRunSelectionContext internal constructor(private val dataCon
                                                              private val selectionHolder: GitHubWorkflowRunListSelectionHolder) {
 
     fun resetAllData() {
+        LOG.debug("resetAllData")
         dataContext.listLoader.reset()
         dataContext.dataLoader.invalidateAllData()
     }
@@ -16,4 +18,8 @@ class GitHubWorkflowRunSelectionContext internal constructor(private val dataCon
 
     val workflowRunDataProvider: GitHubWorkflowRunDataProvider?
         get() = workflowRun?.let { dataContext.dataLoader.getDataProvider(it.logs_url) }
+
+    companion object {
+        private val LOG = logger("org.github.otanikotani")
+    }
 }
