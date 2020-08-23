@@ -13,7 +13,6 @@ import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.impl.ContextMenuPopupHandler
 import com.intellij.openapi.editor.impl.softwrap.SoftWrapAppliancePlaces
-import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Splitter
@@ -62,12 +61,12 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
         LOG.debug("createComponent")
 
         val contextDisposable = Disposer.newDisposable()
-        val contextValue = object : LazyCancellableBackgroundProcessValue<GitHubWorkflowRunDataContext>(progressManager) {
-            override fun compute(indicator: ProgressIndicator): GitHubWorkflowRunDataContext {
-                LOG.debug("getting context")
-                return dataContextRepository.getContext(account, requestExecutor, remoteUrl).also {
-                    Disposer.register(contextDisposable, it)
-                }
+
+        val contextValue = LazyCancellableBackgroundProcessValue.create(progressManager) {
+            LOG.debug("getting context")
+
+            dataContextRepository.getContext(contextDisposable, account, requestExecutor, remoteUrl).also {
+                Disposer.register(contextDisposable, it)
             }
         }
         Disposer.register(parentDisposable, contextDisposable)
@@ -76,7 +75,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
         val uiDisposable = Disposer.newDisposable()
         Disposer.register(parentDisposable, uiDisposable)
 
-        val loadingModel = GHCompletableFutureLoadingModel<GitHubWorkflowRunDataContext>()
+        val loadingModel = GHCompletableFutureLoadingModel<GitHubWorkflowRunDataContext>(parentDisposable)
         val contentContainer = JBPanelWithEmptyText(null).apply {
             background = UIUtil.getListBackground()
         }
@@ -87,10 +86,8 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
                     LOG.debug("create content")
                     var content = createContent(dataContext, uiDisposable)
                     LOG.debug("done creating content")
-                    if (Registry.`is`("show.log.as.editor.tab")) {
-                        LOG.debug("patch content")
-                        content = patchContent(content)
-                    }
+//                    LOG.debug("patch content")
+//                    content = patchContent(content)
 
                     with(contentContainer) {
                         layout = BorderLayout()
@@ -276,11 +273,11 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
                 val popupMenu: ActionPopupMenu = if (ListUtil.isPointOnSelection(list, x, y)) {
                     actionManager
                         .createActionPopupMenu("GithubWorkflowListPopupSelected",
-                                    actionManager.getAction("Github.Workflow.ToolWindow.List.Popup.Selected") as ActionGroup)
+                            actionManager.getAction("Github.Workflow.ToolWindow.List.Popup.Selected") as ActionGroup)
                 } else {
                     actionManager
                         .createActionPopupMenu("GithubWorkflowListPopup",
-                                    actionManager.getAction("Github.Workflow.ToolWindow.List.Popup") as ActionGroup)
+                            actionManager.getAction("Github.Workflow.ToolWindow.List.Popup") as ActionGroup)
                 }
                 popupMenu.setTargetComponent(list)
                 popupMenu.component.show(comp, x, y)
@@ -333,7 +330,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
     private fun createLogLoadingModel(dataProviderModel: SingleValueModel<GitHubWorkflowRunDataProvider?>,
                                       parentDisposable: Disposable): GHCompletableFutureLoadingModel<String> {
         LOG.debug("Create log loading model")
-        val model = GHCompletableFutureLoadingModel<String>()
+        val model = GHCompletableFutureLoadingModel<String>(parentDisposable)
 
         var listenerDisposable: Disposable? = null
 

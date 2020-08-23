@@ -1,5 +1,6 @@
 package org.github.otanikotani.workflow
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
@@ -13,6 +14,7 @@ import org.github.otanikotani.workflow.data.GitHubWorkflowRunListLoader
 import org.jetbrains.annotations.CalledInBackground
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
+import org.jetbrains.plugins.github.pullrequest.data.GHListLoader
 import org.jetbrains.plugins.github.util.GitRemoteUrlCoordinates
 import org.jetbrains.plugins.github.util.GithubUrlUtil
 import java.io.IOException
@@ -21,7 +23,8 @@ import java.io.IOException
 internal class GitHubWorkflowDataContextRepository {
     @CalledInBackground
     @Throws(IOException::class)
-    fun getContext(account: GithubAccount,
+    fun getContext(disposable: Disposable,
+                   account: GithubAccount,
                    requestExecutor: GithubApiRequestExecutor,
                    gitRemoteCoordinates: GitRemoteUrlCoordinates): GitHubWorkflowRunDataContext {
         LOG.debug("Get GitHubWorkflowRunDataContext")
@@ -46,6 +49,13 @@ internal class GitHubWorkflowDataContextRepository {
         val listLoader = GitHubWorkflowRunListLoader(ProgressManager.getInstance(), requestExecutor,
             repositoryCoordinates,
             listModel)
+
+        listLoader.addDataListener(disposable, object : GHListLoader.ListDataListener {
+            override fun onDataAdded(startIdx: Int) {
+                val loadedData = listLoader.loadedData
+                listModel.add(loadedData.subList(startIdx, loadedData.size))
+            }
+        })
 
         return GitHubWorkflowRunDataContext(
             repositoryCoordinates,

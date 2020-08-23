@@ -41,8 +41,8 @@ class GitHubWorkflowRunDataProvider(private val progressManager: ProgressManager
     }
 
     private fun <T> backingValue(supplier: (ProgressIndicator) -> T) =
-        object : LazyCancellableBackgroundProcessValue<T>(progressManager) {
-            override fun compute(indicator: ProgressIndicator) = supplier(indicator)
+        LazyCancellableBackgroundProcessValue.create(progressManager) {
+            supplier(it)
         }
 
     private fun <T> backgroundProcessValue(backingValue: LazyCancellableBackgroundProcessValue<T>): ReadOnlyProperty<Any?, CompletableFuture<T>> =

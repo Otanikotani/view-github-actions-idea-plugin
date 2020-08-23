@@ -10,17 +10,19 @@ import com.intellij.util.ui.JBUI.Panels.simplePanel
 import com.intellij.util.ui.StatusText
 import com.intellij.util.ui.components.BorderLayoutPanel
 import org.github.otanikotani.workflow.GitHubLoadingErrorHandler
+import org.github.otanikotani.workflow.data.GitHubWorkflowRunListLoader
 import org.jetbrains.plugins.github.exceptions.GithubStatusCodeException
 import org.jetbrains.plugins.github.pullrequest.data.GHListLoader
+import org.jetbrains.plugins.github.pullrequest.data.GHListLoaderBase
 import org.jetbrains.plugins.github.ui.HtmlInfoPanel
 import java.awt.event.ActionEvent
 import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.ScrollPaneConstants
 
-internal abstract class GitHubListLoaderPanel<L : GHListLoader>(protected val listLoader: L,
-                                                                private val contentComponent: JComponent,
-                                                                private val loadAllAfterFirstScroll: Boolean = false)
+internal abstract class GitHubListLoaderPanel(protected val listLoader: GitHubWorkflowRunListLoader,
+                                                private val contentComponent: JComponent,
+                                                private val loadAllAfterFirstScroll: Boolean = false)
     : BorderLayoutPanel(), Disposable {
 
     private var userScrolled = false
@@ -150,9 +152,9 @@ internal abstract class GitHubListLoaderPanel<L : GHListLoader>(protected val li
             if (error is GithubStatusCodeException && error.error != null) {
                 val githubError = error.error!!
                 val builder = StringBuilder(githubError.message)
-                if (githubError.errors.isNotEmpty()) {
+                if (githubError.errors?.isNotEmpty()!!) {
                     builder.append(": ").append(newLineSeparator)
-                    for (e in githubError.errors) {
+                    for (e in githubError.errors!!) {
                         builder.append(e.message
                             ?: "${e.code} error in ${e.resource} field ${e.field}").append(newLineSeparator)
                     }

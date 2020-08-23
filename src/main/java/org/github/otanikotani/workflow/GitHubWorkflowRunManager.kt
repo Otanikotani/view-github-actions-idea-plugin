@@ -18,13 +18,12 @@ import org.jetbrains.plugins.github.authentication.accounts.AccountTokenChangedL
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
 import org.jetbrains.plugins.github.pullrequest.config.GithubPullRequestsProjectUISettings
 import org.jetbrains.plugins.github.util.CollectionDelta
+import org.jetbrains.plugins.github.util.GHProjectRepositoriesManager
 import org.jetbrains.plugins.github.util.GitRemoteUrlCoordinates
-import org.jetbrains.plugins.github.util.GithubGitHelper
 import kotlin.properties.Delegates.observable
 
 @Service
 internal class GitHubWorkflowRunManager(private val project: Project) {
-    private val gitHelper = GithubGitHelper.getInstance()
     private val settings = GithubPullRequestsProjectUISettings.getInstance(project)
 
     private val contentManager by lazy(LazyThreadSafetyMode.NONE) {
@@ -54,9 +53,10 @@ internal class GitHubWorkflowRunManager(private val project: Project) {
 
     private fun updateRemoteUrls() {
         LOG.debug("Update remote urls")
-        remoteUrls = gitHelper.getPossibleRemoteUrlCoordinates(project).filter {
-            !settings.getHiddenUrls().contains(it.url)
-        }.toSet()
+        remoteUrls = project.service<GHProjectRepositoriesManager>().knownRepositories
+            .filter { !settings.getHiddenUrls().contains(it.gitRemote.url) }
+            .map { it.gitRemote }
+            .toSet()
     }
 
     class RemoteUrlsListener(private val project: Project)
@@ -64,10 +64,13 @@ internal class GitHubWorkflowRunManager(private val project: Project) {
 
         override fun mappingChanged() = runInEdt(project) {
             LOG.debug("mappingChanged")
-            updateRemotes(project) }
+            updateRemotes(project)
+        }
+
         override fun repositoryChanged(repository: GitRepository) = runInEdt(project) {
             LOG.debug("repositoryChanged")
-            updateRemotes(project) }
+            updateRemotes(project)
+        }
     }
 
     class AccountsListener : AccountRemovedListener, AccountTokenChangedListener {

@@ -24,9 +24,6 @@ class GitHubWorkflowRunListLoader(progressManager: ProgressManager,
                                            private val listModel: CollectionListModel<GitHubWorkflowRun>)
     : GHListLoaderBase<GitHubWorkflowRun>(progressManager) {
 
-    override val hasLoadedItems: Boolean
-        get() = !listModel.isEmpty
-
     var loaded: Boolean = false
 
     private val outdatedStateEventDispatcher = EventDispatcher.create(SimpleEventListener::class.java)
@@ -43,11 +40,6 @@ class GitHubWorkflowRunListLoader(progressManager: ProgressManager,
 
         resetDisposable = Disposer.newDisposable()
         Disposer.register(this, resetDisposable)
-    }
-
-    override fun handleResult(list: List<GitHubWorkflowRun>) {
-        LOG.debug("Add new list of workflow runs to the model")
-        listModel.add(list)
     }
 
     override fun reset() {

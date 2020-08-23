@@ -17,7 +17,7 @@ import javax.swing.JPanel
 internal class GitHubWorkflowRunListLoaderPanel(runListLoader: GitHubWorkflowRunListLoader,
                                                 private val listReloadAction: RefreshAction,
                                                 contentComponent: JComponent)
-    : GitHubListLoaderPanel<GitHubWorkflowRunListLoader>(runListLoader, contentComponent), Disposable {
+    : GitHubListLoaderPanel(runListLoader, contentComponent), Disposable {
 
     private lateinit var progressStripe: ProgressStripe
 
