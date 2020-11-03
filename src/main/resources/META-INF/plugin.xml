@@ -78,6 +78,11 @@
             <action id="Github.Workflow.Log.List.Reload"
                     class="org.github.otanikotani.workflow.action.GitHubWorkflowLogReloadAction"/>
         </group>
+
+        <action id="Github.Workflow.ToolWindow.Show"
+                class="org.github.otanikotani.workflow.action.GitHubWorkflowShowActionGroup">
+            <add-to-group group-id="Git.Menu"/>
+        </action>
     </actions>
 
 </idea-plugin>
