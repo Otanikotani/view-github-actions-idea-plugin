@@ -1,3 +1,10 @@
+## [1.1.7](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.1.6...1.1.7) (2020-11-17)
+
+
+### Bug Fixes
+
+* **feat:** Bump to support latest IDEA ([2690ea8](https://github.com/Otanikotani/view-github-actions-idea-plugin/commit/2690ea830ba2d2e2c2e652623f156edc54073729))
+
 ## [1.1.6](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.1.5...1.1.6) (2020-08-23)
 
 
