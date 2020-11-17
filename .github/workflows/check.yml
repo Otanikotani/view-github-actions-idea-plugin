@@ -20,13 +20,13 @@ jobs:
         with:
           java-version: 8
 
-      - name: Run Unit tests
-        run: |
-          ./gradlew test jacocoTestReport
-
-      - uses: codecov/codecov-action@v1
-        name: Upload coverage report to codecov
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./build/reports/jacoco/report.xml
-          fail_ci_if_error: true
+#      - name: Run Unit tests
+#        run: |
+#          ./gradlew test jacocoTestReport
+#
+#      - uses: codecov/codecov-action@v1
+#        name: Upload coverage report to codecov
+#        with:
+#          token: ${{ secrets.CODECOV_TOKEN }}
+#          file: ./build/reports/jacoco/report.xml
+#          fail_ci_if_error: true
