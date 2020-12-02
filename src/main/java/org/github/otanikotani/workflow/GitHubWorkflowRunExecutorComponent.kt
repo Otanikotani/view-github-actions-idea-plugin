@@ -2,6 +2,7 @@ package org.github.otanikotani.workflow
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
@@ -38,6 +39,6 @@ class GitHubWorkflowRunExecutorComponent(private val requestExecutorManager: Git
     }
 
     companion object {
-        private val LOG = logger("org.github.otanikotani")
+        private val LOG = Logger.getInstance("org.github.otanikotani")
     }
 }

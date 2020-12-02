@@ -3,6 +3,7 @@ package org.github.otanikotani.workflow.data
 import com.google.common.cache.CacheBuilder
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.runInEdt
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.util.EventDispatcher
 import org.jetbrains.annotations.CalledInAwt
@@ -52,6 +53,6 @@ class GitHubWorkflowDataLoader(private val dataProviderFactory: (String) -> GitH
     }
 
     companion object {
-        private val LOG = logger("org.github.otanikotani")
+        private val LOG = Logger.getInstance("org.github.otanikotani")
     }
 }

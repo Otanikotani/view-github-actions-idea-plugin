@@ -1,6 +1,7 @@
 package org.github.otanikotani.workflow
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
@@ -76,7 +77,7 @@ class GitHubWorkflowToolTabsContentManager(private val project: Project,
         @Nls
         private const val GROUP_PREFIX = "Workflows"
 
-        private val LOG = logger("org.github.otanikotani")
+        private val LOG = Logger.getInstance("org.github.otanikotani")
         private val REMOTE_URL = Key<GitRemoteUrlCoordinates>("GHWORKFLOW_REMOTE_URL")
     }
 }

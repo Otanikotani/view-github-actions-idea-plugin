@@ -3,6 +3,7 @@ package org.github.otanikotani.workflow.ui
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.actionSystem.PlatformDataKeys
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.ui.ColorUtil
 import com.intellij.ui.JBColor
@@ -157,6 +158,6 @@ class GitHubWorkflowRunList(model: ListModel<GitHubWorkflowRun>)
     }
 
     companion object {
-        private val LOG = logger("org.github.otanikotani")
+        private val LOG = Logger.getInstance("org.github.otanikotani")
     }
 }

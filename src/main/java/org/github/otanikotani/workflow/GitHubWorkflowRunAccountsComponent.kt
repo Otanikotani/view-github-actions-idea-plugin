@@ -1,6 +1,7 @@
 package org.github.otanikotani.workflow
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
@@ -92,6 +93,6 @@ internal class GitHubWorkflowRunAccountsComponent(private val authManager: Githu
     }
 
     companion object {
-        private val LOG = logger("org.github.otanikotani")
+        private val LOG = Logger.getInstance("org.github.otanikotani")
     }
 }

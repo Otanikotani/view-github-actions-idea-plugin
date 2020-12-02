@@ -1,5 +1,6 @@
 package org.github.otanikotani.workflow
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.logger
 import java.awt.event.ActionEvent
 import javax.swing.AbstractAction
@@ -19,6 +20,6 @@ class GitHubLoadingErrorHandler(private val resetRunnable: () -> Unit) {
     }
 
     companion object {
-        private val LOG = logger("org.github.otanikotani")
+        private val LOG = Logger.getInstance("org.github.otanikotani")
     }
 }

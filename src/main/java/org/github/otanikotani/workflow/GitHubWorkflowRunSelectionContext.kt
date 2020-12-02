@@ -1,5 +1,6 @@
 package org.github.otanikotani.workflow
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.logger
 import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.workflow.data.GitHubWorkflowRunDataProvider
@@ -20,6 +21,6 @@ class GitHubWorkflowRunSelectionContext internal constructor(private val dataCon
         get() = workflowRun?.let { dataContext.dataLoader.getDataProvider(it.logs_url) }
 
     companion object {
-        private val LOG = logger("org.github.otanikotani")
+        private val LOG = Logger.getInstance("org.github.otanikotani")
     }
 }

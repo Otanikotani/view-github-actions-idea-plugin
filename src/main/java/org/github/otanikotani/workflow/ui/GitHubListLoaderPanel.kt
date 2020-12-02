@@ -1,6 +1,7 @@
 package org.github.otanikotani.workflow.ui
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.SimpleTextAttributes
@@ -146,7 +147,7 @@ internal abstract class GitHubListLoaderPanel(protected val listLoader: GitHubWo
     override fun dispose() {}
 
     companion object {
-        private val LOG = logger("org.github.otanikotani")
+        private val LOG = Logger.getInstance("org.github.otanikotani")
 
         private fun getLoadingErrorText(error: Throwable, newLineSeparator: String = "\n"): String {
             if (error is GithubStatusCodeException && error.error != null) {

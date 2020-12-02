@@ -4,6 +4,7 @@ import com.intellij.ide.actions.RefreshAction
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.ex.ActionUtil
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.progress.util.ProgressWindow
 import com.intellij.ui.SimpleTextAttributes
@@ -59,6 +60,6 @@ internal class GitHubWorkflowRunListLoaderPanel(runListLoader: GitHubWorkflowRun
     }
 
     companion object {
-        private val LOG = logger("org.github.otanikotani")
+        private val LOG = Logger.getInstance("org.github.otanikotani")
     }
 }

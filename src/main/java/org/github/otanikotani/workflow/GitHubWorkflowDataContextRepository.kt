@@ -3,6 +3,7 @@ package org.github.otanikotani.workflow
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
@@ -66,7 +67,7 @@ internal class GitHubWorkflowDataContextRepository {
     }
 
     companion object {
-        private val LOG = logger("org.github.otanikotani")
+        private val LOG = Logger.getInstance("org.github.otanikotani")
 
         fun getInstance(project: Project) = project.service<GitHubWorkflowDataContextRepository>()
     }
