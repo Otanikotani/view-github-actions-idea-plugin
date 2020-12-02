@@ -1,3 +1,10 @@
+## [1.1.9](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.1.8...1.1.9) (2020-12-02)
+
+
+### Bug Fixes
+
+* **feat:** Fix the log parsing, fix logger ([87cf7f8](https://github.com/Otanikotani/view-github-actions-idea-plugin/commit/87cf7f8ecb9eb26fc3539157ac086b0c587e3d47))
+
 ## [1.1.8](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.1.7...1.1.8) (2020-11-17)
 
 
