@@ -30,7 +30,10 @@ class GitHubWorkflowToolTabsContentManager(private val project: Project,
     @CalledInAwt
     fun focusTab(remoteUrl: GitRemoteUrlCoordinates) {
         LOG.debug("focusTab")
-        val content = viewContentManager.findContents { it.remoteUrl == remoteUrl }.firstOrNull() ?: return
+        val content = viewContentManager.findContents { it.remoteUrl == remoteUrl }.firstOrNull() ?: run {
+            addTab(remoteUrl, Disposer.newDisposable())
+            viewContentManager.findContents { it.remoteUrl == remoteUrl }.firstOrNull()
+        } ?: return
         ToolWindowManager.getInstance(project).getToolWindow(ChangesViewContentManager.TOOLWINDOW_ID)?.show {
             viewContentManager.setSelectedContent(content, true)
         }
