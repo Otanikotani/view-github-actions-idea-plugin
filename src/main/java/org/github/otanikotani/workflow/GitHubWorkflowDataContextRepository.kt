@@ -47,6 +47,7 @@ internal class GitHubWorkflowDataContextRepository {
 
         LOG.debug("Create CollectionListModel<GitHubWorkflowRun>() and loader")
         val listModel = CollectionListModel<GitHubWorkflowRun>()
+
         val listLoader = GitHubWorkflowRunListLoader(ProgressManager.getInstance(), requestExecutor,
             repositoryCoordinates,
             listModel)

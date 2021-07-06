@@ -65,9 +65,10 @@ data class GitHubAuthor(
 object Workflows : GithubApiRequests.Entity("/repos") {
 
     fun getWorkflowByUrl(url: String) = Get.Json(url, GitHubWorkflow::class.java, null)
-            .withOperationName("get workflow")
+            .withOperationName("Get Workflow Description By URL")
 
-    fun getWorkflowLog(url: String) = WorkflowRunLogGet(url)
+    fun getDownloadUrlForWorkflowLog(url: String) = DownloadUrlWorkflowRunLogGet(url)
+        .withOperationName("Download Workflow log")
 
     fun getWorkflowRuns(coordinates: GitHubRepositoryCoordinates,
             event: String? = null,
