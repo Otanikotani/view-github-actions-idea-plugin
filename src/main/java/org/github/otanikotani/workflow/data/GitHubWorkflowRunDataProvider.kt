@@ -40,6 +40,7 @@ class GitHubWorkflowRunDataProvider(private val progressManager: ProgressManager
 
     @CalledInAwt
     fun reloadLog() {
+        logValue.drop()
         runChangesEventDispatcher.multicaster.logChanged()
     }
 
