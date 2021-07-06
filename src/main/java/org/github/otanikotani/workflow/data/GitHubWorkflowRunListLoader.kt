@@ -29,7 +29,7 @@ class GitHubWorkflowRunListLoader(progressManager: ProgressManager,
 
     private val outdatedStateEventDispatcher = EventDispatcher.create(SimpleEventListener::class.java)
 
-    var outdated: Boolean by Delegates.observable(false) { _, _, newValue ->
+    var outdated: Boolean by Delegates.observable(false) { _, _, _ ->
         LOG.debug("Outdated event occurred")
         outdatedStateEventDispatcher.multicaster.eventOccurred()
     }

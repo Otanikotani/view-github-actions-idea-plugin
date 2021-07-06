@@ -8,7 +8,6 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.editor.ex.EditorEx
@@ -18,12 +17,12 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Splitter
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.util.registry.Registry
 import com.intellij.ui.ListUtil
 import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.PopupHandler
 import com.intellij.ui.ScrollingUtil
 import com.intellij.ui.components.JBPanelWithEmptyText
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.ui.UIUtil
 import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.workflow.action.GitHubWorkflowRunActionKeys
@@ -31,11 +30,10 @@ import org.github.otanikotani.workflow.data.GitHubWorkflowRunDataProvider
 import org.github.otanikotani.workflow.ui.GitHubWorkflowRunList
 import org.github.otanikotani.workflow.ui.GitHubWorkflowRunListLoaderPanel
 import org.github.otanikotani.workflow.ui.GitHubWorkflowRunLogConsole
-import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
+import org.jetbrains.plugins.github.pullrequest.ui.GHApiLoadingErrorHandler
 import org.jetbrains.plugins.github.pullrequest.ui.GHCompletableFutureLoadingModel
-import org.jetbrains.plugins.github.pullrequest.ui.GHLoadingErrorHandlerImpl
 import org.jetbrains.plugins.github.pullrequest.ui.GHLoadingModel
 import org.jetbrains.plugins.github.pullrequest.ui.GHLoadingPanel
 import org.jetbrains.plugins.github.ui.util.SingleValueModel
@@ -56,7 +54,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
     private val actionManager = ActionManager.getInstance()
     private val dataContextRepository = GitHubWorkflowDataContextRepository.getInstance(project)
 
-    @CalledInAwt
+    @RequiresEdt
     fun createComponent(remoteUrl: GitRemoteUrlCoordinates, account: GithubAccount, requestExecutor: GithubApiRequestExecutor,
                         parentDisposable: Disposable): JComponent {
         LOG.debug("createComponent")
@@ -104,7 +102,7 @@ internal class GitHubWorkflowRunComponentFactory(private val project: Project) {
 
         return GHLoadingPanel(loadingModel, contentContainer, uiDisposable,
             GHLoadingPanel.EmptyTextBundle.Simple("", "Can't load data from GitHub")).apply {
-            errorHandler = GHLoadingErrorHandlerImpl(project, account) {
+            errorHandler = GHApiLoadingErrorHandler(project, account) {
                 LOG.debug("Dropping current context value")
                 contextValue.drop()
                 LOG.debug("Setting loading model future to context value")

@@ -4,15 +4,14 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.ui.CollectionListModel
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.github.otanikotani.api.GitHubWorkflowRun
 import org.github.otanikotani.workflow.data.GitHubWorkflowDataLoader
 import org.github.otanikotani.workflow.data.GitHubWorkflowRunDataProvider
 import org.github.otanikotani.workflow.data.GitHubWorkflowRunListLoader
-import org.jetbrains.annotations.CalledInBackground
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
 import org.jetbrains.plugins.github.pullrequest.data.GHListLoader
@@ -22,7 +21,7 @@ import java.io.IOException
 
 @Service
 internal class GitHubWorkflowDataContextRepository {
-    @CalledInBackground
+    @RequiresBackgroundThread
     @Throws(IOException::class)
     fun getContext(disposable: Disposable,
                    account: GithubAccount,

@@ -4,9 +4,8 @@ import com.google.common.cache.CacheBuilder
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.diagnostic.logger
 import com.intellij.util.EventDispatcher
-import org.jetbrains.annotations.CalledInAwt
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import java.util.*
 
 class GitHubWorkflowDataLoader(private val dataProviderFactory: (String) -> GitHubWorkflowRunDataProvider) : Disposable {
@@ -29,7 +28,7 @@ class GitHubWorkflowDataLoader(private val dataProviderFactory: (String) -> GitH
         }
     }
 
-    @CalledInAwt
+    @RequiresEdt
     fun invalidateAllData() {
         LOG.debug("All cache invalidated")
         cache.invalidateAll()

@@ -6,8 +6,8 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.util.EventDispatcher
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.github.otanikotani.api.Workflows
-import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.util.GithubAsyncUtil
 import org.jetbrains.plugins.github.util.LazyCancellableBackgroundProcessValue
@@ -38,7 +38,7 @@ class GitHubWorkflowRunDataProvider(private val progressManager: ProgressManager
 
     val logRequest by backgroundProcessValue(logValue)
 
-    @CalledInAwt
+    @RequiresEdt
     fun reloadLog() {
         logValue.drop()
         runChangesEventDispatcher.multicaster.logChanged()
@@ -50,10 +50,7 @@ class GitHubWorkflowRunDataProvider(private val progressManager: ProgressManager
         }
 
     private fun <T> backgroundProcessValue(backingValue: LazyCancellableBackgroundProcessValue<T>): ReadOnlyProperty<Any?, CompletableFuture<T>> =
-        object : ReadOnlyProperty<Any?, CompletableFuture<T>> {
-            override fun getValue(thisRef: Any?, property: KProperty<*>) =
-                GithubAsyncUtil.futureOfMutable { invokeAndWaitIfNeeded { backingValue.value } }
-        }
+        ReadOnlyProperty { _, _ -> GithubAsyncUtil.futureOfMutable { invokeAndWaitIfNeeded { backingValue.value } } }
 
 
     fun addRunChangesListener(disposable: Disposable, listener: WorkflowRunChangedListener) =

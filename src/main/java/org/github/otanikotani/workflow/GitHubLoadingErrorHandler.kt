@@ -8,7 +8,7 @@ import javax.swing.Action
 
 class GitHubLoadingErrorHandler(private val resetRunnable: () -> Unit) {
 
-    fun getActionForError(error: Throwable): Action? {
+    fun getActionForError(): Action {
         return RetryAction()
     }
 

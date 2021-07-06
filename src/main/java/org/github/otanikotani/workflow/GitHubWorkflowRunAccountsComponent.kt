@@ -13,8 +13,8 @@ import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
 import org.jetbrains.plugins.github.authentication.ui.GithubChooseAccountDialog
 import org.jetbrains.plugins.github.ui.util.DisposingWrapper
+import org.jetbrains.plugins.github.ui.util.GHUIUtil
 import org.jetbrains.plugins.github.util.GitRemoteUrlCoordinates
-import org.jetbrains.plugins.github.util.GithubUIUtil
 
 internal class GitHubWorkflowRunAccountsComponent(private val authManager: GithubAuthenticationManager,
                                                   private val project: Project,
@@ -63,7 +63,7 @@ internal class GitHubWorkflowRunAccountsComponent(private val authManager: Githu
 
     private fun showLoginPanel() {
         LOG.debug("Show login panel")
-        setCenteredContent(GithubUIUtil.createNoteWithAction(::update).apply {
+        setCenteredContent(GHUIUtil.createNoteWithAction(::update).apply {
             append("Open Pull Requests tab to Log in and then ", SimpleTextAttributes.GRAYED_ATTRIBUTES)
             append("refresh", SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES, Runnable { update() })
         })
@@ -71,7 +71,7 @@ internal class GitHubWorkflowRunAccountsComponent(private val authManager: Githu
 
     private fun showChooseAccountPanel(accounts: List<GithubAccount>) {
         LOG.debug("Show choose account panel")
-        setCenteredContent(GithubUIUtil.createNoteWithAction { chooseAccount(accounts) }.apply {
+        setCenteredContent(GHUIUtil.createNoteWithAction { chooseAccount(accounts) }.apply {
             append("Select", SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES, Runnable { chooseAccount(accounts) })
             append(" GitHub account to view workflows", SimpleTextAttributes.GRAYED_ATTRIBUTES)
         })

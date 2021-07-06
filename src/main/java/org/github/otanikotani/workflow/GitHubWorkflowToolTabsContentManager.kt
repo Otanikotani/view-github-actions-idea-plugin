@@ -12,7 +12,7 @@ import com.intellij.openapi.vcs.changes.ui.ChangesViewContentProvider
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.content.Content
 import com.intellij.ui.content.ContentFactory
-import org.jetbrains.annotations.CalledInAwt
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.github.authentication.GithubAuthenticationManager
 import org.jetbrains.plugins.github.util.GitRemoteUrlCoordinates
@@ -21,13 +21,13 @@ import javax.swing.JPanel
 class GitHubWorkflowToolTabsContentManager(private val project: Project,
                                            private val viewContentManager: ChangesViewContentI) {
 
-    @CalledInAwt
+    @RequiresEdt
     internal fun addTab(remoteUrl: GitRemoteUrlCoordinates, onDispose: Disposable) {
         LOG.debug("addTab")
         viewContentManager.addContent(createContent(remoteUrl, onDispose))
     }
 
-    @CalledInAwt
+    @RequiresEdt
     fun focusTab(remoteUrl: GitRemoteUrlCoordinates) {
         LOG.debug("focusTab")
         val content = viewContentManager.findContents { it.remoteUrl == remoteUrl }.firstOrNull() ?: run {
@@ -39,7 +39,7 @@ class GitHubWorkflowToolTabsContentManager(private val project: Project,
         }
     }
 
-    @CalledInAwt
+    @RequiresEdt
     internal fun removeTab(remoteUrl: GitRemoteUrlCoordinates) {
         LOG.debug("removeTab")
         val content = viewContentManager.findContents { it.remoteUrl == remoteUrl }.firstOrNull() ?: return
@@ -57,7 +57,7 @@ class GitHubWorkflowToolTabsContentManager(private val project: Project,
         content.description = GROUP_PREFIX
         content.remoteUrl = remoteUrl
         content.putUserData(ChangesViewContentManager.ORDER_WEIGHT_KEY, ChangesViewContentManager.TabOrderWeight.LAST.weight)
-        content.putUserData(ChangesViewContentManager.CONTENT_PROVIDER_SUPPLIER_KEY) {
+        content.putUserData(Key.create<() -> ChangesViewContentProvider>("CONTENT_PROVIDER_SUPPLIER")) {
             object : ChangesViewContentProvider {
                 override fun initContent(): GitHubWorkflowRunAccountsComponent {
                     LOG.debug("initContent")

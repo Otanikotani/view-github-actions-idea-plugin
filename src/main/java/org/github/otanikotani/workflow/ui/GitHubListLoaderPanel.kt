@@ -2,7 +2,6 @@ package org.github.otanikotani.workflow.ui
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.diagnostic.logger
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.util.ui.ComponentWithEmptyText
@@ -13,8 +12,6 @@ import com.intellij.util.ui.components.BorderLayoutPanel
 import org.github.otanikotani.workflow.GitHubLoadingErrorHandler
 import org.github.otanikotani.workflow.data.GitHubWorkflowRunListLoader
 import org.jetbrains.plugins.github.exceptions.GithubStatusCodeException
-import org.jetbrains.plugins.github.pullrequest.data.GHListLoader
-import org.jetbrains.plugins.github.pullrequest.data.GHListLoaderBase
 import org.jetbrains.plugins.github.ui.HtmlInfoPanel
 import java.awt.event.ActionEvent
 import javax.swing.JComponent
@@ -86,10 +83,10 @@ internal abstract class GitHubListLoaderPanel(protected val listLoader: GitHubWo
 
     private fun displayErrorStatus(emptyText: StatusText, error: Throwable) {
         LOG.debug("Display error status")
-        emptyText.appendText(getErrorPrefix(!listLoader.hasLoadedItems), SimpleTextAttributes.ERROR_ATTRIBUTES)
+        emptyText.appendText(getErrorPrefix(listLoader.loadedData.isEmpty()), SimpleTextAttributes.ERROR_ATTRIBUTES)
             .appendSecondaryText(getLoadingErrorText(error), SimpleTextAttributes.ERROR_ATTRIBUTES, null)
 
-        errorHandler?.getActionForError(error)?.let {
+        errorHandler?.getActionForError()?.let {
             emptyText.appendSecondaryText(" ${it.getValue("Name")}", SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES, it)
         }
     }
@@ -104,10 +101,10 @@ internal abstract class GitHubListLoaderPanel(protected val listLoader: GitHubWo
 
     protected open fun updateInfoPanel() {
         val error = listLoader.error
-        if (error != null && listLoader.hasLoadedItems) {
-            val errorPrefix = getErrorPrefix(!listLoader.hasLoadedItems)
+        if (error != null && listLoader.loadedData.isNotEmpty()) {
+            val errorPrefix = getErrorPrefix(listLoader.loadedData.isEmpty())
             val errorText = getLoadingErrorText(error, "<br/>")
-            val action = errorHandler?.getActionForError(error)
+            val action = errorHandler?.getActionForError()
             if (action != null) {
                 //language=HTML
                 infoPanel.setInfo("""<html><body>$errorPrefix<br/>$errorText<a href=''>&nbsp;${action.getValue("Name")}</a></body></html>""",
