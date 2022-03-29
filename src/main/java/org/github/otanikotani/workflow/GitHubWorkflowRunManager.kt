@@ -11,9 +11,9 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentManager
+import com.intellij.util.concurrency.annotations.RequiresEdt
 import git4idea.repo.GitRepository
 import git4idea.repo.GitRepositoryChangeListener
-import org.jetbrains.annotations.CalledInAwt
 import org.jetbrains.plugins.github.authentication.accounts.AccountRemovedListener
 import org.jetbrains.plugins.github.authentication.accounts.AccountTokenChangedListener
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
@@ -44,7 +44,7 @@ internal class GitHubWorkflowRunManager(private val project: Project) {
         }
     }
 
-    @CalledInAwt
+    @RequiresEdt
     fun showTab(remoteUrl: GitRemoteUrlCoordinates) {
         LOG.debug("Show Tab")
         updateRemoteUrls()

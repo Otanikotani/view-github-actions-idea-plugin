@@ -2,7 +2,6 @@ package org.github.otanikotani.workflow
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.IdeFocusManager
@@ -27,7 +26,6 @@ internal class GitHubWorkflowRunAccountsComponent(private val authManager: Githu
 
     init {
         LOG.debug("init GitHubWorkflowRunAccountsComponent")
-        background = UIUtil.getListBackground()
         update()
     }
 

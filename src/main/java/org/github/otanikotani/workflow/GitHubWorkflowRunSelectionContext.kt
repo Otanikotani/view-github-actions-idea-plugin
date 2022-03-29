@@ -1,8 +1,8 @@
 package org.github.otanikotani.workflow
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.diagnostic.logger
 import org.github.otanikotani.api.GitHubWorkflowRun
+import org.github.otanikotani.workflow.data.GitHubWorkflowRunDataContext
 import org.github.otanikotani.workflow.data.GitHubWorkflowRunDataProvider
 
 class GitHubWorkflowRunSelectionContext internal constructor(private val dataContext: GitHubWorkflowRunDataContext,

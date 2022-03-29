@@ -1,9 +1,7 @@
 package org.github.otanikotani.workflow.action
 
 import com.intellij.openapi.actionSystem.DataKey
-import org.github.otanikotani.api.GitHubWorkflow
 import org.github.otanikotani.api.GitHubWorkflowRun
-import org.github.otanikotani.workflow.GitHubWorkflowRunDataContext
 import org.github.otanikotani.workflow.GitHubWorkflowRunSelectionContext
 
 object GitHubWorkflowRunActionKeys {
