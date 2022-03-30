@@ -7,7 +7,6 @@ import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentManager
@@ -19,7 +18,6 @@ import org.jetbrains.plugins.github.authentication.accounts.AccountTokenChangedL
 import org.jetbrains.plugins.github.authentication.accounts.GithubAccount
 import org.jetbrains.plugins.github.pullrequest.config.GithubPullRequestsProjectUISettings
 import org.jetbrains.plugins.github.util.CollectionDelta
-import org.jetbrains.plugins.github.util.GHProjectRepositoriesManager
 import org.jetbrains.plugins.github.util.GitRemoteUrlCoordinates
 import kotlin.properties.Delegates.observable
 
@@ -27,21 +25,21 @@ import kotlin.properties.Delegates.observable
 internal class GitHubWorkflowRunManager(private val project: Project) {
     private val settings = GithubPullRequestsProjectUISettings.getInstance(project)
 
-    private val contentManager by lazy(LazyThreadSafetyMode.NONE) {
-        GitHubWorkflowToolTabsContentManager(project, ChangesViewContentManager.getInstance(project))
-    }
+//    private val contentManager by lazy(LazyThreadSafetyMode.NONE) {
+//        GitHubWorkflowToolTabsContentManager(project, ChangesViewContentManager.getInstance(project))
+//    }
 
     private var remoteUrls by observable(setOf<GitRemoteUrlCoordinates>()) { _, oldValue, newValue ->
         LOG.debug("Remote URLs changed")
         val delta = CollectionDelta(oldValue, newValue)
-        for (item in delta.removedItems) {
-            contentManager.removeTab(item)
-        }
-        for (item in delta.newItems) {
-            contentManager.addTab(item, Disposable {
-                ApplicationManager.getApplication().invokeLater(::updateRemoteUrls) { project.isDisposed }
-            })
-        }
+//        for (item in delta.removedItems) {
+//            contentManager.removeTab(item)
+//        }
+//        for (item in delta.newItems) {
+//            contentManager.addTab(item, Disposable {
+//                ApplicationManager.getApplication().invokeLater(::updateRemoteUrls) { project.isDisposed }
+//            })
+//        }
     }
 
     @RequiresEdt
@@ -49,15 +47,16 @@ internal class GitHubWorkflowRunManager(private val project: Project) {
         LOG.debug("Show Tab")
         updateRemoteUrls()
 
-        contentManager.focusTab(remoteUrl)
+//        contentManager.focusTab(remoteUrl)
     }
 
     private fun updateRemoteUrls() {
         LOG.debug("Update remote urls")
-        remoteUrls = project.service<GHProjectRepositoriesManager>().knownRepositories
-            .filter { !settings.getHiddenUrls().contains(it.gitRemote.url) }
-            .map { it.gitRemote }
-            .toSet()
+        remoteUrls = emptySet()
+//        remoteUrls = project.service<GHProjectRepositoriesManager>().knownRepositories
+//            .filter { !settings.getHiddenUrls().contains(it.gitRemote.url) }
+//            .map { it.gitRemote }
+//            .toSet()
     }
 
     class RemoteUrlsListener(private val project: Project)
