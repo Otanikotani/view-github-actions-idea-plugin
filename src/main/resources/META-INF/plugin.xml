@@ -5,11 +5,11 @@
         Otanikotani
     </vendor>
 
-    <idea-version since-build="213.7172.25" />
+    <idea-version since-build="213.5744.223" />
 
     <description><![CDATA[
         This plugin displays statuses of GitHub Actions<br>
-        This plugin is a good alternative to alt-tabbing for every time you push some changes to the branch and want to see whether the repository's checks are passing on your changes.<br>
+        This plugin is a good alternative to alt-tabbing every time you push some changes to the branch and want to see whether the repository's checks are passing on your changes.<br>
         Use cases:<br>
         <ul>
             <li>Imagine having some GitHub Workflows to set up to run on pull requests that must pass before you can merge the pull request. With this plugin you can see the status and the build log of the workflow</li>
@@ -35,6 +35,11 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="org.github.otanikotani.workflow.GitHubWorkflowRunManager"/>
+
+        <toolWindow id="GitHub Workflows" icon="org.github.otanikotani.workflow.ui.GitHubIcons.WorkflowAll"
+                    anchor="left" doNotActivateOnStart="true"
+                    factoryClass="org.github.otanikotani.workflow.action.GHWorkflowToolWindowFactory"/>
+
     </extensions>
 
 <!--    <applicationListeners>-->
@@ -77,10 +82,10 @@
 <!--                    class="org.github.otanikotani.workflow.action.GitHubWorkflowLogReloadAction"/>-->
 <!--        </group>-->
 
-<!--        <action id="Github.Workflow.ToolWindow.Show"-->
-<!--                class="org.github.otanikotani.workflow.action.GitHubViewPullRequestsAction">-->
-<!--            <add-to-group group-id="Git.Menu"/>-->
-<!--        </action>-->
+        <action id="Github.Workflow.ToolWindow.Show"
+                class="org.github.otanikotani.workflow.action.GitHubViewPullRequestsAction">
+            <add-to-group group-id="Git.Menu"/>
+        </action>
     </actions>
 
 </idea-plugin>

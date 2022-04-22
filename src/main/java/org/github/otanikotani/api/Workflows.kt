@@ -3,6 +3,7 @@ package org.github.otanikotani.api
 import org.github.otanikotani.workflow.GitHubRepositoryCoordinates
 import org.jetbrains.plugins.github.api.GithubApiRequest
 import org.jetbrains.plugins.github.api.GithubApiRequest.Get
+import org.jetbrains.plugins.github.api.GithubApiRequest.Get.Companion.json
 import org.jetbrains.plugins.github.api.GithubApiRequests
 import org.jetbrains.plugins.github.api.data.request.GithubRequestPagination
 import org.jetbrains.plugins.github.api.util.GithubApiSearchQueryBuilder
@@ -93,6 +94,6 @@ object Workflows : GithubApiRequests.Entity("/repos") {
         return get(url)
     }
 
-    fun get(url: String) = Get.json<GitHubWorkflowRuns>(url)
+    fun get(url: String) = json<GitHubWorkflowRuns>(url)
         .withOperationName("search workflow runs")
 }
