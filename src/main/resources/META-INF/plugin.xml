@@ -5,7 +5,7 @@
         Otanikotani
     </vendor>
 
-    <idea-version since-build="213.5744.223" />
+    <idea-version since-build="221.5080.210" />
 
     <description><![CDATA[
         This plugin displays statuses of GitHub Actions<br>
