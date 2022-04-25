@@ -1,7 +1,6 @@
 package org.github.otanikotani.workflow.action
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.invokeAndWaitIfNeeded
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
@@ -10,8 +9,6 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.openapi.wm.ex.ToolWindowEx
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi
-import git4idea.repo.GitRepository
-import org.github.otanikotani.workflow.GitHubWorkflowToolWindowController
 import org.github.otanikotani.workflow.data.GitHubWorkflowDataContextRepository
 import org.github.otanikotani.workflow.ui.GitHubWorkflowToolWindowTabController
 import org.github.otanikotani.workflow.ui.GitHubWorkflowToolWindowTabControllerImpl
@@ -24,11 +21,12 @@ class GHWorkflowToolWindowFactory : ToolWindowFactory, DumbAware {
 
     override fun init(toolWindow: ToolWindow) {
         ApplicationManager.getApplication().messageBus.connect(toolWindow.disposable)
-            .subscribe(GHProjectRepositoriesManager.LIST_CHANGES_TOPIC, object : GHProjectRepositoriesManager.ListChangeListener {
-                override fun repositoryListChanged(newList: Set<GHGitRepositoryMapping>, project: Project) {
-                    toolWindow.isAvailable = newList.isNotEmpty()
-                }
-            })
+            .subscribe(GHProjectRepositoriesManager.LIST_CHANGES_TOPIC,
+                object : GHProjectRepositoriesManager.ListChangeListener {
+                    override fun repositoryListChanged(newList: Set<GHGitRepositoryMapping>, project: Project) {
+                        toolWindow.isAvailable = newList.isNotEmpty()
+                    }
+                })
     }
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) = with(toolWindow as ToolWindowEx) {
@@ -43,7 +41,11 @@ class GHWorkflowToolWindowFactory : ToolWindowFactory, DumbAware {
                 val dataContextRepository = GitHubWorkflowDataContextRepository.getInstance(project)
                 it.putUserData(
                     GitHubWorkflowToolWindowTabController.KEY,
-                    GitHubWorkflowToolWindowTabControllerImpl(project, authManager, repositoryManager, dataContextRepository, it)
+                    GitHubWorkflowToolWindowTabControllerImpl(project,
+                        authManager,
+                        repositoryManager,
+                        dataContextRepository,
+                        it)
                 )
             })
         }

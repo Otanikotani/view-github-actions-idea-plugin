@@ -83,7 +83,6 @@ internal class GitHubWorkflowDataContextRepository {
         repository: GHRepositoryCoordinates, remote: GitRemoteUrlCoordinates,
         account: GithubAccount, requestExecutor: GithubApiRequestExecutor,
     ): CompletableFuture<GitHubWorkflowRunDataContext> {
-
         return repositories.getOrPut(repository) {
             val contextDisposable = Disposer.newDisposable()
             LazyCancellableBackgroundProcessValue.create { indicator ->

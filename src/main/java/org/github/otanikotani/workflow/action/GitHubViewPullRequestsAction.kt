@@ -6,7 +6,6 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbAwareAction
 import org.github.otanikotani.workflow.GitHubWorkflowToolWindowController
-import org.github.otanikotani.workflow.ui.GitHubWorkflowToolWindowViewType
 import java.util.function.Supplier
 
 class GitHubViewPullRequestsAction : DumbAwareAction(
@@ -27,10 +26,7 @@ class GitHubViewPullRequestsAction : DumbAwareAction(
     }
 
     override fun actionPerformed(e: AnActionEvent) {
-        e.project!!.service<GitHubWorkflowToolWindowController>().activate {
-            it.initialView = GitHubWorkflowToolWindowViewType.LIST
-            it.componentController?.viewList()
-        }
+        e.project!!.service<GitHubWorkflowToolWindowController>().activate()
     }
 
     companion object {

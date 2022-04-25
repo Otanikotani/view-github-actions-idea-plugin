@@ -11,6 +11,8 @@ import org.jetbrains.plugins.github.api.GithubApiRequestExecutor
 import org.jetbrains.plugins.github.util.LazyCancellableBackgroundProcessValue
 import java.io.IOException
 import java.util.EventListener
+import java.util.concurrent.CompletableFuture
+import kotlin.properties.ReadOnlyProperty
 
 class GitHubWorkflowRunDataProvider(
     private val progressManager: ProgressManager,
@@ -23,7 +25,8 @@ class GitHubWorkflowRunDataProvider(
     private val logValue: LazyCancellableBackgroundProcessValue<String> = backingValue {
         try {
             LOG.debug("Get workflow log for $url")
-            val log = requestExecutor.execute(it, Workflows.getDownloadUrlForWorkflowLog(url))
+            val request = Workflows.getDownloadUrlForWorkflowLog(url)
+            val log = requestExecutor.execute(it, request)
             LOG.debug("Downloaded log of size ${log.length}")
             log
         } catch (ioe: IOException) {
@@ -32,6 +35,12 @@ class GitHubWorkflowRunDataProvider(
                 " or the url is incorrect. The log url: $url "
         }
     }
+
+    val logRequest by backgroundProcessValue(logValue)
+
+    private fun <T> backgroundProcessValue(backingValue: LazyCancellableBackgroundProcessValue<T>): ReadOnlyProperty<Any?, CompletableFuture<T>> =
+        ReadOnlyProperty { _, _ -> backingValue.value }
+
 
     @RequiresEdt
     fun reloadLog() {

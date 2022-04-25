@@ -19,21 +19,13 @@ internal class GitHubWorkflowToolWindowController(private val project: Project) 
     }
 
     @RequiresEdt
-    fun activate(onActivated: ((GitHubWorkflowToolWindowTabController) -> Unit)? = null) {
+    fun activate() {
         LOG.debug("GitHubWorkflowToolWindowController::Activate")
         val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(GHWorkflowToolWindowFactory.ID) ?: return
         toolWindow.activate {
-            val tabController = getTabController(toolWindow)
-            if (tabController != null && onActivated != null) {
-                LOG.debug("GitHubWorkflowToolWindowController::Activate - Found controller to activate")
-                onActivated(tabController)
-            }
+            getTabController(toolWindow)
         }
     }
-
-    fun getTabController(): GitHubWorkflowToolWindowTabController? = ToolWindowManager.getInstance(project)
-        .getToolWindow(GHWorkflowToolWindowFactory.ID)
-        ?.let { getTabController(it) }
 
     private fun getTabController(toolWindow: ToolWindow): GitHubWorkflowToolWindowTabController? =
         toolWindow.contentManagerIfCreated?.selectedContent?.getUserData(GitHubWorkflowToolWindowTabController.KEY)

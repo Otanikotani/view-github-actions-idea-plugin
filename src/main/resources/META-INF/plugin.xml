@@ -36,7 +36,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="org.github.otanikotani.workflow.GitHubWorkflowRunManager"/>
 
-        <toolWindow id="GitHub Workflows" icon="org.github.otanikotani.workflow.ui.GitHubIcons.WorkflowAll"
+        <toolWindow id="GitHub Workflows" icon="org.github.otanikotani.workflow.ui.GitHubIcons.WorkflowAllToolbar"
                     anchor="left" doNotActivateOnStart="true"
                     factoryClass="org.github.otanikotani.workflow.action.GHWorkflowToolWindowFactory"/>
 
@@ -61,26 +61,26 @@
 <!--    </projectListeners>-->
 
     <actions>
-<!--        <group id="GHWorkflows.ActionGroup" popup="false">-->
-<!--            <action id="Github.Workflow.List.Reload"-->
-<!--                    class="org.github.otanikotani.workflow.action.GitHubWorkflowRunReloadListAction"-->
-<!--                    use-shortcut-of="Refresh"/>-->
-<!--        </group>-->
+        <group id="GHWorkflows.ActionGroup" popup="false">
+            <action id="Github.Workflow.List.Reload"
+                    class="org.github.otanikotani.workflow.action.GitHubWorkflowRunReloadListAction"
+                    use-shortcut-of="Refresh"/>
+        </group>
 
-<!--        <group id="Github.Workflow.ToolWindow.List.Popup">-->
-<!--            <reference id="Github.Workflow.List.Reload"/>-->
-<!--        </group>-->
-<!--        -->
-<!--        <group id="Github.Workflow.ToolWindow.List.Popup.Selected">-->
-<!--            <action id="Github.Workflow.Open.In.Browser"-->
-<!--                    class="org.github.otanikotani.workflow.action.GithubOpenInBrowserAction"/>-->
-<!--            <reference id="Github.Workflow.List.Reload"/>-->
-<!--        </group>-->
+        <group id="Github.Workflow.ToolWindow.List.Popup">
+            <reference id="Github.Workflow.List.Reload"/>
+        </group>
 
-<!--        <group id="Github.Workflow.Log.ToolWindow.List.Popup">-->
-<!--            <action id="Github.Workflow.Log.List.Reload"-->
-<!--                    class="org.github.otanikotani.workflow.action.GitHubWorkflowLogReloadAction"/>-->
-<!--        </group>-->
+        <group id="Github.Workflow.ToolWindow.List.Popup.Selected">
+            <action id="Github.Workflow.Open.In.Browser"
+                    class="org.github.otanikotani.workflow.action.GithubOpenInBrowserAction"/>
+            <reference id="Github.Workflow.List.Reload"/>
+        </group>
+
+        <group id="Github.Workflow.Log.ToolWindow.List.Popup">
+            <action id="Github.Workflow.Log.List.Reload"
+                    class="org.github.otanikotani.workflow.action.GitHubWorkflowLogReloadAction"/>
+        </group>
 
         <action id="Github.Workflow.ToolWindow.Show"
                 class="org.github.otanikotani.workflow.action.GitHubViewPullRequestsAction">
