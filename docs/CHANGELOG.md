@@ -1,3 +1,14 @@
+## [1.1.10](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.1.9...1.1.10) (2022-04-25)
+
+
+### Bug Fixes
+
+* **feat:** Update to 2022.1 idea ([8faa596](https://github.com/Otanikotani/view-github-actions-idea-plugin/commit/8faa59650afac0eb1cfd3b0ce565796aaa1a2e32))
+* **feat:** Update to 2022.1 idea ([e99d6f9](https://github.com/Otanikotani/view-github-actions-idea-plugin/commit/e99d6f9408b52cfbfc67321b734afe6aa0d7c9b8))
+* **feat:** Update to 2022.1 idea ([d1a3d95](https://github.com/Otanikotani/view-github-actions-idea-plugin/commit/d1a3d957f4bc5c5b69bf2dbcd623002df8d2bffb))
+* **log:** Catch up getting logs ([a0c7b9e](https://github.com/Otanikotani/view-github-actions-idea-plugin/commit/a0c7b9e6699f09765bc224d17df681996b7690dd))
+* **log:** Drop log value on reload ([6a45086](https://github.com/Otanikotani/view-github-actions-idea-plugin/commit/6a4508635ba6560af6922472883b7bcd755aee99))
+
 ## [1.1.9](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.1.8...1.1.9) (2020-12-02)
 
 
