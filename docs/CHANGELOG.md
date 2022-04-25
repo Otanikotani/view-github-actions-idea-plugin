@@ -1,3 +1,10 @@
+## [1.1.11](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.1.10...1.1.11) (2022-04-25)
+
+
+### Bug Fixes
+
+* **feat:** Update to 2022.1 idea ([9a51654](https://github.com/Otanikotani/view-github-actions-idea-plugin/commit/9a516542274b9fac6e1c087617ed86a02e6e1c15))
+
 ## [1.1.10](https://github.com/Otanikotani/view-github-actions-idea-plugin/compare/1.1.9...1.1.10) (2022-04-25)
 
 
