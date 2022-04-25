@@ -9,9 +9,6 @@ object GitHubIcons {
     }
 
     @JvmField
-    val Check = load("/icons/check.svg")
-
-    @JvmField
     val PrimitiveDot = load("/icons/primitive-dot.svg")
 
     @JvmField
